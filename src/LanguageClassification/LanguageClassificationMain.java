@@ -20,8 +20,8 @@ public class LanguageClassificationMain {
     List<Character> usedChars;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        new LanguageClassificationMain().test();
-        //new LanguageClassificationMain().run();
+        //new LanguageClassificationMain().test();
+        new LanguageClassificationMain().run();
     }
 
     private void test() throws IOException, ClassNotFoundException {
@@ -69,7 +69,7 @@ public class LanguageClassificationMain {
         DataPoint[] dataPoints = getDataPointArray();
         List<DataPoint[]> trainingBatches = getChunks(DataPoint[].class, dataPoints, 10);
         double performance;
-        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.5d) {
+        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.0005d) {
             printState(neuralNetwork, trainingBatches, performance);
             long startingTime = System.nanoTime();
             for (int i = 0; i < trainingBatches.size(); i++) {
