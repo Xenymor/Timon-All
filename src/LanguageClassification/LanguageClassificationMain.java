@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class LanguageClassificationMain {
-    private static final double LEARN_RATE = 0.2d;
+    private static final double LEARN_RATE = 0.8d;
     File english;
     List<String> englishLines;
     File german;
@@ -59,12 +59,19 @@ public class LanguageClassificationMain {
     private void run() throws IOException {
         loadFiles();
         usedChars = getChars();
+        List<List<Double>> list = new ArrayList<>();
+        list.add(getCharPercentage(germanLines));
+        list.add(getCharPercentage(englishLines));
+        list.add(getCharPercentage(italianLines));
+        for (int i = 0; i < usedChars.size(); i++) {
+            System.out.println(usedChars.get(i) + " : " + list.get(0).get(i) + ", " + list.get(1).get(i) + ", " + list.get(2).get(i));
+        }
         //122
-        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 50, 3);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 20, 20, 3);
         DataPoint[] dataPoints = getDataPointArray();
         List<DataPoint[]> trainingBatches = getChunks(DataPoint[].class, dataPoints, 10);
         double performance;
-        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.1d) {
+        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.05d) {
             printState(neuralNetwork, trainingBatches, performance);
             long startingTime = System.nanoTime();
             for (int i = 0; i < trainingBatches.size(); i++) {
@@ -81,6 +88,26 @@ public class LanguageClassificationMain {
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/LanguageClassification/neuralNetwork.nn"));
         objectOutputStream.writeObject(neuralNetwork);
         objectOutputStream.close();
+    }
+
+    private List<Double> getCharPercentage(List<String> lines) {
+        List<Double> percentage = new ArrayList<>();
+        for (int i = 0; i < usedChars.size(); i++) {
+            percentage.add(0d);
+        }
+        long total = 0;
+        for (int i = 0; i < lines.size(); i++) {
+            char[] lineChars = lines.get(i).toCharArray();
+            for (int j = 0; j < lineChars.length; j++) {
+                int charIndex = usedChars.indexOf(lineChars[j]);
+                percentage.set(charIndex, percentage.get(charIndex)+1);
+                total++;
+            }
+        }
+        for (int i = 0; i < percentage.size(); i++) {
+            percentage.set(i, percentage.get(i)/total);
+        }
+        return percentage;
     }
 
     private void printState(NeuralNetwork neuralNetwork, List<DataPoint[]> trainingBatches, double performance) {
@@ -167,7 +194,7 @@ public class LanguageClassificationMain {
         StringBuilder current;
         for (int i = 0; i + offset < lines.size(); i++) {
             current = new StringBuilder(lines.get(i + offset));
-            while (current.length() < 200) {
+            while (current.length() < 2000) {
                 if (i + offset + 1 == lines.size()) {
                     break;
                 }
@@ -179,7 +206,7 @@ public class LanguageClassificationMain {
         return dataPoints;
     }
 
-    private int countChars() throws IOException {
+    private int getCharPercentage() throws IOException {
         int chars = 0;
         List<Character> charsList = new ArrayList<>();
         List<String> lines = Files.readAllLines(Paths.get(english.getAbsolutePath()));
