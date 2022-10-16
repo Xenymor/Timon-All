@@ -20,8 +20,8 @@ public class LanguageClassificationMain {
     List<Character> usedChars;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        //new LanguageClassificationMain().test();
-        new LanguageClassificationMain().run();
+        new LanguageClassificationMain().test();
+        //new LanguageClassificationMain().run();
     }
 
     private void test() throws IOException, ClassNotFoundException {
@@ -35,15 +35,9 @@ public class LanguageClassificationMain {
             double[] outputs = neuralNetwork.getOutputs(new LanguageLine(sentence, 0, 0, 0));
             int highestIndex = getHighestIndex(outputs);
             switch (highestIndex) {
-                case 0:
-                    System.out.println("German (" + getPercentage(outputs[0], outputs) * 100 + "% confidence)");
-                    break;
-                case 1:
-                    System.out.println("English (" + getPercentage(outputs[1], outputs) * 100 + "% confidence)");
-                    break;
-                case 2:
-                    System.out.println("Italian (" + getPercentage(outputs[2], outputs) * 100 + "% confidence)");
-                    break;
+                case 0 -> System.out.println("German (" + getPercentage(outputs[0], outputs) * 100 + "% confidence)");
+                case 1 -> System.out.println("English (" + getPercentage(outputs[1], outputs) * 100 + "% confidence)");
+                case 2 -> System.out.println("Italian (" + getPercentage(outputs[2], outputs) * 100 + "% confidence)");
             }
         }
     }
@@ -56,7 +50,7 @@ public class LanguageClassificationMain {
         return output / sum;
     }
 
-    private void run() throws IOException {
+    private void run() throws IOException, ClassNotFoundException {
         loadFiles();
         usedChars = getChars();
         List<List<Double>> list = new ArrayList<>();
@@ -68,10 +62,14 @@ public class LanguageClassificationMain {
         }
         //122
         NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 20, 20, 3);
+        File file = new File("src/LanguageClassification/neuralNetwork.nn");
+        if (file.exists()) {
+            neuralNetwork = (NeuralNetwork) new ObjectInputStream(new FileInputStream(file.getAbsolutePath())).readObject();
+        }
         DataPoint[] dataPoints = getDataPointArray();
         List<DataPoint[]> trainingBatches = getChunks(DataPoint[].class, dataPoints, 10);
         double performance;
-        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.05d) {
+        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.5d) {
             printState(neuralNetwork, trainingBatches, performance);
             long startingTime = System.nanoTime();
             for (int i = 0; i < trainingBatches.size(); i++) {
@@ -96,16 +94,16 @@ public class LanguageClassificationMain {
             percentage.add(0d);
         }
         long total = 0;
-        for (int i = 0; i < lines.size(); i++) {
-            char[] lineChars = lines.get(i).toCharArray();
-            for (int j = 0; j < lineChars.length; j++) {
-                int charIndex = usedChars.indexOf(lineChars[j]);
-                percentage.set(charIndex, percentage.get(charIndex)+1);
+        for (String line : lines) {
+            char[] lineChars = line.toCharArray();
+            for (char lineChar : lineChars) {
+                int charIndex = usedChars.indexOf(lineChar);
+                percentage.set(charIndex, percentage.get(charIndex) + 1);
                 total++;
             }
         }
         for (int i = 0; i < percentage.size(); i++) {
-            percentage.set(i, percentage.get(i)/total);
+            percentage.set(i, percentage.get(i) / total);
         }
         return percentage;
     }
@@ -116,8 +114,8 @@ public class LanguageClassificationMain {
 
     private double getOverallCost(List<DataPoint[]> trainingBatches, NeuralNetwork neuralNetwork) {
         double cost = 0;
-        for (int i = 0; i < trainingBatches.size(); i++) {
-            cost += neuralNetwork.getCost(trainingBatches.get(i));
+        for (DataPoint[] trainingBatch : trainingBatches) {
+            cost += neuralNetwork.getCost(trainingBatch);
         }
         cost /= trainingBatches.size();
         return cost;
@@ -127,11 +125,10 @@ public class LanguageClassificationMain {
         int corrects = 0;
         int[] langCorrects = new int[trainingBatches.get(0)[0].getExpectedOutputs().length];
         int whole = 0;
-        for (int i = 0; i < trainingBatches.size(); i++) {
-            DataPoint[] dataPoints = trainingBatches.get(i);
-            for (int j = 0; j < dataPoints.length; j++) {
-                double[] outputs = neuralNetwork.getOutputs(dataPoints[j]);
-                double[] expectedOutputs = dataPoints[j].getExpectedOutputs();
+        for (DataPoint[] dataPoints : trainingBatches) {
+            for (DataPoint dataPoint : dataPoints) {
+                double[] outputs = neuralNetwork.getOutputs(dataPoint);
+                double[] expectedOutputs = dataPoint.getExpectedOutputs();
                 if (hasSameHighestIndex(outputs, expectedOutputs)) {
                     corrects++;
                     langCorrects[getHighestIndex(expectedOutputs)]++;
@@ -206,39 +203,25 @@ public class LanguageClassificationMain {
         return dataPoints;
     }
 
-    private int getCharPercentage() throws IOException {
+    /*private int getCharPercentage() throws IOException {
         int chars = 0;
         List<Character> charsList = new ArrayList<>();
         List<String> lines = Files.readAllLines(Paths.get(english.getAbsolutePath()));
         englishLines = lines;
-        for (int i = 0; i < lines.size(); i++) {
-            char[] current = lines.get(i).toCharArray();
-            for (int j = 0; j < current.length; j++) {
-                char o = current[j];
-                if (!charsList.contains(o)) {
-                    charsList.add(o);
-                    chars++;
-                }
-            }
-        }
+        chars = getChars(chars, charsList, lines);
         lines = Files.readAllLines(Paths.get(german.getAbsolutePath()));
         germanLines = lines;
-        for (int i = 0; i < lines.size(); i++) {
-            char[] current = lines.get(i).toCharArray();
-            for (int j = 0; j < current.length; j++) {
-                char o = current[j];
-                if (!charsList.contains(o)) {
-                    charsList.add(o);
-                    chars++;
-                }
-            }
-        }
+        chars = getChars(chars, charsList, lines);
         lines = Files.readAllLines(Paths.get(italian.getAbsolutePath()));
         italianLines = lines;
-        for (int i = 0; i < lines.size(); i++) {
-            char[] current = lines.get(i).toCharArray();
-            for (int j = 0; j < current.length; j++) {
-                char o = current[j];
+        chars = getChars(chars, charsList, lines);
+        return chars;
+    }
+
+    private int getChars(int chars, List<Character> charsList, List<String> lines) {
+        for (String line : lines) {
+            char[] current = line.toCharArray();
+            for (char o : current) {
                 if (!charsList.contains(o)) {
                     charsList.add(o);
                     chars++;
@@ -246,16 +229,15 @@ public class LanguageClassificationMain {
             }
         }
         return chars;
-    }
+    }*/
 
     private List<Character> getChars() throws IOException {
         List<Character> charsList = new ArrayList<>();
         List<String> lines = Files.readAllLines(Paths.get(english.getAbsolutePath()));
         englishLines = lines;
-        for (int i = 0; i < lines.size(); i++) {
-            char[] current = lines.get(i).toCharArray();
-            for (int j = 0; j < current.length; j++) {
-                char o = current[j];
+        for (String line : lines) {
+            char[] current = line.toCharArray();
+            for (char o : current) {
                 if (!charsList.contains(o)) {
                     charsList.add(o);
                 }
@@ -263,10 +245,9 @@ public class LanguageClassificationMain {
         }
         lines = Files.readAllLines(Paths.get(german.getAbsolutePath()));
         germanLines = lines;
-        for (int i = 0; i < lines.size(); i++) {
-            char[] current = lines.get(i).toCharArray();
-            for (int j = 0; j < current.length; j++) {
-                char o = current[j];
+        for (String line : lines) {
+            char[] current = line.toCharArray();
+            for (char o : current) {
                 if (!charsList.contains(o)) {
                     charsList.add(o);
                 }
@@ -274,10 +255,9 @@ public class LanguageClassificationMain {
         }
         lines = Files.readAllLines(Paths.get(italian.getAbsolutePath()));
         italianLines = lines;
-        for (int i = 0; i < lines.size(); i++) {
-            char[] current = lines.get(i).toCharArray();
-            for (int j = 0; j < current.length; j++) {
-                char o = current[j];
+        for (String line : lines) {
+            char[] current = line.toCharArray();
+            for (char o : current) {
                 if (!charsList.contains(o)) {
                     charsList.add(o);
                 }
