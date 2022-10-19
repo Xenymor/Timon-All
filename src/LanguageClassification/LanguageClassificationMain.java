@@ -37,18 +37,10 @@ public class LanguageClassificationMain {
             double[] outputs = neuralNetwork.getOutputs(new LanguageLine(sentence, 0, 0, 0));
             int highestIndex = getHighestIndex(outputs);
             switch (highestIndex) {
-                case 0:
-                    System.out.println("German (" + getPercentage(outputs[0], outputs) * 100 + "% confidence)");
-                    break;
-                case 1:
-                    System.out.println("English (" + getPercentage(outputs[1], outputs) * 100 + "% confidence)");
-                    break;
-                case 2:
-                    System.out.println("Italian (" + getPercentage(outputs[2], outputs) * 100 + "% confidence)");
-                    break;
-                case 3:
-                    System.out.println("Spanish (" + getPercentage(outputs[3], outputs) * 100 + "% confidence)");
-                    break;
+                case 0 -> System.out.println("German (" + getPercentage(outputs[0], outputs) * 100 + "% confidence)");
+                case 1 -> System.out.println("English (" + getPercentage(outputs[1], outputs) * 100 + "% confidence)");
+                case 2 -> System.out.println("Italian (" + getPercentage(outputs[2], outputs) * 100 + "% confidence)");
+                case 3 -> System.out.println("Spanish (" + getPercentage(outputs[3], outputs) * 100 + "% confidence)");
             }
         }
     }
@@ -62,12 +54,6 @@ public class LanguageClassificationMain {
     }
 
     private void run() throws IOException, ClassNotFoundException {
-        NeuralNetwork[] neuralNetworks = new NeuralNetwork[1];
-        Runtime.getRuntime().addShutdownHook(new Thread() {{
-            ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/LanguageClassification/neuralNetwork.nn"));
-            objectOutputStream.writeObject(neuralNetworks[0]);
-            objectOutputStream.close();
-        }});
         loadFiles();
         usedChars = getChars();
         List<List<Double>> list = new ArrayList<>();
@@ -88,14 +74,13 @@ public class LanguageClassificationMain {
         List<DataPoint[]> trainingBatches = getChunks(DataPoint[].class, dataPoints, 5);
         long learnings = 0;
         double performance;
-        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 1d) {
+        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.5d) {
             printState(neuralNetwork, trainingBatches, performance, learnings);
             long startingTime = System.nanoTime();
             for (int i = 0; i < trainingBatches.size(); i++) {
                 if (System.nanoTime() - startingTime >= TimeUnit.SECONDS.toNanos(10)) {
                     startingTime = System.nanoTime();
                     performance = getOverallCost(trainingBatches, neuralNetwork);
-                    neuralNetworks[0] = neuralNetwork;
                     printState(neuralNetwork, trainingBatches, performance, learnings);
                 }
                 neuralNetwork.learn(trainingBatches.get(i), LEARN_RATE);
