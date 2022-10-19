@@ -17,6 +17,8 @@ public class LanguageClassificationMain {
     List<String> germanLines;
     File italian;
     List<String> italianLines;
+    File spanish;
+    List<String> spanishLines;
     List<Character> usedChars;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -35,9 +37,18 @@ public class LanguageClassificationMain {
             double[] outputs = neuralNetwork.getOutputs(new LanguageLine(sentence, 0, 0, 0));
             int highestIndex = getHighestIndex(outputs);
             switch (highestIndex) {
-                case 0 -> System.out.println("German (" + getPercentage(outputs[0], outputs) * 100 + "% confidence)");
-                case 1 -> System.out.println("English (" + getPercentage(outputs[1], outputs) * 100 + "% confidence)");
-                case 2 -> System.out.println("Italian (" + getPercentage(outputs[2], outputs) * 100 + "% confidence)");
+                case 0:
+                    System.out.println("German (" + getPercentage(outputs[0], outputs) * 100 + "% confidence)");
+                    break;
+                case 1:
+                    System.out.println("English (" + getPercentage(outputs[1], outputs) * 100 + "% confidence)");
+                    break;
+                case 2:
+                    System.out.println("Italian (" + getPercentage(outputs[2], outputs) * 100 + "% confidence)");
+                    break;
+                case 3:
+                    System.out.println("Spanish (" + getPercentage(outputs[3], outputs) * 100 + "% confidence)");
+                    break;
             }
         }
     }
@@ -51,36 +62,46 @@ public class LanguageClassificationMain {
     }
 
     private void run() throws IOException, ClassNotFoundException {
+        NeuralNetwork[] neuralNetworks = new NeuralNetwork[1];
+        Runtime.getRuntime().addShutdownHook(new Thread() {{
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/LanguageClassification/neuralNetwork.nn"));
+            objectOutputStream.writeObject(neuralNetworks[0]);
+            objectOutputStream.close();
+        }});
         loadFiles();
         usedChars = getChars();
         List<List<Double>> list = new ArrayList<>();
         list.add(getCharPercentage(germanLines));
         list.add(getCharPercentage(englishLines));
         list.add(getCharPercentage(italianLines));
+        list.add(getCharPercentage(spanishLines));
         for (int i = 0; i < usedChars.size(); i++) {
             System.out.println(usedChars.get(i) + " : " + list.get(0).get(i) + ", " + list.get(1).get(i) + ", " + list.get(2).get(i));
         }
         //122
-        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 20, 20, 3);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 40, 20, 3);
         File file = new File("src/LanguageClassification/neuralNetwork.nn");
         if (file.exists()) {
             neuralNetwork = (NeuralNetwork) new ObjectInputStream(new FileInputStream(file.getAbsolutePath())).readObject();
         }
         DataPoint[] dataPoints = getDataPointArray();
-        List<DataPoint[]> trainingBatches = getChunks(DataPoint[].class, dataPoints, 10);
+        List<DataPoint[]> trainingBatches = getChunks(DataPoint[].class, dataPoints, 5);
+        long learnings = 0;
         double performance;
-        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.0005d) {
-            printState(neuralNetwork, trainingBatches, performance);
+        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 1d) {
+            printState(neuralNetwork, trainingBatches, performance, learnings);
             long startingTime = System.nanoTime();
             for (int i = 0; i < trainingBatches.size(); i++) {
                 if (System.nanoTime() - startingTime >= TimeUnit.SECONDS.toNanos(10)) {
                     startingTime = System.nanoTime();
                     performance = getOverallCost(trainingBatches, neuralNetwork);
-                    printState(neuralNetwork, trainingBatches, performance);
+                    neuralNetworks[0] = neuralNetwork;
+                    printState(neuralNetwork, trainingBatches, performance, learnings);
                 }
                 neuralNetwork.learn(trainingBatches.get(i), LEARN_RATE);
+                learnings++;
             }
-            System.out.println(performance);
+            System.out.println(performance + " after " + learnings + " learnings");
         }
         System.out.println(performance);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/LanguageClassification/neuralNetwork.nn"));
@@ -108,14 +129,14 @@ public class LanguageClassificationMain {
         return percentage;
     }
 
-    private void printState(NeuralNetwork neuralNetwork, List<DataPoint[]> trainingBatches, double performance) {
-        System.out.println(performance + "; " + getPerformance(trainingBatches, neuralNetwork));
+    private void printState(NeuralNetwork neuralNetwork, List<DataPoint[]> trainingBatches, double performance, long learnings) {
+        System.out.println(performance + "; " + getPerformance(trainingBatches, neuralNetwork) + " after " + learnings + " learnings");
     }
 
     private double getOverallCost(List<DataPoint[]> trainingBatches, NeuralNetwork neuralNetwork) {
         double cost = 0;
         for (DataPoint[] trainingBatch : trainingBatches) {
-            cost += neuralNetwork.getCost(trainingBatch);
+            cost += neuralNetwork.getCost3(trainingBatch);
         }
         cost /= trainingBatches.size();
         return cost;
@@ -174,9 +195,11 @@ public class LanguageClassificationMain {
 
     private DataPoint[] getDataPointArray() {
         List<List<DataPoint>> dataPoints = new ArrayList<>();
-        dataPoints.add(getDataPoints(germanLines, 1, 0, 0));
-        dataPoints.add(getDataPoints(englishLines, 0, 1, 0));
-        dataPoints.add(getDataPoints(italianLines, 0, 0, 1));
+        dataPoints.add(getDataPoints(germanLines, 1, 0, 0, 0));
+        dataPoints.add(getDataPoints(englishLines, 0, 1, 0, 0));
+        dataPoints.add(getDataPoints(italianLines, 0, 0, 1, 0));
+        dataPoints.add(getDataPoints(spanishLines, 0, 0, 0, 1));
+
         List<DataPoint> dataPointList = new ArrayList<>();
         for (List<DataPoint> currentDataPoints : dataPoints) {
             Collections.addAll(dataPointList, currentDataPoints.toArray(new DataPoint[0]));
@@ -235,26 +258,20 @@ public class LanguageClassificationMain {
         List<Character> charsList = new ArrayList<>();
         List<String> lines = Files.readAllLines(Paths.get(english.getAbsolutePath()));
         englishLines = lines;
-        for (String line : lines) {
-            char[] current = line.toCharArray();
-            for (char o : current) {
-                if (!charsList.contains(o)) {
-                    charsList.add(o);
-                }
-            }
-        }
+        getChars(charsList, lines);
         lines = Files.readAllLines(Paths.get(german.getAbsolutePath()));
         germanLines = lines;
-        for (String line : lines) {
-            char[] current = line.toCharArray();
-            for (char o : current) {
-                if (!charsList.contains(o)) {
-                    charsList.add(o);
-                }
-            }
-        }
+        LanguageClassificationMain.this.getChars(charsList, lines);
         lines = Files.readAllLines(Paths.get(italian.getAbsolutePath()));
         italianLines = lines;
+        LanguageClassificationMain.this.getChars(charsList, lines);
+        lines = Files.readAllLines(Paths.get(spanish.getAbsolutePath()));
+        spanishLines = lines;
+        LanguageClassificationMain.this.getChars(charsList, lines);
+        return charsList;
+    }
+
+    private void getChars(List<Character> charsList, List<String> lines) {
         for (String line : lines) {
             char[] current = line.toCharArray();
             for (char o : current) {
@@ -263,13 +280,13 @@ public class LanguageClassificationMain {
                 }
             }
         }
-        return charsList;
     }
 
     private void loadFiles() {
         english = new File("src/LanguageClassification/ TrainingDataEnglish.txt");
         german = new File("src/LanguageClassification/TrainingDataGerman.txt");
         italian = new File("src/LanguageClassification/TrainingDataItalian.txt");
+        spanish = new File("src/LanguageClassification/TrainingDataSpanish.txt");
     }
 
     private class LanguageLine implements DataPoint {

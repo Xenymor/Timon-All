@@ -4,7 +4,6 @@ import StandardClasses.Random;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +52,7 @@ public class Main {
                         }
                         System.out.println(trues + " of " + trainingData.length + " correct");
                         start = System.nanoTime();
-                        double cost = neuralNetwork.getCost(trainingData);
+                        double cost = neuralNetwork.getCost3(trainingData);
                         if (cost <= learnRate) {
                             learnRate *= 0.1;
                         }

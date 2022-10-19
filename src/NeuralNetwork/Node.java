@@ -1,11 +1,9 @@
 package NeuralNetwork;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.Arrays;
 
 public class Node implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1;
     double[] weights;
     double bias;
@@ -19,6 +17,7 @@ public class Node implements Serializable {
     }
 
     public double getOutput(double[] inputs) {
+        final double[] weights = this.weights;
         if (inputs.length != weights.length) {
             try {
                 throw new MismatchingLengthException();
@@ -28,7 +27,7 @@ public class Node implements Serializable {
             System.exit(-111);
         }
         double output = bias;
-        for (int i = 0; i < weights.length; i++) {
+        for (int i = 0, n = weights.length; i < n; i++) {
             output += inputs[i] * weights[i];
         }
         return output;
@@ -49,12 +48,12 @@ public class Node implements Serializable {
     public void learn(DataPoint[] trainingData, double h, int nodeOut, double originalCost, double[][] costGradientW, double[] costGradientB) {
         for (int nodeIn = 0; nodeIn < weights.length; nodeIn++) {
             weights[nodeIn] += h;
-            double deltaCost = neuralNetwork.getCost(trainingData) - originalCost;
+            double deltaCost = neuralNetwork.getCost3(trainingData) - originalCost;
             weights[nodeIn] -= h;
             costGradientW[nodeIn][nodeOut] = deltaCost / h;
         }
         bias += h;
-        double deltaCost = neuralNetwork.getCost(trainingData) - originalCost;
+        double deltaCost = neuralNetwork.getCost3(trainingData) - originalCost;
         bias -= h;
         costGradientB[nodeOut] = deltaCost / h;
     }
@@ -62,12 +61,12 @@ public class Node implements Serializable {
     public void learn(DataPoint trainingData, double h, int nodeOut, double originalCost, double[][] costGradientW, double[] costGradientB) {
         for (int nodeIn = 0; nodeIn < weights.length; nodeIn++) {
             weights[nodeIn] += h;
-            double deltaCost = neuralNetwork.getCost(trainingData) - originalCost;
+            double deltaCost = neuralNetwork.getCost1(trainingData) - originalCost;
             weights[nodeIn] -= h;
             costGradientW[nodeIn][nodeOut] = deltaCost / h;
         }
         bias += h;
-        double deltaCost = neuralNetwork.getCost(trainingData) - originalCost;
+        double deltaCost = neuralNetwork.getCost1(trainingData) - originalCost;
         bias -= h;
         costGradientB[nodeOut] = deltaCost / h;
     }

@@ -1,10 +1,8 @@
 package NeuralNetwork;
 
-import java.io.Serial;
 import java.io.Serializable;
 
 public class NeuralNetwork implements Serializable {
-    @Serial
     private static final long serialVersionUID = 1;
     Layer[] layers;
 
@@ -26,66 +24,29 @@ public class NeuralNetwork implements Serializable {
                 inputs[j] = activationFunction(inputs[j]);
             }
         }
-        return inputs;
+        return inputs.clone();
     }
 
     public double[] getOutputs(DataPoint input) {
         double[] inputs = input.getInputs();
-        if (Double.isNaN(inputs[0])) {
-            int v = 0;
-        }
         return getOutputs(inputs);
-    }
-
-    void updateAllGradients(DataPoint dataPoint) {
-        calculateOutputs(dataPoint.getInputs());
-
-        Layer outputLayer = layers[layers.length - 1];
-        double[] nodeValues = outputLayer.calculateOutputLayerNodeValues(dataPoint.getExpectedOutputs());
-        outputLayer.updateGradients(nodeValues);
-        for (int hiddenLayerIndex = layers.length - 2; hiddenLayerIndex >= 0; hiddenLayerIndex--) {
-            Layer hiddenLayer = layers[hiddenLayerIndex];
-            nodeValues = hiddenLayer.calculateHiddenLayerNodeValues(layers[hiddenLayerIndex + 1], nodeValues);
-            hiddenLayer.updateGradients(nodeValues);
-        }
-    }
-
-    private void calculateOutputs(double[] inputs) {
-        for (Layer layer : layers) {
-            inputs = layer.getOutputs(inputs);
-            for (int j = 0; j < inputs.length; j++) {
-                inputs[j] = activationFunction(inputs[j]);
-            }
-        }
     }
 
     double activationFunction(double input) {
         return 1 / (1 + Math.exp(-input));
     }
 
-    public double getCost(DataPoint data) {
+    public double getCost1(DataPoint data) {
         double[] inputs = data.getInputs();
         double[] expectedOutputs = data.getExpectedOutputs();
         double[] outputs = getOutputs(inputs);
-        return layers[layers.length - 1].getCost(outputs, expectedOutputs);
+        return layers[layers.length - 1].getCost2(outputs, expectedOutputs);
     }
 
-    private int getHighestIndex(double[] array) {
-        int index = -1;
-        double highest = Double.NEGATIVE_INFINITY;
-        for (int i = 0; i < array.length; i++) {
-            if (highest < array[i]) {
-                highest = array[i];
-                index = i;
-            }
-        }
-        return index;
-    }
-
-    public double getCost(DataPoint[] trainingData) {
+    public double getCost3(DataPoint[] trainingData) {
         double totalCost = 0;
         for (DataPoint trainingDatum : trainingData) {
-            totalCost += getCost(trainingDatum);
+            totalCost += getCost1(trainingDatum);
         }
 
         return (totalCost / trainingData.length);
@@ -97,16 +58,6 @@ public class NeuralNetwork implements Serializable {
         }
     }
 
-   /* public void learn(DataPoint[] trainingBatch, double learnRate) {
-        for (DataPoint dataPoint : trainingBatch) {
-            updateAllGradients(dataPoint);
-        }
-
-        applyAllGradients(learnRate/ trainingBatch.length);
-
-        clearAllGradients();
-    }*/
-
     private void clearAllGradients() {
         for (Layer layer : layers) {
             layer.clearGradients();
@@ -115,7 +66,7 @@ public class NeuralNetwork implements Serializable {
 
     public void learn(DataPoint[] trainingData, double learnRate) {
         final double h = 0.01d;
-        double originalCost = getCost(trainingData);
+        double originalCost = getCost3(trainingData);
         for (Layer value : layers) {
             value.learn(trainingData, h, originalCost);
         }
@@ -125,9 +76,9 @@ public class NeuralNetwork implements Serializable {
 
     public void learn(DataPoint data, double learnRate) {
         final double h = 0.0001f;
-        double originalCost = getCost(data);
+        double originalCost = getCost1(data);
         for (Layer layer : layers) {
-            layer.learn(data, h, originalCost, learnRate);
+            layer.learn(data, h, originalCost);
         }
         applyAllGradients(learnRate);
         clearAllGradients();

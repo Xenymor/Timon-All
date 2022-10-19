@@ -103,7 +103,7 @@ public class Main {
     private void run() throws IOException {
         Form[] trainingData = getTrainingData();
         NeuralNetwork neuralNetwork = new NeuralNetwork(784, 50, 5, 2);
-        System.out.println(neuralNetwork.getCost(trainingData));
+        System.out.println(neuralNetwork.getCost3(trainingData));
         trainInChunks(trainingData, neuralNetwork, CHUNK_SIZE, LEARN_RATE, TRAINING_REPETITIONS);
     }
 
@@ -123,7 +123,7 @@ public class Main {
         for (int i = 0; i < trainingRepetitions; i++) {
             for (int j = 0; j < chunks.length; j++) {
                 neuralNetwork.learn(chunks[j], learnRate);
-                System.out.println(neuralNetwork.getCost(trainingData));
+                System.out.println(neuralNetwork.getCost3(trainingData));
             }
         }
     }

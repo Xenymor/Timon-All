@@ -230,7 +230,7 @@ public class Sudoku {
     }
 
     private static int[] findPossibilities(int[][] sudoku, int i, int j) {
-        List<Integer> possibilities = new ArrayList<>(List.of(1, 2, 3, 4, 5, 6, 7, 8, 9));
+        List<Integer> possibilities = new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9));
         for (int k = 0; k < 9; k++) {
             possibilities.remove((Integer) sudoku[i][k]);
         }
