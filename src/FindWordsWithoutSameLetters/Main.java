@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class Main {
     public static void main(String[] args) throws IOException {
@@ -20,7 +21,9 @@ public class Main {
         removeWordsWithDoubleLetters();
         System.out.println(words.size());
         Collections.sort(words);
-        findCombinations(0, 5, 0, new ArrayList<>(), 0);
+        long start = System.nanoTime();
+        findCombinations(0, 5, new HashSet<>(), new ArrayList<>(), 0);
+        System.out.print(TimeUnit.NANOSECONDS.toSeconds(System.nanoTime()-start) + "s");
     }
 
     private void removeWordsWithDoubleLetters() {
@@ -41,7 +44,7 @@ public class Main {
         }
     }
 
-    private void findCombinations(int start, int wordsToFind, int currentChars, List<Integer> current, int vocalsUsed) {
+    private void findCombinations(int start, int wordsToFind, HashSet<Character> currentChars, List<Integer> current, int vocalsUsed) {
         if (wordsToFind <= 0) {
             printResults(current);
             return;
@@ -54,12 +57,12 @@ public class Main {
         for (int i = start; i < words.size(); i++) {
             word = words.get(i).toCharArray();
             if (!hasCommon(word, currentChars)) {
-                currentChars = toggleChars(currentChars, word);
+                addChars(currentChars, word);
                 current.add(i);
                 int vocalCount = getVocalCount(word);
                 vocalsUsed += vocalCount;
                 findCombinations(i + 1, wordsToFind - 1, currentChars, current, vocalsUsed);
-                currentChars = toggleChars(currentChars, word);
+                removeChars(currentChars, word);
                 current.remove((Integer) i);
                 vocalsUsed -= vocalCount;
             }
@@ -93,19 +96,18 @@ public class Main {
         }
     }
 
-    private boolean hasCommon(char[] word, int currentChars) {
+    private boolean hasCommon(char[] word, HashSet<Character> currentChars) {
         for (char c : word) {
-            if ((currentChars & (1 << (c - 'a'))) != 0) {
+            if (currentChars.contains(c)) {
                 return true;
             }
         }
         return false;
     }
 
-    private int toggleChars(int currentChars, char[] chars) {
+    private void addChars(HashSet<Character> currentChars, char[] chars) {
         for (char aChar : chars) {
-            currentChars = (1<<(aChar-'a')) ^ currentChars;
+            currentChars.add(aChar);
         }
-        return currentChars;
     }
 }
