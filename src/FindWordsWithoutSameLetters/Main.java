@@ -20,7 +20,7 @@ public class Main {
         removeWordsWithDoubleLetters();
         System.out.println(words.size());
         Collections.sort(words);
-        findCombinations(0, 5, new HashSet<>(), new ArrayList<>(), 0);
+        findCombinations(0, 5, 0, new ArrayList<>(), 0);
     }
 
     private void removeWordsWithDoubleLetters() {
@@ -41,7 +41,7 @@ public class Main {
         }
     }
 
-    private void findCombinations(int start, int wordsToFind, HashSet<Character> currentChars, List<Integer> current, int vocalsUsed) {
+    private void findCombinations(int start, int wordsToFind, int currentChars, List<Integer> current, int vocalsUsed) {
         if (wordsToFind <= 0) {
             printResults(current);
             return;
@@ -54,12 +54,12 @@ public class Main {
         for (int i = start; i < words.size(); i++) {
             word = words.get(i).toCharArray();
             if (!hasCommon(word, currentChars)) {
-                addChars(currentChars, word);
+                currentChars = toggleChars(currentChars, word);
                 current.add(i);
                 int vocalCount = getVocalCount(word);
                 vocalsUsed += vocalCount;
                 findCombinations(i + 1, wordsToFind - 1, currentChars, current, vocalsUsed);
-                removeChars(currentChars, word);
+                currentChars = toggleChars(currentChars, word);
                 current.remove((Integer) i);
                 vocalsUsed -= vocalCount;
             }
@@ -93,18 +93,19 @@ public class Main {
         }
     }
 
-    private boolean hasCommon(char[] word, HashSet<Character> currentChars) {
+    private boolean hasCommon(char[] word, int currentChars) {
         for (char c : word) {
-            if (currentChars.contains(c)) {
+            if ((currentChars & (1 << (c - 'a'))) != 0) {
                 return true;
             }
         }
         return false;
     }
 
-    private void addChars(HashSet<Character> currentChars, char[] chars) {
+    private int toggleChars(int currentChars, char[] chars) {
         for (char aChar : chars) {
-            currentChars.add(aChar);
+            currentChars = (1<<(aChar-'a')) ^ currentChars;
         }
+        return currentChars;
     }
 }
