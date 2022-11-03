@@ -1,18 +1,29 @@
 package HuffmanCompression;
 
-import java.io.*;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public class HuffmanCompression {
 
     public static void main(String[] args) throws IOException {
         byte[] inputByteArray = Files.readAllBytes(Paths.get("src/HuffmanCompression/TrainingDataEnglish.txt"));
         String input = new String(inputByteArray, StandardCharsets.UTF_8);
+        long startingTime = System.nanoTime();
         CompressionResult compressed = compress(input);
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/HuffmanCompression/TrainingDataEnglishComrpessed.hfmcpr"));
+        long decompressStart = System.nanoTime();
+        String output = decompress(compressed);
+        long finish = System.nanoTime();
+        System.out.println("Time for compressing: " + TimeUnit.NANOSECONDS.toMillis(decompressStart-startingTime));
+        System.out.println("Time for decompressing: " + TimeUnit.NANOSECONDS.toMillis(finish-decompressStart));
+        System.out.println(input.equals(output));
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/HuffmanCompression/TrainingDataEnglishCompressed.hfmcpr"));
         objectOutputStream.writeObject(compressed);
         objectOutputStream.close();
         System.out.println(compressed.result.length + "/" + input.length());
@@ -29,7 +40,7 @@ public class HuffmanCompression {
                 current = current.getLeft();
             }
             if (current.isLast()) {
-                stringBuilder.append(current.getString());
+                stringBuilder.append(current.uncompressedChar);
                 current = compressed.codeTree;
             }
         }
@@ -39,11 +50,8 @@ public class HuffmanCompression {
     public static CompressionResult compress(String input) {
         char[] chars = input.toCharArray();
         HashMap<Character, Integer> frequency = createFrequencyHashMap(chars);
-        frequency = sortByValue(frequency);
         Character[] sortedChars = frequency.keySet().toArray(new Character[0]);
         Integer[] sortedFrequency = frequency.values().toArray(new Integer[0]);
-        reverse(sortedChars);
-        reverse(sortedFrequency);
         TreeNode[] data = getTreeNodes(sortedChars, sortedFrequency);
         TreeNode codeTree = getCodes(data);
         BitSet bits = new BitSet();
@@ -54,11 +62,11 @@ public class HuffmanCompression {
                 if (currentTreeNode.left == null) {
                     break;
                 } else {
-                    if (currentTreeNode.left.getString().contains(Character.toString(aChar))) {
+                    if (currentTreeNode.left.contains(aChar)) {
                         bits.set(count, false);
                         currentTreeNode = currentTreeNode.left;
                         count++;
-                    } else if (currentTreeNode.right.getString().contains(Character.toString(aChar))) {
+                    } else if (currentTreeNode.right.contains(aChar)) {
                         bits.set(count, true);
                         currentTreeNode = currentTreeNode.right;
                         count++;
@@ -76,7 +84,9 @@ public class HuffmanCompression {
         while (current.size() > 1) {
             TreeNode left = current.get(0);
             TreeNode right = current.get(1);
-            current.add(new TreeNode(left.letter + right.letter, left.frequency + right.frequency, left, right));
+            BitSet clone = (BitSet) left.letter.clone();
+            clone.or(right.letter);
+            current.add(new TreeNode(clone, left.frequency + right.frequency, left, right));
             current.remove(0);
             current.remove(0);
             Collections.sort(current);
@@ -87,7 +97,7 @@ public class HuffmanCompression {
     private static TreeNode[] getTreeNodes(Character[] sortedChars, Integer[] sortedFrequency) {
         TreeNode[] data = new TreeNode[sortedChars.length];
         for (int i = 0; i < data.length; i++) {
-            data[i] = new TreeNode(Character.toString(sortedChars[i]), sortedFrequency[i], null, null);
+            data[i] = new TreeNode(sortedChars[i], sortedFrequency[i], null, null);
         }
         return data;
     }
@@ -129,16 +139,28 @@ public class HuffmanCompression {
     }
 
     private static class TreeNode implements Comparable<TreeNode>, Serializable {
-        private final String letter;
+        private final BitSet letter;
         private final int frequency;
         private final TreeNode left;
         private final TreeNode right;
+        private char uncompressedChar;
 
-        public TreeNode(String letter, Integer frequency, TreeNode left, TreeNode right) {
+        public TreeNode(BitSet letter, Integer frequency, TreeNode left, TreeNode right) {
             this.letter = letter;
             this.frequency = frequency;
             this.left = left;
             this.right = right;
+        }
+
+        public TreeNode(Character character, Integer frequency, TreeNode left, TreeNode right) {
+            this(charToBitSet(character), frequency, left, right);
+            uncompressedChar = character;
+        }
+
+        private static BitSet charToBitSet(Character character) {
+            BitSet result = new BitSet();
+            result.set(character);
+            return result;
         }
 
         public TreeNode getLeft() {
@@ -149,7 +171,7 @@ public class HuffmanCompression {
             return right;
         }
 
-        public String getString() {
+        public BitSet getString() {
             return letter;
         }
 
@@ -163,7 +185,11 @@ public class HuffmanCompression {
         }
 
         public boolean isLast() {
-            return right == null||left==null;
+            return right == null || left == null;
+        }
+
+        public boolean contains(char aChar) {
+            return letter.get(aChar);
         }
     }
 
