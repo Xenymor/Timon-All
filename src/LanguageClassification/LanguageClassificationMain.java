@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class LanguageClassificationMain {
-    private static final double LEARN_RATE = 0.8d;
+    private static final double LEARN_RATE = 1d;
     File english;
     List<String> englishLines;
     File german;
@@ -65,7 +65,7 @@ public class LanguageClassificationMain {
             System.out.println(usedChars.get(i) + " : " + list.get(0).get(i) + ", " + list.get(1).get(i) + ", " + list.get(2).get(i));
         }
         //122
-        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 40, 20, 3);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 70, 20, 5, 3);
         File file = new File("src/LanguageClassification/neuralNetwork.nn");
         if (file.exists()) {
             neuralNetwork = (NeuralNetwork) new ObjectInputStream(new FileInputStream(file.getAbsolutePath())).readObject();
@@ -74,7 +74,7 @@ public class LanguageClassificationMain {
         List<DataPoint[]> trainingBatches = getChunks(DataPoint[].class, dataPoints, 5);
         long learnings = 0;
         double performance;
-        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.5d) {
+        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.7d) {
             printState(neuralNetwork, trainingBatches, performance, learnings);
             long startingTime = System.nanoTime();
             for (int i = 0; i < trainingBatches.size(); i++) {
