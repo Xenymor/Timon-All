@@ -13,7 +13,12 @@ import java.util.concurrent.TimeUnit;
 public class HuffmanCompression {
 
     public static void main(String[] args) throws IOException {
-        byte[] inputByteArray = Files.readAllBytes(Paths.get("src/HuffmanCompression/TrainingDataEnglish.txt"));
+        char[] chars = args[0].toCharArray();
+        String path = "src/HuffmanCompression/TrainingDataEnglish.txt";
+        if (chars[0] == '-') {
+            path = args[0].substring(1);
+        }
+        byte[] inputByteArray = Files.readAllBytes(Paths.get(path));
         String input = new String(inputByteArray, StandardCharsets.UTF_8);
         long startingTime = System.nanoTime();
         CompressionResult compressed = compress(input);
@@ -23,7 +28,7 @@ public class HuffmanCompression {
         System.out.println("Time for compressing: " + TimeUnit.NANOSECONDS.toMillis(decompressStart-startingTime));
         System.out.println("Time for decompressing: " + TimeUnit.NANOSECONDS.toMillis(finish-decompressStart));
         System.out.println(input.equals(output));
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("src/HuffmanCompression/TrainingDataEnglishCompressed.hfmcpr"));
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(path + ".hfmcpr"));
         objectOutputStream.writeObject(compressed);
         objectOutputStream.close();
         System.out.println(compressed.result.length + "/" + input.length());
