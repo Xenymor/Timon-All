@@ -17,7 +17,7 @@ public class TicTacToe {
 
     public static void main(String[] args) throws IOException {
         TicTacToe game = new TicTacToe();
-        //System.out.println(game.findBestMoveWithScore().getScore());
+        //System.out.println(game.findBestMoveWithScore().getMove());
         game.start();
     }
 
@@ -50,16 +50,37 @@ public class TicTacToe {
     }
 
     private void gameLoop() throws IOException {
-        Vector2L move = getComputerOnTurn() ? findBestMove() : askMove();
-        makeMove(move, field, getComputerOnTurn() ? 1 : -1);
+        getAndMakeMove();
         if (getComputerOnTurn()) {
             printField();
         }
         setComputerOnTurn(!getComputerOnTurn());
     }
 
+    private void getAndMakeMove() throws IOException {
+        while (true) {
+            Vector2L move = getMove();
+            if (isValidMove(move)) {
+                makeMove((int) move.getX(), (int) move.getY(), field, getComputerOnTurn() ? 1 : -1);
+                break;
+            } else if (getComputerOnTurn()) {
+                System.out.println("Engine misfunctioned");
+            } else {
+                System.out.println("Invalid move");
+            }
+        }
+    }
+
+    private Vector2L getMove() throws IOException {
+        return getComputerOnTurn() ? findBestMove() : askMove();
+    }
+
+    private boolean isValidMove(Vector2L move) {
+        return field[(int) move.getX()][(int) move.getY()] == 0;
+    }
+
     private void printDrawMessage() {
-        System.out.println("You drawed the game");
+        System.out.println("You drew the game");
     }
 
     private Vector2L findBestMove() {
@@ -81,36 +102,38 @@ public class TicTacToe {
 
     private MinMaxResult minMax(int[][] fieldAfterMove, int player) {
         int bestScore = player == 1 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
-        Vector2L bestMove = new Vector2L(-1, -1);
+        int bestX = -1;
+        int bestY = -1;
         for (int x = 0; x < fieldAfterMove.length; x++) {
             for (int y = 0; y < fieldAfterMove[x].length; y++) {
                 if (fieldAfterMove[x][y] == 0) {
-                    Vector2L move = new Vector2L(x, y);
-                    makeMove(move, fieldAfterMove, player);
+                    makeMove(x, y, fieldAfterMove, player);
                     if (isWon(fieldAfterMove)) {
-                        reverseMove(move, fieldAfterMove);
-                        return new MinMaxResult(player, move);
+                        reverseMove(x, y, fieldAfterMove);
+                        return new MinMaxResult(player, x, y);
                     }
                     MinMaxResult currentResult = minMax(fieldAfterMove, -player);
                     if (player == -1) {
                         if (currentResult.getScore() <= bestScore) {
                             bestScore = currentResult.getScore();
-                            bestMove = move;
+                            bestX = x;
+                            bestY = y;
                         }
                     } else {
                         if (currentResult.getScore() >= bestScore) {
                             bestScore = currentResult.getScore();
-                            bestMove = move;
+                            bestX = x;
+                            bestY = y;
                         }
                     }
-                    reverseMove(move, fieldAfterMove);
+                    reverseMove(x, y, fieldAfterMove);
                 }
             }
         }
-        if (bestMove.getX() == -1) {
-            return new MinMaxResult(0, new Vector2L(-1, -1));
+        if (bestX == -1) {
+            return new MinMaxResult(0, bestX, bestY);
         }
-        return new MinMaxResult(bestScore, bestMove);
+        return new MinMaxResult(bestScore, bestX, bestY);
     }
 
     private boolean isWon(int[][] fieldAfterMove) {
@@ -121,17 +144,29 @@ public class TicTacToe {
     }
 
     private boolean checkVertical(int[][] fieldAfterMove) {
-        for (int i = 0; i < fieldAfterMove[0].length; i++) {
-            if (threeEquals(fieldAfterMove[0][i], fieldAfterMove[1][i], fieldAfterMove[2][i])) {
-                return true;
+        int firstValue = 0;
+        outer:
+        for (int y = 0; y < fieldAfterMove[0].length; y++) {
+            for (int x = 0; x < fieldAfterMove.length; x++) {
+                if (x == 0) {
+                    firstValue = fieldAfterMove[x][y];
+                    if (firstValue == 0) {
+                        continue outer;
+                    }
+                } else {
+                    if (firstValue != fieldAfterMove[x][y]) {
+                        continue outer;
+                    }
+                }
             }
+            return true;
         }
         return false;
     }
 
     private boolean checkHorizontal(int[][] fieldAfterMove) {
         for (int[] ints : fieldAfterMove) {
-            if (threeEquals(ints[0], ints[1], ints[2])) {
+            if (allEquals(ints)) {
                 return true;
             }
         }
@@ -139,10 +174,41 @@ public class TicTacToe {
     }
 
     private boolean checkDiagonals(int[][] fieldAfterMove) {
-        if (threeEquals(fieldAfterMove[0][0], fieldAfterMove[1][1], fieldAfterMove[2][2])) {
+        int firstField = -10;
+        boolean broken = false;
+        for (int x = 0; x < fieldAfterMove.length; x++) {
+            if (x == 0) {
+                firstField = fieldAfterMove[x][x];
+                if (firstField == 0) {
+                    broken = true;
+                    break;
+                }
+            } else {
+                if (fieldAfterMove[x][x] != firstField) {
+                    broken = true;
+                    break;
+                }
+            }
+        }
+        if (!broken) {
             return true;
         }
-        return threeEquals(fieldAfterMove[2][0], fieldAfterMove[1][1], fieldAfterMove[0][2]);
+        broken = false;
+        for (int x = 0; x < fieldAfterMove.length; x++) {
+            if (x == 0) {
+                firstField = fieldAfterMove[x][fieldAfterMove.length - x - 1];
+                if (firstField == 0) {
+                    broken = true;
+                    break;
+                }
+            } else {
+                if (fieldAfterMove[x][fieldAfterMove.length - x - 1] != firstField) {
+                    broken = true;
+                    break;
+                }
+            }
+        }
+        return !broken;
     }
 
     private void printEndMessage() {
@@ -153,12 +219,12 @@ public class TicTacToe {
         }
     }
 
-    private void makeMove(Vector2L move, int[][] field, int player) {
-        field[(int) move.getX()][(int) move.getY()] = player;
+    private void makeMove(int x, int y, int[][] field, int player) {
+        field[x][y] = player;
     }
 
-    private void reverseMove(Vector2L move, int[][] field) {
-        field[(int) move.getX()][(int) move.getY()] = 0;
+    private void reverseMove(int x, int y, int[][] field) {
+        field[x][y] = 0;
     }
 
     private Vector2L askMove() throws IOException {
@@ -184,39 +250,26 @@ public class TicTacToe {
     }
 
     private boolean isWon() {
-        boolean diagonalsWon = checkDiagonals();
-        boolean horizontalWon = checkHorizontal();
-        boolean verticalWon = checkVertical();
+        boolean diagonalsWon = checkDiagonals(field);
+        boolean horizontalWon = checkHorizontal(field);
+        boolean verticalWon = checkVertical(field);
         return diagonalsWon || horizontalWon || verticalWon;
     }
 
-    private boolean checkVertical() {
-        for (int i = 0; i < field[0].length; i++) {
-            if (threeEquals(field[0][i], field[1][i], field[2][i])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean checkHorizontal() {
-        for (int[] ints : field) {
-            if (threeEquals(ints[0], ints[1], ints[2])) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private boolean checkDiagonals() {
-        if (threeEquals(field[0][0], field[1][1], field[2][2])) {
+    private boolean allEquals(int... ints) {
+        if (ints.length == 0) {
             return true;
         }
-        return threeEquals(field[2][0], field[1][1], field[0][2]);
-    }
-
-    private boolean threeEquals(int i, int i1, int i2) {
-        return (i == i1) && (i == i2) && (i != 0);
+        if (ints[0] == 0) {
+            return false;
+        }
+        int startValue = ints[0];
+        for (int i = 1; i < ints.length; i++) {
+            if (ints[i] != startValue) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean askComputerStarting() throws IOException {
@@ -248,13 +301,15 @@ public class TicTacToe {
         }
     }
 
-    private class MinMaxResult {
+    private static class MinMaxResult {
         int score;
-        Vector2L move;
+        int x;
+        int y;
 
-        public MinMaxResult(int score, Vector2L move) {
+        public MinMaxResult(int score, int x, int y) {
             this.score = score;
-            this.move = move;
+            this.x = x;
+            this.y = y;
         }
 
         public int getScore() {
@@ -266,11 +321,28 @@ public class TicTacToe {
         }
 
         public Vector2L getMove() {
-            return move;
+            return new Vector2L(x, y);
         }
 
         public void setMove(Vector2L move) {
-            this.move = move;
+            this.x = (int) move.getX();
+            this.y = (int) move.getY();
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public void setX(int x) {
+            this.x = x;
+        }
+
+        public int getY() {
+            return y;
+        }
+
+        public void setY(int y) {
+            this.y = y;
         }
     }
 }
