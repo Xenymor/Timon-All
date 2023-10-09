@@ -152,7 +152,7 @@ public class Sudoku {
             new Sudoku(diff).run();
         } else if (input.equalsIgnoreCase("c")) {
             Sudoku sudoku = new Sudoku(0.66);
-            System.out.println("StandardClasses.Random(r) or entered(ud)");
+            System.out.println("Random(r) or user defined(ud)?");
             input = scanner.nextLine();
             if (input.equalsIgnoreCase("r")) {
                 long start = System.nanoTime();
@@ -192,7 +192,73 @@ public class Sudoku {
         }
     }
 
+    private class IntegerList {
+        List <Integer> list;
+
+        public IntegerList() {
+            this.list = new ArrayList<>();
+        }
+
+        public IntegerList(List<Integer> list) {
+            this.list = list;
+        }
+
+        public List getList() {
+            return list;
+        }
+
+        public void add(int toAdd) {
+            list.add(toAdd);
+        }
+
+        public int get(int index) {
+            return list.get(index);
+        }
+
+        public void remove(int index) {
+            list.remove(index);
+        }
+    }
+
     private static int[][] solve(Sudoku sudoku) {
+        int[][] newSudoku = sudoku.getSudoku().clone();
+        IntegerList[][] possibilitiesArr = new IntegerList[9][9];
+        int x = 0;
+        int y = 0;
+        if (isPossible(newSudoku)) {
+            if (checkBoard(newSudoku)) {
+                return newSudoku;
+            }
+        } else {
+            return null;
+        }
+        boolean shouldRun = true;
+        while (shouldRun) {
+
+            boolean shouldContinue = false;
+            for (int i = 0; i < 9; i++) {
+                for (int j = 0; j < 9; j++) {
+                    if (newSudoku[i][j] != 0) {
+                        continue;
+                    }
+                    int[] possibilities = findPossibilities(newSudoku, i, j);
+                    if (possibilities.length == 0) {
+                        return null;
+                    } else if (possibilities.length == 1) {
+                        newSudoku[i][j] = possibilities[0];
+                        shouldContinue = true;
+                    }
+                }
+            }
+            shouldRun = shouldContinue;
+        }
+        if (checkBoard(newSudoku)) {
+            return newSudoku;
+        }
+        return solveField(newSudoku, x, y);
+    }
+
+    private static int[][] oldSolve(Sudoku sudoku) {
         int[][] newSudoku = sudoku.getSudoku().clone();
         int x = 0;
         int y = 0;
@@ -332,7 +398,7 @@ public class Sudoku {
         return true;
     }
 
-    private static int[][] deepClone(int[][] newSudoku) {
+    public static int[][] deepClone(int[][] newSudoku) {
         int[][] clone = new int[newSudoku.length][newSudoku[0].length];
         for (int i = 0; i < clone.length; i++) {
             clone[i] = newSudoku[i].clone();
@@ -651,6 +717,8 @@ public class Sudoku {
             g.setFont(newFont);
             g.setColor(BACKGROUND);
             g.fillRect(0, 0, WIDTH, HEIGHT);
+            g.setColor(CHOSEN_COLOR);
+            g.fillRect(chosenX * WIDTH/9, chosenY* HEIGHT/9, (WIDTH/9), (HEIGHT/9));
             g.setColor(LINE_COLOR);
             for (int i = 0; i < WIDTH; i += (WIDTH / 9)) {
                 if (i % 3 == 0) {

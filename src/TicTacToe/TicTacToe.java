@@ -5,20 +5,36 @@ import StandardClasses.Vector2L;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TicTacToe {
-    int[][] field;
+    public static final int FIELD_SIZE = 3;
+    FieldPosition field;
     private boolean computerOnTurn;
     BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     public TicTacToe() {
-        this.field = new int[3][3];
+        this.field = new FieldPosition();
+        field.setField(new int[FIELD_SIZE][FIELD_SIZE]);
     }
 
     public static void main(String[] args) throws IOException {
         TicTacToe game = new TicTacToe();
-        //System.out.println(game.findBestMoveWithScore().getMove());
-        game.start();
+        /*MinMaxResult bestMoveWithScore = game.findBestMoveWithScore();
+        System.out.println(bestMoveWithScore.getMove() + "; " + bestMoveWithScore.getScore());
+        game.start();*/
+        game.playSelfAndPrintMoves();
+    }
+
+    private void playSelfAndPrintMoves() {
+        while (!this.isWon() && !this.isDrawn()) {
+            MinMaxResult move = findBestMoveWithScore();
+            makeMove(move.getX(), move.getY(), field, getComputerOnTurn() ? 1 : -1);
+            setComputerOnTurn(!getComputerOnTurn());
+            printField();
+            System.out.println(move.getScore());
+        }
     }
 
     private void start() throws IOException {
@@ -38,36 +54,37 @@ public class TicTacToe {
     }
 
     private boolean isDrawn() {
-        int freeFields = 0;
-        for (int[] ints : field) {
+        for (int[] ints : field.getField()) {
             for (int anInt : ints) {
                 if (anInt == 0) {
-                    freeFields++;
+                    return false;
                 }
             }
         }
-        return freeFields == 0;
+        return true;
     }
 
     private void gameLoop() throws IOException {
-        getAndMakeMove();
+        boolean moveWorked = getAndMakeMove();
         if (getComputerOnTurn()) {
             printField();
         }
-        setComputerOnTurn(!getComputerOnTurn());
+        if (moveWorked) {
+            setComputerOnTurn(!getComputerOnTurn());
+        }
     }
 
-    private void getAndMakeMove() throws IOException {
-        while (true) {
-            Vector2L move = getMove();
-            if (isValidMove(move)) {
-                makeMove((int) move.getX(), (int) move.getY(), field, getComputerOnTurn() ? 1 : -1);
-                break;
-            } else if (getComputerOnTurn()) {
-                System.out.println("Engine misfunctioned");
-            } else {
-                System.out.println("Invalid move");
-            }
+    private boolean getAndMakeMove() throws IOException {
+        Vector2L move = getMove();
+        if (isValidMove(move)) {
+            makeMove((int) move.getX(), (int) move.getY(), field, getComputerOnTurn() ? 1 : -1);
+            return true;
+        } else if (getComputerOnTurn()) {
+            System.out.println("Engine misfunctioned");
+            return false;
+        } else {
+            System.out.println("Invalid move");
+            return false;
         }
     }
 
@@ -76,7 +93,10 @@ public class TicTacToe {
     }
 
     private boolean isValidMove(Vector2L move) {
-        return field[(int) move.getX()][(int) move.getY()] == 0;
+        if (move.getX() < 0 || move.getY() < 0 || move.getX() > field.getField().length || move.getY() > field.getField().length) {
+            return false;
+        }
+        return field.getField()[(int) move.getX()][(int) move.getY()] == 0;
     }
 
     private void printDrawMessage() {
@@ -84,32 +104,44 @@ public class TicTacToe {
     }
 
     private Vector2L findBestMove() {
-        int[][] fieldAfterMove = field.clone();
-        for (int i = 0; i < fieldAfterMove.length; i++) {
-            fieldAfterMove[i] = fieldAfterMove[i].clone();
+        FieldPosition fieldAfterMove = new FieldPosition();
+        fieldAfterMove.setField(field.getField().clone());
+        for (int i = 0; i < fieldAfterMove.getField().length; i++) {
+            fieldAfterMove.getField()[i] = fieldAfterMove.getField()[i].clone();
         }
         MinMaxResult result = minMax(fieldAfterMove, 1);
         return result.getMove();
     }
 
     private MinMaxResult findBestMoveWithScore() {
-        int[][] fieldAfterMove = field.clone();
-        for (int i = 0; i < fieldAfterMove.length; i++) {
-            fieldAfterMove[i] = fieldAfterMove[i].clone();
+        FieldPosition fieldAfterMove = new FieldPosition();
+        fieldAfterMove.setField(field.getField().clone());
+        for (int i = 0; i < fieldAfterMove.getField().length; i++) {
+            fieldAfterMove.getField()[i] = fieldAfterMove.getField()[i].clone();
         }
         return minMax(fieldAfterMove, 1);
     }
 
-    private MinMaxResult minMax(int[][] fieldAfterMove, int player) {
+    Map<FieldPosition, MinMaxResult> checkedPositions = new HashMap<>();
+
+    private MinMaxResult minMax(FieldPosition fieldAfterMove, int player) {
+        if (checkedPositions.containsKey(fieldAfterMove)) {
+            return checkedPositions.get(fieldAfterMove);
+        }
+        if (isWon(fieldAfterMove.getField())) {
+            checkedPositions.put(fieldAfterMove, new MinMaxResult(player, -1, -1));
+            return checkedPositions.get(fieldAfterMove);
+        }
         int bestScore = player == 1 ? Integer.MIN_VALUE : Integer.MAX_VALUE;
         int bestX = -1;
         int bestY = -1;
-        for (int x = 0; x < fieldAfterMove.length; x++) {
-            for (int y = 0; y < fieldAfterMove[x].length; y++) {
-                if (fieldAfterMove[x][y] == 0) {
+        for (int x = 0; x < fieldAfterMove.getField().length; x++) {
+            for (int y = 0; y < fieldAfterMove.getField()[x].length; y++) {
+                if (fieldAfterMove.getField()[x][y] == 0) {
                     makeMove(x, y, fieldAfterMove, player);
-                    if (isWon(fieldAfterMove)) {
-                        reverseMove(x, y, fieldAfterMove);
+                    if (isWon(fieldAfterMove.getField())) {
+                        checkedPositions.put(fieldAfterMove.clone(), new MinMaxResult(player, x, y));
+                        reverseMove(x, y, fieldAfterMove.getField());
                         return new MinMaxResult(player, x, y);
                     }
                     MinMaxResult currentResult = minMax(fieldAfterMove, -player);
@@ -126,11 +158,12 @@ public class TicTacToe {
                             bestY = y;
                         }
                     }
-                    reverseMove(x, y, fieldAfterMove);
+                    reverseMove(x, y, fieldAfterMove.getField());
                 }
             }
         }
         if (bestX == -1) {
+            checkedPositions.put(fieldAfterMove.clone(), new MinMaxResult(0, -1, -1));
             return new MinMaxResult(0, bestX, bestY);
         }
         return new MinMaxResult(bestScore, bestX, bestY);
@@ -219,8 +252,9 @@ public class TicTacToe {
         }
     }
 
-    private void makeMove(int x, int y, int[][] field, int player) {
-        field[x][y] = player;
+    private void makeMove(int x, int y, FieldPosition board, int player) {
+        board.getField()[x][y] = player;
+        board.player = player == 1 ? -1 : 1;
     }
 
     private void reverseMove(int x, int y, int[][] field) {
@@ -250,9 +284,9 @@ public class TicTacToe {
     }
 
     private boolean isWon() {
-        boolean diagonalsWon = checkDiagonals(field);
-        boolean horizontalWon = checkHorizontal(field);
-        boolean verticalWon = checkVertical(field);
+        boolean diagonalsWon = checkDiagonals(field.getField());
+        boolean horizontalWon = checkHorizontal(field.getField());
+        boolean verticalWon = checkVertical(field.getField());
         return diagonalsWon || horizontalWon || verticalWon;
     }
 
@@ -289,6 +323,8 @@ public class TicTacToe {
     }
 
     private void printField() {
+        //System.out.println(Arrays.deepToString(field.getField()));
+        final int[][] field = this.field.getField();
         for (int y = field.length - 1; y >= 0; y--) {
             for (int x = 0; x < field[0].length; x++) {
                 switch (field[x][y]) {

@@ -30,42 +30,23 @@ public class Main {
         TimeUnit.MILLISECONDS.sleep(1);
         long start = System.nanoTime();
         double lastCost = -1;
-        int trues = 0;
-        for (Fruit trainingDatum : trainingData) {//test
-            double[] outputs = neuralNetwork.getOutputs(trainingDatum);
-            if ((Math.round(outputs[0]) == 1) == trainingDatum.isPoisonous) {//checks result
-                trues++;
-            }
-        }
-        System.out.println(trues + " of " + trainingData.length + " correct");
-        while (true) {
+        int trues = testNeuralNetwork(trainingData, neuralNetwork);
+
+        while (trues < trainingData.length) {
             for (Fruit[] fruits : trainingDataChunks) {
                 for (int j = 0; j < fruits.length; j++) {
                     neuralNetwork.learn(fruits, learnRate);
+
                     if (System.nanoTime() - start >= TimeUnit.SECONDS.toNanos(10)) {
-                        trues = 0;
-                        for (Fruit trainingDatum : trainingData) {//test
-                            double[] outputs = neuralNetwork.getOutputs(trainingDatum);
-                            if ((Math.round(outputs[0]) == 1) == trainingDatum.isPoisonous) {//checks result
-                                trues++;
-                            }
-                        }
-                        System.out.println(trues + " of " + trainingData.length + " correct");
+                        trues = testNeuralNetwork(trainingData, neuralNetwork);
                         start = System.nanoTime();
                         double cost = neuralNetwork.getCost3(trainingData);
-                        if (cost <= learnRate) {
+                        if (cost <= learnRate*3) {
                             learnRate *= 0.1;
                         }
                         System.out.println(cost);
                         if (cost == lastCost) {
-                            trues = 0;
-                            for (Fruit trainingDatum : trainingData) {//test
-                                double[] outputs = neuralNetwork.getOutputs(trainingDatum);
-                                if (Math.round(outputs[0]) == 1 && trainingDatum.isPoisonous()) {//checks result
-                                    trues++;
-                                }
-                            }
-                            System.out.println(trues + " of " + trainingData.length + " correct");
+                            trues = testNeuralNetwork(trainingData, neuralNetwork);
                             System.exit(0);
                         }
                         lastCost = cost;
@@ -73,6 +54,19 @@ public class Main {
                 }
             }
         }
+    }
+
+    private int testNeuralNetwork(final Fruit[] trainingData, final NeuralNetwork neuralNetwork) {
+        int trues;
+        trues = 0;
+        for (Fruit trainingDatum : trainingData) {//test
+            double[] outputs = neuralNetwork.getOutputs(trainingDatum);
+            if ((Math.round(outputs[0]) == 1) == trainingDatum.isPoisonous) {//checks result
+                trues++;
+            }
+        }
+        System.out.println(trues + " of " + trainingData.length + " correct");
+        return trues;
     }
 
     private Fruit[] getFruits(int fruitCount) {
@@ -161,7 +155,7 @@ public class Main {
             drawNeuralNetwork(neuralNetwork, trainingData, g);
             repaint();
             try {
-                TimeUnit.MILLISECONDS.sleep(10_000);
+                TimeUnit.MILLISECONDS.sleep(1_000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
