@@ -76,7 +76,8 @@ public class LanguageClassificationMain {
         long learnings = 0;
         double performance;
         double lastCost = getOverallCost(trainingBatches, neuralNetwork);
-        while ((performance = getOverallCost(trainingBatches, neuralNetwork)) > 0.7d) {
+        performance = lastCost;
+        outer: while (true) {
             printState(neuralNetwork, trainingBatches, performance, learnings);
             long startingTime = System.nanoTime();
             for (int i = 0; i < trainingBatches.size(); i++) {
@@ -84,6 +85,9 @@ public class LanguageClassificationMain {
                     startingTime = System.nanoTime();
                     performance = getOverallCost(trainingBatches, neuralNetwork);
                     printState(neuralNetwork, trainingBatches, performance, learnings);
+                    if (checkForExit()) {
+                        break outer;
+                    }
                 }
                 neuralNetwork.learn(trainingBatches.get(i), LEARN_RATE);
                 learnings++;
@@ -97,6 +101,16 @@ public class LanguageClassificationMain {
         }
         System.out.println(performance);
         saveNeuralNetwork(neuralNetwork);
+        System.exit(0);
+    }
+
+    Scanner scanner = new Scanner(System.in);
+
+    private boolean checkForExit() {
+        if (scanner.hasNextLine()) {
+            return scanner.nextLine().equalsIgnoreCase("exit");
+        }
+        return false;
     }
 
     private void saveNeuralNetwork(final NeuralNetwork neuralNetwork) throws IOException {

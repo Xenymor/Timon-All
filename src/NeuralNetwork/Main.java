@@ -85,6 +85,7 @@ public class Main {
             //poisonous[i] = 0.25<widths[i]*lengths[i];
             //poisonous[i] = sqr(widths[i] - 0.5) + sqr(lengths[i] - 0.5) < 0.25;
             poisonous[i] = sqr(widths[i] - 0.5) + sqr(lengths[i] - 0.5) < 0.15;
+            //poisonous[i] = widths[i] + lengths[i] > Math.pow(widths[i], lengths[i]);
         }
         Fruit[] trainingData = new Fruit[lengths.length];
         for (int i = 0; i < lengths.length; i++) {
@@ -174,13 +175,13 @@ public class Main {
                 } else {
                     g.setColor(new Color(136, 0, 145));
                 }
-                g.fillOval((int) (inputs[0] * getWidth())-3, (int) (inputs[1] * getWidth())-3, 16, 16);
+                g.fillOval((int) (inputs[0] * getWidth())-3, (int) (inputs[1] * getHeight())-3, 16, 16);
                 if (trainingData[i].isPoisonous()) {
                     g.setColor(Color.RED);
                 } else {
                     g.setColor(Color.BLUE);
                 }
-                g.fillOval((int) (inputs[0] * getWidth()), (int) (inputs[1] * getWidth()), 10, 10);
+                g.fillOval((int) (inputs[0] * getWidth()), (int) (inputs[1] * getHeight()), 10, 10);
             }
         }
     }
