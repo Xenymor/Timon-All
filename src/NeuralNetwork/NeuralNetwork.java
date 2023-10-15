@@ -2,7 +2,6 @@ package NeuralNetwork;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class NeuralNetwork implements Serializable {
     @Serial
@@ -57,22 +56,13 @@ public class NeuralNetwork implements Serializable {
         }
     }
 
-    void updateAllGradients(DataPoint data, NetworkLearnData learnData)
-    {
+    void updateAllGradients(DataPoint data, NetworkLearnData learnData) {
         // Feed data through the network to calculate outputs.
         // Save all inputs/weightedinputs/activations along the way to use for backpropagation.
         double[] inputsToNextLayer = data.getInputs();
 
-        for (int i = 0; i < layers.length; i++)
-        {
+        for (int i = 0; i < layers.length; i++) {
             inputsToNextLayer = layers[i].calculateOutputs(inputsToNextLayer, learnData.layerData[i]);
-            if (Double.isNaN(inputsToNextLayer[0])) {
-                System.out.println(Arrays.toString(data.getInputs()));
-                System.out.println(Arrays.toString(inputsToNextLayer));
-                System.out.println(Arrays.toString(learnData.layerData[i].inputs));
-                System.out.println(Arrays.toString(learnData.layerData[i].weightedInputs));
-                System.exit(0);
-            }
         }
 
         // -- Backpropagation --
@@ -85,8 +75,7 @@ public class NeuralNetwork implements Serializable {
         outputLayer.updateGradients(outputLearnData);
 
         // Update all hidden layer gradients
-        for (int i = outputLayerIndex - 1; i >= 0; i--)
-        {
+        for (int i = outputLayerIndex - 1; i >= 0; i--) {
             LayerLearnData layerLearnData = learnData.layerData[i];
             Layer hiddenLayer = layers[i];
 
@@ -105,7 +94,7 @@ public class NeuralNetwork implements Serializable {
             updateAllGradients(dataPoint, networkLearnData);
         }
         // Gradient descent step: update all the weights and biases in the network
-         applyAllGradients(learnRate, trainingBatch.length, 0.1, 0.9);
+        applyAllGradients(learnRate, trainingBatch.length, 0.1, 0.9);
     }
 
     public double[][] getOutputs(DataPoint[] trainingData) {

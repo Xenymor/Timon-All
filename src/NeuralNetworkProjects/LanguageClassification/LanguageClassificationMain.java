@@ -26,6 +26,9 @@ public class LanguageClassificationMain {
     File spanish;
     List<String> spanishLines;
 
+    File french;
+    List<String> frenchLines;
+
     List<Character> usedChars;
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -48,6 +51,7 @@ public class LanguageClassificationMain {
                 case 1 -> System.out.println("English (" + getPercentage(outputs[1], outputs) * 100 + "% confidence)");
                 case 2 -> System.out.println("Italian (" + getPercentage(outputs[2], outputs) * 100 + "% confidence)");
                 case 3 -> System.out.println("Spanish (" + getPercentage(outputs[3], outputs) * 100 + "% confidence)");
+                case 4 -> System.out.println("French (" + getPercentage(outputs[4], outputs) * 100 + "% confidence)");
             }
         }
     }
@@ -68,11 +72,12 @@ public class LanguageClassificationMain {
         list.add(getCharPercentage(englishLines));
         list.add(getCharPercentage(italianLines));
         list.add(getCharPercentage(spanishLines));
+        list.add(getCharPercentage(frenchLines));
         for (int i = 0; i < usedChars.size(); i++) {
-            System.out.println(usedChars.get(i) + " : " + list.get(0).get(i) + ", " + list.get(1).get(i) + ", " + list.get(2).get(i) + ", " + list.get(3).get(i));
+            System.out.println(usedChars.get(i) + " : " + list.get(0).get(i) + ", " + list.get(1).get(i) + ", " + list.get(2).get(i) + ", " + list.get(3).get(i) + ", " + list.get(4).get(i));
         }
         //122
-        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 70, 20, 5, 4);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(usedChars.size(), 70, 20, 5, 5);
 
         File file = new File(SAVE_FILE_PATH);
         if (file.exists()) {
@@ -217,18 +222,20 @@ public class LanguageClassificationMain {
     }
 
     private DataPoint[] getDataPointArray() {
-        List<List<DataPoint>> dataPoints = new ArrayList<>();
-        dataPoints.add(getDataPoints(germanLines, 1, 0, 0, 0));
-        dataPoints.add(getDataPoints(englishLines, 0, 1, 0, 0));
-        dataPoints.add(getDataPoints(italianLines, 0, 0, 1, 0));
-        dataPoints.add(getDataPoints(spanishLines, 0, 0, 0, 1));
-
         List<DataPoint> dataPointList = new ArrayList<>();
-        for (List<DataPoint> currentDataPoints : dataPoints) {
-            Collections.addAll(dataPointList, currentDataPoints.toArray(new DataPoint[0]));
-        }
+
+        addDataPoints(dataPointList, germanLines, 1, 0, 0, 0, 0);
+        addDataPoints(dataPointList, englishLines, 0, 1, 0, 0, 0);
+        addDataPoints(dataPointList, italianLines, 0, 0, 1, 0, 0);
+        addDataPoints(dataPointList, spanishLines, 0, 0, 0, 1, 0);
+        addDataPoints(dataPointList, frenchLines, 0, 0, 0, 0, 1);
+
         Collections.shuffle(dataPointList);
         return dataPointList.toArray(new DataPoint[0]);
+    }
+
+    private void addDataPoints(final List<DataPoint> dataPointList, final List<String> lines, final double... expectedOutputs) {
+        Collections.addAll(dataPointList, getDataPoints(lines, expectedOutputs).toArray(new DataPoint[0]));
     }
 
     private List<DataPoint> getDataPoints(List<String> lines, double... expectedOutputs) {
@@ -282,15 +289,23 @@ public class LanguageClassificationMain {
         List<String> lines = Files.readAllLines(Paths.get(english.getAbsolutePath()));
         englishLines = lines;
         getChars(charsList, lines);
+
         lines = Files.readAllLines(Paths.get(german.getAbsolutePath()));
         germanLines = lines;
-        LanguageClassificationMain.this.getChars(charsList, lines);
+        getChars(charsList, lines);
+
         lines = Files.readAllLines(Paths.get(italian.getAbsolutePath()));
         italianLines = lines;
-        LanguageClassificationMain.this.getChars(charsList, lines);
+        getChars(charsList, lines);
+
         lines = Files.readAllLines(Paths.get(spanish.getAbsolutePath()));
         spanishLines = lines;
-        LanguageClassificationMain.this.getChars(charsList, lines);
+        getChars(charsList, lines);
+
+        lines = Files.readAllLines(Paths.get(french.getAbsolutePath()));
+        frenchLines = lines;
+        getChars(charsList, lines);
+
         return charsList;
     }
 
@@ -310,6 +325,7 @@ public class LanguageClassificationMain {
         german = new File("src/NeuralNetworkProjects/LanguageClassification/TrainingDataGerman.txt");
         italian = new File("src/NeuralNetworkProjects/LanguageClassification/TrainingDataItalian.txt");
         spanish = new File("src/NeuralNetworkProjects/LanguageClassification/TrainingDataSpanish.txt");
+        french = new File("src/NeuralNetworkProjects/LanguageClassification/TrainingDataFrench.txt");
     }
 
     private class LanguageLine implements DataPoint {

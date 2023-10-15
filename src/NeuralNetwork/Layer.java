@@ -2,7 +2,6 @@ package NeuralNetwork;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.Arrays;
 
 public class Layer implements Serializable {
     @Serial
@@ -43,8 +42,7 @@ public class Layer implements Serializable {
     }
 
     private void initializeRandomWeightsAndBiases() {
-        for (int i = 0; i < weights.length; i++)
-        {
+        for (int i = 0; i < weights.length; i++) {
             weights[i] = RandomInNormalDistribution(0, 1) / Math.sqrt(INPUT_COUNT);
         }
         for (int i = 0; i < biases.length; i++) {
@@ -52,8 +50,7 @@ public class Layer implements Serializable {
         }
     }
 
-    double RandomInNormalDistribution(double mean, double standardDeviation)
-    {
+    double RandomInNormalDistribution(double mean, double standardDeviation) {
         double x1 = 1 - Math.random();
         double x2 = 1 - Math.random();
 
@@ -64,12 +61,10 @@ public class Layer implements Serializable {
     public double[] getOutputs(double[] inputs) {
         double[] weightedInputs = new double[OUTPUT_COUNT];
 
-        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++)
-        {
+        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++) {
             double weightedInput = biases[nodeOut];
 
-            for (int nodeIn = 0; nodeIn < INPUT_COUNT; nodeIn++)
-            {
+            for (int nodeIn = 0; nodeIn < INPUT_COUNT; nodeIn++) {
                 weightedInput += inputs[nodeIn] * getWeight(nodeIn, nodeOut);
             }
             weightedInputs[nodeOut] = weightedInput;
@@ -77,35 +72,27 @@ public class Layer implements Serializable {
 
         // Apply activation function
         double[] activations = new double[OUTPUT_COUNT];
-        for (int i = 0; i < OUTPUT_COUNT; i++)
-        {
+        for (int i = 0; i < OUTPUT_COUNT; i++) {
             activations[i] = Activation.activate(weightedInputs, i);
         }
 
         return activations;
     }
 
-    public double[] calculateOutputs(double[] inputs, LayerLearnData learnData)
-    {
+    public double[] calculateOutputs(double[] inputs, LayerLearnData learnData) {
         learnData.inputs = inputs;
 
-        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++)
-        {
+        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++) {
             double weightedInput = biases[nodeOut];
-            for (int nodeIn = 0; nodeIn < INPUT_COUNT; nodeIn++)
-            {
+            for (int nodeIn = 0; nodeIn < INPUT_COUNT; nodeIn++) {
                 weightedInput += inputs[nodeIn] * getWeight(nodeIn, nodeOut);
             }
             learnData.weightedInputs[nodeOut] = weightedInput;
         }
 
         // Apply activation function
-        for (int i = 0; i < learnData.activations.length; i++)
-        {
+        for (int i = 0; i < learnData.activations.length; i++) {
             learnData.activations[i] = Activation.activate(learnData.weightedInputs, i);
-            if (Double.isNaN(learnData.activations[i])) {
-                System.out.println();
-            }
         }
 
         return learnData.activations;
@@ -117,20 +104,15 @@ public class Layer implements Serializable {
 
     public void applyGradients(double learnRate, double regularization, double momentum) {
         double weightDecay = (1 - regularization * learnRate);
-        for (int i = 0; i < weights.length; i++)
-        {
+        for (int i = 0; i < weights.length; i++) {
             double weight = weights[i];
             double velocity = weightVelocities[i] * momentum - costGradientW[i] * learnRate;
             weightVelocities[i] = velocity;
             weights[i] = weight * weightDecay + velocity;
             costGradientW[i] = 0;
-            if (Double.isNaN(weights[i])) {
-                System.out.println();
-            }
         }
 
-        for (int i = 0; i < biases.length; i++)
-        {
+        for (int i = 0; i < biases.length; i++) {
             double velocity = biasVelocities[i] * momentum - costGradientB[i] * learnRate;
             biasVelocities[i] = velocity;
             biases[i] += velocity;
@@ -139,16 +121,11 @@ public class Layer implements Serializable {
     }
 
     public void updateGradients(LayerLearnData layerLearnData) {
-        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++)
-        {
+        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++) {
             double nodeValue = layerLearnData.nodeValues[nodeOut];
-            for (int nodeIn = 0; nodeIn < INPUT_COUNT; nodeIn++)
-            {
+            for (int nodeIn = 0; nodeIn < INPUT_COUNT; nodeIn++) {
                 // Evaluate the partial derivative: cost / weight of current connection
                 double derivativeCostWrtWeight = layerLearnData.inputs[nodeIn] * nodeValue;
-                if (Double.isNaN(derivativeCostWrtWeight)) {
-                    System.out.println();
-                }
                 // The costGradientW array stores these partial derivatives for each weight.
                 // Note: the derivative is being added to the array here because ultimately we want
                 // to calculate the average gradient across all the data in the training batch
@@ -156,39 +133,30 @@ public class Layer implements Serializable {
             }
         }
 
-        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++)
-        {
+        for (int nodeOut = 0; nodeOut < OUTPUT_COUNT; nodeOut++) {
             // Evaluate partial derivative: cost / bias
             double derivativeCostWrtBias = 1 * layerLearnData.nodeValues[nodeOut];
             costGradientB[nodeOut] += derivativeCostWrtBias;
         }
     }
 
-    public int getFlatWeightIndex(int inputNeuronIndex, int outputNeuronIndex)
-    {
+    public int getFlatWeightIndex(int inputNeuronIndex, int outputNeuronIndex) {
         return outputNeuronIndex * INPUT_COUNT + inputNeuronIndex;
     }
 
     public void calculateOutputLayerNodeValues(LayerLearnData layerLearnData, double[] expectedOutputs) {
-        for (int i = 0; i < layerLearnData.nodeValues.length; i++)
-        {
+        for (int i = 0; i < layerLearnData.nodeValues.length; i++) {
             // Evaluate partial derivatives for current node: cost/activation & activation/weightedInput
             double costDerivative = Cost.costDerivative(layerLearnData.activations[i], expectedOutputs[i]);
             double activationDerivative = Activation.derivative(layerLearnData.weightedInputs, i);
             layerLearnData.nodeValues[i] = costDerivative * activationDerivative;
-            if (Double.isNaN(layerLearnData.nodeValues[i])) {
-                System.out.println();
-            }
         }
     }
 
-    public void calculateHiddenLayerNodeValues(LayerLearnData layerLearnData, Layer oldLayer, double[] oldNodeValues)
-    {
-        for (int newNodeIndex = 0; newNodeIndex < OUTPUT_COUNT; newNodeIndex++)
-        {
+    public void calculateHiddenLayerNodeValues(LayerLearnData layerLearnData, Layer oldLayer, double[] oldNodeValues) {
+        for (int newNodeIndex = 0; newNodeIndex < OUTPUT_COUNT; newNodeIndex++) {
             double newNodeValue = 0;
-            for (int oldNodeIndex = 0; oldNodeIndex < oldNodeValues.length; oldNodeIndex++)
-            {
+            for (int oldNodeIndex = 0; oldNodeIndex < oldNodeValues.length; oldNodeIndex++) {
                 // Partial derivative of the weighted input with respect to the input
                 double weightedInputDerivative = oldLayer.getWeight(newNodeIndex, oldNodeIndex);
                 newNodeValue += weightedInputDerivative * oldNodeValues[oldNodeIndex];
@@ -198,9 +166,6 @@ public class Layer implements Serializable {
             }
             newNodeValue *= Activation.derivative(layerLearnData.weightedInputs, newNodeIndex);
             layerLearnData.nodeValues[newNodeIndex] = newNodeValue;
-            if (Double.isNaN(layerLearnData.nodeValues[newNodeIndex])) {
-                System.out.println();
-            }
         }
     }
 }
