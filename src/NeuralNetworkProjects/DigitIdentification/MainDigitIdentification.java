@@ -19,7 +19,7 @@ import static StandardClasses.MyArrays.getChunks;
 public class MainDigitIdentification {
 
     public static final int CHUNK_SIZE = 100;
-    private static final String SAVE_FILE_PATH = "NeuralNetworkProjects/DigitIdentification/neuralNetwork.nn";
+    private static final String SAVE_FILE_PATH = "src/NeuralNetworkProjects/DigitIdentification/neuralNetwork.nn";
     private double learnRate = 0.05;
 
     public MainDigitIdentification(final NeuralNetwork neuralNetwork) {
@@ -27,7 +27,7 @@ public class MainDigitIdentification {
     }
 
     public MainDigitIdentification() {
-        neuralNetwork = new NeuralNetwork(784, 1400, 1000, 500, 10);
+        neuralNetwork = new NeuralNetwork(784, 1400, 500, 250, 100, 10);
     }
 
     public static void main(String[] args) throws IOException {
