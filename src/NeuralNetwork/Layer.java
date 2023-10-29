@@ -67,16 +67,10 @@ public class Layer implements Serializable {
             for (int nodeIn = 0; nodeIn < INPUT_COUNT; nodeIn++) {
                 weightedInput += inputs[nodeIn] * getWeight(nodeIn, nodeOut);
             }
-            weightedInputs[nodeOut] = weightedInput;
+            weightedInputs[nodeOut] =  Activation.activate(weightedInput);
         }
 
-        // Apply activation function
-        double[] activations = new double[OUTPUT_COUNT];
-        for (int i = 0; i < OUTPUT_COUNT; i++) {
-            activations[i] = Activation.activate(weightedInputs, i);
-        }
-
-        return activations;
+        return weightedInputs;
     }
 
     public double[] calculateOutputs(double[] inputs, LayerLearnData learnData) {
@@ -88,11 +82,7 @@ public class Layer implements Serializable {
                 weightedInput += inputs[nodeIn] * getWeight(nodeIn, nodeOut);
             }
             learnData.weightedInputs[nodeOut] = weightedInput;
-        }
-
-        // Apply activation function
-        for (int i = 0; i < learnData.activations.length; i++) {
-            learnData.activations[i] = Activation.activate(learnData.weightedInputs, i);
+            learnData.activations[nodeOut] = Activation.activate(weightedInput);
         }
 
         return learnData.activations;
@@ -158,11 +148,7 @@ public class Layer implements Serializable {
             double newNodeValue = 0;
             for (int oldNodeIndex = 0; oldNodeIndex < oldNodeValues.length; oldNodeIndex++) {
                 // Partial derivative of the weighted input with respect to the input
-                double weightedInputDerivative = oldLayer.getWeight(newNodeIndex, oldNodeIndex);
-                newNodeValue += weightedInputDerivative * oldNodeValues[oldNodeIndex];
-            }
-            if (Double.isNaN(newNodeValue)) {
-                System.out.println();
+                newNodeValue += oldLayer.getWeight(newNodeIndex, oldNodeIndex) * oldNodeValues[oldNodeIndex];
             }
             newNodeValue *= Activation.derivative(layerLearnData.weightedInputs, newNodeIndex);
             layerLearnData.nodeValues[newNodeIndex] = newNodeValue;

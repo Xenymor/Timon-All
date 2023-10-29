@@ -34,12 +34,14 @@ public class Main {
         long start = System.nanoTime();
         double lastCost = neuralNetwork.getCost(trainingData);
         int trues = testNeuralNetwork(trainingData, neuralNetwork);
-
+        int counter = 0;
         while (trues < trainingData.length) {
             for (Fruit[] fruits : trainingDataChunks) {
                 neuralNetwork.learn(fruits, learnRate);
+                counter++;
             }
             if (System.nanoTime() - start >= TimeUnit.SECONDS.toNanos(10)) {
+                System.out.println(TimeUnit.NANOSECONDS.toMicros((System.nanoTime()-start)/counter) + " microSec/Batch");
                 trues = testNeuralNetwork(trainingData, neuralNetwork);
                 start = System.nanoTime();
                 double cost = neuralNetwork.getCost(trainingData);

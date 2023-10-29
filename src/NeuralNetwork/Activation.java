@@ -11,7 +11,7 @@ public class Activation {
         double a = activate(inputs, index);
         return a * (1 - a);
     }*/
-    public static double activate(double[] inputs, int index)
+    public static double activate(double value)
     {
         /*double expSum = 0;
         for (final double input : inputs) {
@@ -19,7 +19,9 @@ public class Activation {
         }
 
         return Math.exp(inputs[index]) / expSum;*/
-        return Math.atan(inputs[index]);
+        //return Math.atan(inputs[index]);
+        //return Math.max(0, inputs[index]);
+        return 1.0 / (1 + Math.exp(-value));
     }
 
     public static double derivative(double[] inputs, int index)
@@ -46,6 +48,17 @@ public class Activation {
         } else {
             return 1;
         }*/
-        return 1 / (1+inputs[index]*inputs[index]);
+        //return 1 / (1+inputs[index]*inputs[index]);
+        /*final double exp = Math.exp(-inputs[index]);
+        final double v = 1 + exp;
+        if (Double.isNaN(v) || v == 0) {
+            System.out.println();
+        }
+        if (Double.isNaN(exp) || exp == 0) {
+            System.out.println();
+        }
+        return exp / (v*v);*/
+        double a = activate(inputs[index]);
+        return a * (1 - a);
     }
 }
