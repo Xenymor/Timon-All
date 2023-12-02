@@ -2,13 +2,12 @@ package NeuralNetworkProjects.ChessEvaluation;
 
 import NeuralNetwork.DataPoint;
 import NeuralNetwork.NeuralNetwork;
-import NeuralNetworkProjects.LanguageClassification.LanguageClassificationMain;
 import StandardClasses.MyArrays;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -18,23 +17,22 @@ public class Main {
     }
 
     private void run() throws IOException, ClassNotFoundException {
-        NeuralNetwork trained = trainNeuralNetwork(100_000);
+        NeuralNetwork trained = loadAndTrainNetwork(1_000_000_000);
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\NeuralNetworkProjects\\ChessEvaluation\\neuralNetworkChess.nn"));
         objectOutputStream.writeObject(trained);
         System.out.println("Finished training");
     }
 
-    private NeuralNetwork trainNeuralNetwork(int iterations) throws IOException, ClassNotFoundException {
+    private NeuralNetwork loadAndTrainNetwork(int iterations) throws IOException, ClassNotFoundException {
         DataPoint[] trainingData = loadData();
-        List<DataPoint[]> trainingChunks = LanguageClassificationMain.getChunks(DataPoint[].class, trainingData, 128);
+        List<DataPoint[]> trainingChunks = MyArrays.getChunks(DataPoint[].class, trainingData, 128);
         int validationDataCount = trainingChunks.size()/10*2;
         DataPoint[] validationData = trainingChunks.get(0);
         for (int i = 0; i < validationDataCount; i++) {
             validationData = MyArrays.concatenate(validationData, trainingChunks.get(0));
             trainingChunks.remove(0);
         }
-        trainingChunks.remove(0);
-        trainingChunks.remove(0);
+        Collections.shuffle(trainingChunks);
         NeuralNetwork neuralNetwork = new NeuralNetwork(64, 1048, 500, 50, 1);
         if (Files.exists(Path.of("C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\NeuralNetworkProjects\\ChessEvaluation\\neuralNetworkChess.nn"))) {
             neuralNetwork = (NeuralNetwork) new ObjectInputStream(new FileInputStream("C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\NeuralNetworkProjects\\ChessEvaluation\\neuralNetworkChess.nn")).readObject();
@@ -47,11 +45,10 @@ public class Main {
         System.out.println(bestCost);
         long lastTime = System.nanoTime();
         while (counter < iterations) {
-            if (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - lastTime) >= 120) {
-                lastTime = System.nanoTime();
+            if (TimeUnit.NANOSECONDS.toSeconds(System.nanoTime() - lastTime) >= 300) {
                 double cost = neuralNetwork.getCost(validationData);
                 System.out.println(cost + " after " + counter + " learnings");
-                if (cost >= lastCost || cost <= learnRate * 10) {
+                if (cost == lastCost || cost <= learnRate * 10) {
                     learnRate *= 0.1;
                 }
                 if (cost < bestCost) {
@@ -60,6 +57,7 @@ public class Main {
                     objectOutputStream.writeObject(neuralNetwork);
                 }
                 lastCost = cost;
+                lastTime = System.nanoTime();
             }
             neuralNetwork.learn(trainingChunks.get(counter % (trainingChunks.size())), learnRate);
             counter++;
