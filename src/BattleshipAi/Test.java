@@ -18,11 +18,11 @@ public class Test {
     static AtomicInteger gameCounter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        //showBot(new HuntTargetSmartBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+        showBot(new HeatMapBot(WIDTH, HEIGHT, SHIP_LENGTHS));
         for (int i = 0; i < THREAD_COUNT; i++) {
             new Thread(() -> {
                 try {
-                    testBot(new HuntTargetSmartBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+                    testBot(new HeatMapBot(WIDTH, HEIGHT, SHIP_LENGTHS));
                 } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -30,14 +30,14 @@ public class Test {
         }
     }
 
-    private static void showBot(BattleshipBot botType) throws InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private static void showBot(BattleshipBot bot) throws InterruptedException {
         final BattleshipBoard board = new BattleshipBoard(WIDTH, HEIGHT, SHIP_LENGTHS);
         board.initializeRandomBoats();
         BoardUI boardUI = new BoardUI(board, ZOOM);
         boardUI.setSize(WIDTH * ZOOM, HEIGHT * ZOOM);
         boardUI.setUndecorated(true);
         boardUI.setVisible(true);
-        BattleshipBot bot = botType.getClass().getDeclaredConstructor(int.class, int.class, int[].class).newInstance(WIDTH, HEIGHT, SHIP_LENGTHS);
+        bot.reset();
         while (!board.isWon()) {
             Vector2L move = bot.getMove();
             bot.moveResult(move, board.attack(move));
@@ -45,11 +45,11 @@ public class Test {
         }
     }
 
-    private static void testBot(BattleshipBot botType) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+    private static void testBot(BattleshipBot bot) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
         while (gameCounter.get() < GAME_COUNT) {
             final BattleshipBoard board = new BattleshipBoard(WIDTH, HEIGHT, SHIP_LENGTHS);
             board.initializeRandomBoats();
-            BattleshipBot bot = botType.getClass().getDeclaredConstructor(int.class, int.class, int[].class).newInstance(WIDTH, HEIGHT, SHIP_LENGTHS);
+            bot.reset();
             while (!board.isWon()) {
                 Vector2L move = bot.getMove();
                 bot.moveResult(move, board.attack(move));

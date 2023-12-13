@@ -2,6 +2,8 @@ package BattleshipAi.Bots;
 
 import StandardClasses.Vector2L;
 
+import java.util.Arrays;
+
 //63.700794 MPG
 public class RandomBot implements BattleshipBot {
     Boolean[][] board;
@@ -28,5 +30,12 @@ public class RandomBot implements BattleshipBot {
     @Override
     public void moveResult(final Vector2L pos, final boolean attack) {
         board[(int) pos.getX()][(int) pos.getY()] = attack;
+    }
+
+    @Override
+    public void reset() {
+        for (final Boolean[] booleans : board) {
+            Arrays.fill(booleans, null);
+        }
     }
 }

@@ -152,4 +152,11 @@ public class HeatMapBot implements BattleshipBot {
     public void moveResult(final Vector2L pos, final boolean attack) {
         board[(int) pos.getX()][(int) pos.getY()] = attack;
     }
+
+    @Override
+    public void reset() {
+        for (final Boolean[] booleans : board) {
+            Arrays.fill(booleans, null);
+        }
+    }
 }

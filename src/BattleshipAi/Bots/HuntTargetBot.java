@@ -3,6 +3,7 @@ package BattleshipAi.Bots;
 import StandardClasses.Vector2L;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 //74.102823 MPG
@@ -59,5 +60,12 @@ public class HuntTargetBot implements BattleshipBot{
     @Override
     public void moveResult(final Vector2L pos, final boolean attack) {
         board[(int) pos.getX()][(int) pos.getY()] = attack;
+    }
+
+    @Override
+    public void reset() {
+        for (final Boolean[] booleans : board) {
+            Arrays.fill(booleans, null);
+        }
     }
 }
