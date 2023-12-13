@@ -18,7 +18,7 @@ public class Test {
     static AtomicInteger gameCounter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        showBot(new HeatMapBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+        //showBot(new HeatMapBot(WIDTH, HEIGHT, SHIP_LENGTHS));
         for (int i = 0; i < THREAD_COUNT; i++) {
             new Thread(() -> {
                 try {

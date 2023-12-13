@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-//50.524007 MPG
+//47.921395 MPG
 public class HeatMapBot implements BattleshipBot {
     Boolean[][] board;
     final int WIDTH;
@@ -92,11 +92,28 @@ public class HeatMapBot implements BattleshipBot {
             int currentY = y + (isHorizontal ? 0 : delta);
             if ((currentX >= 0 && currentY >= 0 && currentX < WIDTH && currentY < HEIGHT) && (board[currentX][currentY] == null || board[currentX][currentY])) {
                 toAdd[currentX][currentY]++;
+                if (anyAdjacentShip(x, y, !isHorizontal)) {
+                    return false;
+                }
             } else {
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean anyAdjacentShip(final int x, final int y, final boolean isHorizontal) {
+        for (int delta = -1; delta < 2; delta++) {
+            final int currX = x + (isHorizontal ? delta : 0);
+            final int currY = y + (isHorizontal ? 0 : delta);
+            if (currX >= 0 && currX < WIDTH && currY >= 0 && currY < WIDTH) {
+                final Boolean value = board[currX][currY];
+                if (value != null && value) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private void increaseHeatMap(final int[][] heatMap, final int[][] toAdd) {
