@@ -4,13 +4,13 @@ import StandardClasses.Vector2I;
 
 import java.util.*;
 
-//47.855987 MPG
+//46.044948 MPG
 public class HeatMapLengthCheckBot implements BattleshipBot {
     Boolean[][] board;
     final int WIDTH;
     final int HEIGHT;
     private final int[] SHIP_LENGTHS;
-    private List<Integer> remainingShipLengths;
+    private final List<Integer> remainingShipLengths;
 
     public HeatMapLengthCheckBot(final int width, final int height, int... shipLengths) {
         board = new Boolean[width][height];
@@ -136,7 +136,7 @@ public class HeatMapLengthCheckBot implements BattleshipBot {
                     length++;
                     delta += multiplier;
                 } else {
-                    if (isNoShip(currX, currY)) {
+                    if (isNoShip(currX, currY) || getAdjacentShipPositions(currX, currY).length > 1) {
                         isSafeSum++;
                     }
                     break;
@@ -145,6 +145,12 @@ public class HeatMapLengthCheckBot implements BattleshipBot {
             multiplier = -multiplier;
         } while (multiplier < 0);
         return checkMode.equals(CheckMode.SAVE_CHECKED) ? (isSafeSum > 1 ? length : 0) : length;
+    }
+
+    private Vector2I[] getAdjacentShipPositions(final int x, final int y) {
+        List<Vector2I> result = new ArrayList<>(List.of(getAdjacentPositions(x, y)));
+        result.removeIf(pos -> !isShip(pos.getX(), pos.getY()));
+        return result.toArray(new Vector2I[0]);
     }
 
     private boolean isPossiblePlacement(final int x, final int y, final boolean isHorizontal, final int shipLength, final int[][] toAdd) {
