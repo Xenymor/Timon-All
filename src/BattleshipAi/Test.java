@@ -1,7 +1,7 @@
 package BattleshipAi;
 
 import BattleshipAi.Bots.*;
-import StandardClasses.Vector2L;
+import StandardClasses.Vector2I;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,11 +18,15 @@ public class Test {
     static AtomicInteger gameCounter = new AtomicInteger(0);
 
     public static void main(String[] args) throws InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        //showBot(new HeatMapBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+        //showBot(new HeatMapLengthCheckBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+        testBotMultiThreaded();
+    }
+
+    private static void testBotMultiThreaded() {
         for (int i = 0; i < THREAD_COUNT; i++) {
             new Thread(() -> {
                 try {
-                    testBot(new HeatMapBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+                    testBot(new HeatMapLengthCheckBot(WIDTH, HEIGHT, SHIP_LENGTHS));
                 } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -31,18 +35,21 @@ public class Test {
     }
 
     private static void showBot(BattleshipBot bot) throws InterruptedException {
-        final BattleshipBoard board = new BattleshipBoard(WIDTH, HEIGHT, SHIP_LENGTHS);
+        BattleshipBoard board = new BattleshipBoard(WIDTH, HEIGHT, SHIP_LENGTHS);
         board.initializeRandomBoats();
         BoardUI boardUI = new BoardUI(board, ZOOM);
         boardUI.setSize(WIDTH * ZOOM, HEIGHT * ZOOM);
         boardUI.setUndecorated(true);
         boardUI.setVisible(true);
         bot.reset();
+        int counter = 0;
         while (!board.isWon()) {
-            Vector2L move = bot.getMove();
+            Vector2I move = bot.getMove();
             bot.moveResult(move, board.attack(move));
+            counter++;
             Thread.sleep(500);
         }
+        System.out.println(counter + " moves");
     }
 
     private static void testBot(BattleshipBot bot) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
@@ -51,7 +58,7 @@ public class Test {
             board.initializeRandomBoats();
             bot.reset();
             while (!board.isWon()) {
-                Vector2L move = bot.getMove();
+                Vector2I move = bot.getMove();
                 bot.moveResult(move, board.attack(move));
                 moveCounter.getAndAdd(1);
                 //Thread.sleep(500);

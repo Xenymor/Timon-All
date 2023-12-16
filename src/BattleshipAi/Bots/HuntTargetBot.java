@@ -1,6 +1,6 @@
 package BattleshipAi.Bots;
 
-import StandardClasses.Vector2L;
+import StandardClasses.Vector2I;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,14 +19,14 @@ public class HuntTargetBot implements BattleshipBot{
     }
 
     @Override
-    public Vector2L getMove() {
-        Vector2L result;
+    public Vector2I getMove() {
+        Vector2I result;
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[x].length; y++) {
                 if (board[x][y] != null && board[x][y]) {
-                    Vector2L[] adjacentPositions = getAdjacentPositions(x, y);
-                    for (final Vector2L adjacentPosition : adjacentPositions) {
-                        if (board[(int) adjacentPosition.getX()][(int) adjacentPosition.getY()] == null) {
+                    Vector2I[] adjacentPositions = getAdjacentPositions(x, y);
+                    for (final Vector2I adjacentPosition : adjacentPositions) {
+                        if (board[adjacentPosition.getX()][adjacentPosition.getY()] == null) {
                             return adjacentPosition;
                         }
                     }
@@ -34,15 +34,15 @@ public class HuntTargetBot implements BattleshipBot{
             }
         }
         while (true) {
-            result = new Vector2L((int) (Math.random() * WIDTH), (int) (Math.random() * HEIGHT));
-            if (board[(int) result.getX()][(int) result.getY()] == null) {
+            result = new Vector2I((int) (Math.random() * WIDTH), (int) (Math.random() * HEIGHT));
+            if (board[result.getX()][result.getY()] == null) {
                 return result;
             }
         }
     }
 
-    private Vector2L[] getAdjacentPositions(final int x, final int y) {
-        List<Vector2L> result = new ArrayList<>();
+    private Vector2I[] getAdjacentPositions(final int x, final int y) {
+        List<Vector2I> result = new ArrayList<>();
         for (int dX = -1; dX < 2; dX++) {
             for (int dY = -1; dY < 2; dY++) {
                 if (Math.abs(dX) + Math.abs(dY) == 2)
@@ -50,16 +50,16 @@ public class HuntTargetBot implements BattleshipBot{
                 final int currX = x + dX;
                 final int currY = y + dY;
                 if (currX >= 0 && currX < WIDTH && currY >= 0 && currY < WIDTH) {
-                    result.add(new Vector2L(currX, currY));
+                    result.add(new Vector2I(currX, currY));
                 }
             }
         }
-        return result.toArray(new Vector2L[0]);
+        return result.toArray(new Vector2I[0]);
     }
 
     @Override
-    public void moveResult(final Vector2L pos, final boolean attack) {
-        board[(int) pos.getX()][(int) pos.getY()] = attack;
+    public void moveResult(final Vector2I pos, final boolean attack) {
+        board[pos.getX()][pos.getY()] = attack;
     }
 
     @Override

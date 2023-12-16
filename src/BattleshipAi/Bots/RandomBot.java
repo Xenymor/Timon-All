@@ -1,6 +1,6 @@
 package BattleshipAi.Bots;
 
-import StandardClasses.Vector2L;
+import StandardClasses.Vector2I;
 
 import java.util.Arrays;
 
@@ -17,19 +17,19 @@ public class RandomBot implements BattleshipBot {
     }
 
     @Override
-    public Vector2L getMove() {
-        Vector2L result;
+    public Vector2I getMove() {
+        Vector2I result;
         while (true) {
-            result = new Vector2L((int) (Math.random() * WIDTH), (int) (Math.random() * HEIGHT));
-            if (board[(int) result.getX()][(int) result.getY()] == null) {
+            result = new Vector2I((int) (Math.random() * WIDTH), (int) (Math.random() * HEIGHT));
+            if (board[result.getX()][result.getY()] == null) {
                 return result;
             }
         }
     }
 
     @Override
-    public void moveResult(final Vector2L pos, final boolean attack) {
-        board[(int) pos.getX()][(int) pos.getY()] = attack;
+    public void moveResult(final Vector2I pos, final boolean attack) {
+        board[pos.getX()][pos.getY()] = attack;
     }
 
     @Override

@@ -9,6 +9,7 @@ public class BoardUI extends JFrame {
     private static final Color HIT_COLOR = new Color(222, 46, 46, 127);
     BattleshipBoard board;
     final int ZOOM;
+    public boolean drawUnattackedShips = true;
 
     public BoardUI(final BattleshipBoard battleshipBoard, final int zoom) {
         this.board = battleshipBoard;
@@ -26,17 +27,20 @@ public class BoardUI extends JFrame {
         graphics.fillRect(0, 0, getWidth(), getHeight());
         for (int x = 0; x < boardArr.length; x++) {
             for (int y = 0; y < boardArr[x].length; y++) {
-                if (boardArr[x][y].isShip()) {
-                    graphics.setColor(SHIP_COLOR);
-                    graphics.fillRect(x*ZOOM, y*ZOOM, ZOOM, ZOOM);
+                final Field field = boardArr[x][y];
+                if (field.isShip()) {
+                    if (drawUnattackedShips || field.isHit()) {
+                        graphics.setColor(SHIP_COLOR);
+                        graphics.fillRect(x * ZOOM, y * ZOOM, ZOOM, ZOOM);
+                    }
                 }
-                if (boardArr[x][y].isHit()) {
+                if (field.isHit()) {
                     graphics.setColor(HIT_COLOR);
                     graphics.fillRect(x*ZOOM, y*ZOOM, ZOOM, ZOOM);
                 }
             }
         }
         g.drawImage(buffer, 0, 0, null);
-        repaint(1_000);
+        repaint(20);
     }
 }

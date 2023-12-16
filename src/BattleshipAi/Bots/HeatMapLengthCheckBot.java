@@ -2,22 +2,23 @@ package BattleshipAi.Bots;
 
 import StandardClasses.Vector2I;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
-//47.921395 MPG
-public class HeatMapBot implements BattleshipBot {
+//47.855987 MPG
+public class HeatMapLengthCheckBot implements BattleshipBot {
     Boolean[][] board;
     final int WIDTH;
     final int HEIGHT;
     private final int[] SHIP_LENGTHS;
+    private List<Integer> remainingShipLengths;
 
-    public HeatMapBot(final int width, final int height, int... shipLengths) {
+    public HeatMapLengthCheckBot(final int width, final int height, int... shipLengths) {
         board = new Boolean[width][height];
         WIDTH = width;
         HEIGHT = height;
         SHIP_LENGTHS = shipLengths;
+        remainingShipLengths = new ArrayList<>();
+        reset();
     }
 
     @Override
@@ -40,29 +41,31 @@ public class HeatMapBot implements BattleshipBot {
 
     private int[][] getHeatMap() {
         int[][] heatMap = new int[WIDTH][HEIGHT];
+        final Integer biggestShipLength = remainingShipLengths.get(remainingShipLengths.size() - 1);
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[x].length; y++) {
-                final Boolean value = board[x][y];
                 Vector2I[] adjacentPositions = getAdjacentPositions(x, y);
                 boolean isKnown = false;
                 boolean isHorizontal = true;
-                if (value != null && value) {
-                    for (final Vector2I adjacentPosition : adjacentPositions) {
-                        final Boolean isShip = board[adjacentPosition.getX()][adjacentPosition.getY()];
-                        if (isShip != null && isShip) {
-                            isKnown = true;
-                            if (adjacentPosition.getY() != y)
-                                isHorizontal = false;
-                            break;
+                if (isShip(x, y)) {
+                    if (getShipLength(x, y, CheckMode.CHECK_ONLY) < biggestShipLength) {
+                        for (final Vector2I adjacentPosition : adjacentPositions) {
+                            final Boolean isShip = board[adjacentPosition.getX()][adjacentPosition.getY()];
+                            if (isShip != null && isShip) {
+                                isKnown = true;
+                                if (adjacentPosition.getY() != y)
+                                    isHorizontal = false;
+                                break;
+                            }
                         }
-                    }
-                    increaseAdjacentHeatMap(heatMap, x, y, isHorizontal);
-                    if (!isKnown) {
-                        increaseAdjacentHeatMap(heatMap, x, y, false);
+                        increaseAdjacentHeatMap(heatMap, x, y, isHorizontal);
+                        if (!isKnown) {
+                            increaseAdjacentHeatMap(heatMap, x, y, false);
+                        }
                     }
                 }
                 int[][] toAdd = new int[WIDTH][HEIGHT];
-                for (int shipLength : SHIP_LENGTHS) {
+                for (int shipLength : remainingShipLengths) {
                     do {
                         for (final int[] ints : toAdd) {
                             Arrays.fill(ints, 0);
@@ -84,6 +87,64 @@ public class HeatMapBot implements BattleshipBot {
             }
         }
         return heatMap;
+    }
+
+    private boolean isShip(final int x, final int y) {
+        return board[x][y] != null && board[x][y];
+    }
+
+    private boolean isNoShip(final int x, final int y) {
+        return board[x][y] != null && !board[x][y];
+    }
+
+    private int getShipLength(final int x, final int y, final CheckMode checkMode) {
+        Vector2I[] adjacentPositions = getAdjacentPositions(x, y);
+        boolean isHorizontal = false;
+        boolean isKnown = false;
+        for (final Vector2I pos : adjacentPositions) {
+            if (isShip(pos.getX(), pos.getY())) {
+                isHorizontal = pos.getX() != x;
+                isKnown = true;
+                break;
+            }
+        }
+        if (isKnown) {
+            return getShipLength(x, y, isHorizontal, checkMode);
+        } else {
+            return 1;
+        }
+    }
+
+    private int getShipLength(final int x, final int y, final boolean isHorizontal, final CheckMode checkMode) {
+        int multiplier = 1;
+        int length = 1;
+        int isSafeSum = 0;
+        checkedPositions.add(new Vector2I(x, y));
+        do {
+            int delta = multiplier;
+            while (true) {
+                int currX = x + (isHorizontal ? delta : 0);
+                int currY = y + (isHorizontal ? 0 : delta);
+                if (currX < 0 || currX >= WIDTH || currY < 0 || currY >= HEIGHT) {
+                    isSafeSum++;
+                    break;
+                }
+                if (isShip(currX, currY)) {
+                    if (checkMode.equals(CheckMode.SAVE_CHECKED)) {
+                        checkedPositions.add(new Vector2I(currX, currY));
+                    }
+                    length++;
+                    delta += multiplier;
+                } else {
+                    if (isNoShip(currX, currY)) {
+                        isSafeSum++;
+                    }
+                    break;
+                }
+            }
+            multiplier = -multiplier;
+        } while (multiplier < 0);
+        return checkMode.equals(CheckMode.SAVE_CHECKED) ? (isSafeSum > 1 ? length : 0) : length;
     }
 
     private boolean isPossiblePlacement(final int x, final int y, final boolean isHorizontal, final int shipLength, final int[][] toAdd) {
@@ -131,7 +192,7 @@ public class HeatMapBot implements BattleshipBot {
             final int x1 = adjacentPosition.getX();
             final int y1 = adjacentPosition.getY();
             final Boolean isShip = board[x1][y1];
-            if (isShip == null || isShip) {
+            if (isShip == null || !isShip) {
                 heatMap[x1][y1] += 100;
             }
         }
@@ -166,8 +227,34 @@ public class HeatMapBot implements BattleshipBot {
     }
 
     @Override
-    public void moveResult(final Vector2I pos, final boolean attack) {
-        board[pos.getX()][pos.getY()] = attack;
+    public void moveResult(final Vector2I pos, final boolean isShip) {
+        board[pos.getX()][pos.getY()] = isShip;
+        if (isShip) {
+            checkShipLengths();
+        }
+    }
+
+    HashSet<Vector2I> checkedPositions = new HashSet<>();
+    ArrayList<Integer> foundShipLengths = new ArrayList<>();
+
+    private void checkShipLengths() {
+        checkedPositions.clear();
+        foundShipLengths.clear();
+        for (int x = 0; x < WIDTH; x++) {
+            for (int y = 0; y < HEIGHT; y++) {
+                if (!checkedPositions.contains(new Vector2I(x, y))) {
+                    if (isShip(x, y)) {
+                        int shipLength = getShipLength(x, y, CheckMode.SAVE_CHECKED);
+                        foundShipLengths.add(shipLength);
+                    }
+                }
+            }
+        }
+        remainingShipLengths.clear();
+        Arrays.stream(SHIP_LENGTHS).forEach(remainingShipLengths::add);
+        for (Integer foundShipLength : foundShipLengths) {
+            remainingShipLengths.remove(foundShipLength);
+        }
     }
 
     @Override
@@ -175,5 +262,8 @@ public class HeatMapBot implements BattleshipBot {
         for (final Boolean[] booleans : board) {
             Arrays.fill(booleans, null);
         }
+        remainingShipLengths.clear();
+        Arrays.stream(SHIP_LENGTHS).forEach(remainingShipLengths::add);
+        Collections.sort(remainingShipLengths);
     }
 }

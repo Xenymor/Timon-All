@@ -1,6 +1,6 @@
 package BattleshipAi;
 
-import StandardClasses.Vector2L;
+import StandardClasses.Vector2I;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,21 +26,21 @@ public class BattleshipBoard {
     }
 
     public void initializeRandomBoats() {
-        Vector2L[] shipPositions = getShipPositions();
-        for (Vector2L pos : shipPositions) {
-            board[(int) pos.getX()][(int) pos.getY()].setShip(true);
+        Vector2I[] shipPositions = getShipPositions();
+        for (Vector2I pos : shipPositions) {
+            board[pos.getX()][pos.getY()].setShip(true);
         }
     }
 
-    public boolean attack(Vector2L pos) {
-        final int x = (int) pos.getX();
-        final int y = (int) pos.getY();
+    public boolean attack(Vector2I pos) {
+        final int x = pos.getX();
+        final int y = pos.getY();
         board[x][y].setHit(true);
         return board[x][y].isShip();
     }
 
-    public void undoMove(Vector2L pos) {
-        board[(int) pos.getX()][(int) pos.getY()].setHit(false);
+    public void undoMove(Vector2I pos) {
+        board[pos.getX()][pos.getY()].setHit(false);
     }
 
     public boolean isWon() {
@@ -54,22 +54,22 @@ public class BattleshipBoard {
     }
 
 
-    public Vector2L[] getShipPositions() {
-        List<List<Vector2L>> shipPositions = new ArrayList<>();
-        Set<Vector2L> occupiedPositions = new HashSet<>();
-        List<Vector2L> currentShipPositions = new ArrayList<>();
+    public Vector2I[] getShipPositions() {
+        List<List<Vector2I>> shipPositions = new ArrayList<>();
+        Set<Vector2I> occupiedPositions = new HashSet<>();
+        List<Vector2I> currentShipPositions = new ArrayList<>();
 
         int[] counterArr = new int[SHIP_LENGTHS.length];
         for (int j = 0; j < SHIP_LENGTHS.length; j++) {
             final int shipLength = SHIP_LENGTHS[j];
             boolean vertical = Math.random() < 0.5;
             while (true) {
-                Vector2L startingPosition = getRandomPosition();
+                Vector2I startingPosition = getRandomPosition();
 
                 boolean validPlacement = true;
 
                 for (int i = 0; i < shipLength; i++) {
-                    Vector2L currentPosition = getCurrentPosition(vertical, startingPosition, i);
+                    Vector2I currentPosition = getCurrentPosition(vertical, startingPosition, i);
 
                     validPlacement = isValidPlacement(occupiedPositions, currentPosition);
 
@@ -100,19 +100,19 @@ public class BattleshipBoard {
                 }
             }
         }
-        List<Vector2L> result = new ArrayList<>();
+        List<Vector2I> result = new ArrayList<>();
         shipPositions.forEach(result::addAll);
-        return result.toArray(new Vector2L[0]);
+        return result.toArray(new Vector2I[0]);
     }
 
-    private boolean isValidPlacement(final Set<Vector2L> occupiedPositions, final Vector2L currentPosition) {
+    private boolean isValidPlacement(final Set<Vector2I> occupiedPositions, final Vector2I currentPosition) {
         if (currentPosition.getX() < 0 || currentPosition.getX() >= WIDTH ||
                 currentPosition.getY() < 0 || currentPosition.getY() >= HEIGHT ||
                 occupiedPositions.contains(currentPosition)) {
             return false;
         }
 
-        for (Vector2L shipPosition : occupiedPositions) {
+        for (Vector2I shipPosition : occupiedPositions) {
             if (currentPosition.getDist(shipPosition) <= 1.1) {
                 return false;
             }
@@ -120,20 +120,20 @@ public class BattleshipBoard {
         return true;
     }
 
-    private Vector2L getCurrentPosition(final boolean vertical, final Vector2L startingPosition, final int i) {
-        Vector2L currentPosition;
+    private Vector2I getCurrentPosition(final boolean vertical, final Vector2I startingPosition, final int i) {
+        Vector2I currentPosition;
         if (vertical) {
-            currentPosition = new Vector2L(startingPosition.getX(), startingPosition.getY() + i);
+            currentPosition = new Vector2I(startingPosition.getX(), startingPosition.getY() + i);
         } else {
-            currentPosition = new Vector2L(startingPosition.getX() + i, startingPosition.getY());
+            currentPosition = new Vector2I(startingPosition.getX() + i, startingPosition.getY());
         }
         return currentPosition;
     }
 
-    private Vector2L getRandomPosition() {
+    private Vector2I getRandomPosition() {
         int randomX = (int) (Math.random() * WIDTH);
         int randomY = (int) (Math.random() * HEIGHT);
 
-        return new Vector2L(randomX, randomY);
+        return new Vector2I(randomX, randomY);
     }
 }
