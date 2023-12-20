@@ -4,6 +4,7 @@ import BattleshipAi.Bots.*;
 import StandardClasses.Vector2I;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Test {
@@ -16,9 +17,10 @@ public class Test {
 
     static AtomicInteger moveCounter = new AtomicInteger(0);
     static AtomicInteger gameCounter = new AtomicInteger(0);
+    static final Collection<Integer> gameLengths = Collections.synchronizedCollection(new ArrayList<>());
 
     public static void main(String[] args) throws InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        //showBot(new HeatMapLengthCheckBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+        //showBot(new HeatMapBot3(WIDTH, HEIGHT, SHIP_LENGTHS));
         testBotMultiThreaded();
     }
 
@@ -26,7 +28,7 @@ public class Test {
         for (int i = 0; i < THREAD_COUNT; i++) {
             new Thread(() -> {
                 try {
-                    testBot(new HeatMapLengthCheckBot(WIDTH, HEIGHT, SHIP_LENGTHS));
+                    testBot(new HeatMapBot3(WIDTH, HEIGHT, SHIP_LENGTHS));
                 } catch (NoSuchMethodException | InvocationTargetException | InstantiationException | IllegalAccessException e) {
                     e.printStackTrace();
                 }
@@ -57,17 +59,41 @@ public class Test {
             final BattleshipBoard board = new BattleshipBoard(WIDTH, HEIGHT, SHIP_LENGTHS);
             board.initializeRandomBoats();
             bot.reset();
+            int counter = 0;
             while (!board.isWon()) {
                 Vector2I move = bot.getMove();
                 bot.moveResult(move, board.attack(move));
-                moveCounter.getAndAdd(1);
-                //Thread.sleep(500);
+                counter++;
             }
+            moveCounter.getAndAdd(counter);
             gameCounter.getAndAdd(1);
-            if (gameCounter.get() % 10_000 == 0) {
-                System.out.println("Games: " + gameCounter + "\tMoves/Game: " + moveCounter.get() / (double) gameCounter.get());
+            gameLengths.add(counter);
+            final int gameCount = gameCounter.get();
+            if (gameCount % 10_000 == 0) {
+                final int moveCount = moveCounter.get();
+                printStanding(gameCount, moveCount);
             }
         }
-        System.out.println("Games: " + gameCounter + "\tMoves/Game: " + moveCounter.get() / (double) gameCounter.get());
+        final int gameCount = gameCounter.get();
+        final int moveCount = moveCounter.get();
+        printStanding(gameCount, moveCount);
+        /*Map<Integer, Integer> gameLengthCount = new HashMap<>();
+        gameLengths.forEach((a) -> {
+            if (!gameLengthCount.containsKey(a)) {
+                gameLengthCount.put(a, 1);
+            } else {
+                gameLengthCount.put(a, gameLengthCount.get(a)+1);
+            }
+        });
+        System.out.println(gameLengthCount);*/
+    }
+
+    private static void printStanding(final int gameCount, final int moveCount) {
+        synchronized (gameLengths) {
+            final List<Integer> sorted = gameLengths.stream().sorted().toList();
+            final Integer median = sorted.get(sorted.size() / 2);
+            final double average = moveCount / (double) gameCount;
+            System.out.println("Games: " + gameCount + "\tAvg MPG: " + average + "\tMed MPG: " + median);
+        }
     }
 }

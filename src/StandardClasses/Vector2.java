@@ -1,6 +1,8 @@
 package StandardClasses;
 
-public class Vector2 {
+import java.io.Serializable;
+
+public class Vector2 implements Serializable {
     double x;
     double y;
 
@@ -53,5 +55,16 @@ public class Vector2 {
     public void add(Vector2 o) {
         this.x += o.x;
         this.y += o.y;
+    }
+
+    public void sub(Vector2 o) {
+        this.x -= o.x;
+        this.y -= o.y;
+    }
+
+    public void clamp(final double length) {
+        double currLength = Math.sqrt(x*x+y*y);
+        x = (x/(currLength/length));
+        y = (y/(currLength/length));
     }
 }

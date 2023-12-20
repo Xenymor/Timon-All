@@ -1,13 +1,17 @@
 package BattleshipAi;
 
 import BattleshipAi.Bots.BattleshipBot;
-import BattleshipAi.Bots.HeatMapBot;
-import BattleshipAi.Bots.HeatMapBot2;
+import BattleshipAi.Bots.HeatMapBot3;
 import StandardClasses.Vector2I;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class VSHuman {
     private static final int WIDTH = 10;
@@ -22,11 +26,12 @@ public class VSHuman {
 
     private final BattleshipBoard botBoard = new BattleshipBoard(WIDTH, HEIGHT, SHIP_LENGTHS);
     private final BattleshipBoard humanBoard = new BattleshipBoard(WIDTH, HEIGHT, SHIP_LENGTHS);
-    private final BattleshipBot bot = new HeatMapBot2(WIDTH, HEIGHT, SHIP_LENGTHS);
+    private final BattleshipBot bot = new HeatMapBot3(WIDTH, HEIGHT, SHIP_LENGTHS);
     private boolean botToMove = false;
     private boolean editMode = true;
     private final BoardUI boardUI = new BoardUI(botBoard, ZOOM);
     private Vector2I clicked = null;
+    Lock clickedLock = new ReentrantLock();
     private boolean confirmed = false;
 
     private void startMatch() throws InterruptedException {
@@ -41,14 +46,14 @@ public class VSHuman {
             @Override
             public void mouseClicked(final MouseEvent e) {
                 final int button = e.getButton();
-                if (button == 1 && editMode) {
+                if (button == 1) {
+                    clickedLock.lock();
                     clicked = new Vector2I((e.getX() - boardUI.getX()) / ZOOM, (e.getY() - boardUI.getY()) / ZOOM);
+                    System.out.println("Clicked " + clicked);
+                    clickedLock.unlock();
                 }
                 if (button == 3 && editMode) {
                     confirmed = true;
-                }
-                if (button == 1 && !editMode) {
-                    clicked = new Vector2I((e.getX() - boardUI.getX()) / ZOOM, (e.getY() - boardUI.getY()) / ZOOM);
                 }
             }
 
@@ -74,9 +79,11 @@ public class VSHuman {
         humanBoard.initializeRandomBoats();
         while (true) {
             if (editMode) {
+                clickedLock.lock();
                 if (clicked != null) {
                     final int x = clicked.getX();
                     final int y = clicked.getY();
+                    System.out.println("ReceivedClick X:" + x + "; Y:" + y);
                     final Field field = botBoard.board[x][y];
                     final boolean isShip = field.isShip();
                     if (isShip) {
@@ -88,6 +95,7 @@ public class VSHuman {
                     }
                     clicked = null;
                 }
+                clickedLock.unlock();
                 if (confirmed) {
                     confirmed = false;
                     if (checkShipLengths()) {
@@ -123,7 +131,6 @@ public class VSHuman {
                     }
                 }
             }
-            Thread.sleep(1);
         }
         if (humanBoard.isWon()) {
             System.out.println("Humanity may survive");

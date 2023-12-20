@@ -4,15 +4,15 @@ import StandardClasses.Vector2I;
 
 import java.util.*;
 
-//46.044948 MPG
-public class HeatMapLengthCheckBot implements BattleshipBot {
+//45.247655 MPG; Med MPG: 45
+public class HeatMapBot3 implements BattleshipBot {
     Boolean[][] board;
     final int WIDTH;
     final int HEIGHT;
     private final int[] SHIP_LENGTHS;
     private final List<Integer> remainingShipLengths;
 
-    public HeatMapLengthCheckBot(final int width, final int height, int... shipLengths) {
+    public HeatMapBot3(final int width, final int height, int... shipLengths) {
         board = new Boolean[width][height];
         WIDTH = width;
         HEIGHT = height;
@@ -154,6 +154,20 @@ public class HeatMapLengthCheckBot implements BattleshipBot {
     }
 
     private boolean isPossiblePlacement(final int x, final int y, final boolean isHorizontal, final int shipLength, final int[][] toAdd) {
+        int testX = x - (isHorizontal ? 1 : 0);
+        int testY = y - (isHorizontal ? 0 : 1);
+        if (testX >= 0 && testY >= 0 && testX < WIDTH && testY < HEIGHT) {
+            if (isShip(testX, testY)) {
+                return false;
+            }
+        }
+        testX = x + (isHorizontal ? shipLength : 0);
+        testY = y + (isHorizontal ? 0 : shipLength);
+        if (testX >= 0 && testY >= 0 && testX < WIDTH && testY < HEIGHT) {
+            if (isShip(testX, testY)) {
+                return false;
+            }
+        }
         for (int delta = 0; delta < shipLength; delta++) {
             int currentX = x + (isHorizontal ? delta : 0);
             int currentY = y + (isHorizontal ? 0 : delta);
