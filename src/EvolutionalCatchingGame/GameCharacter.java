@@ -1,55 +1,96 @@
 package EvolutionalCatchingGame;
 
-import EvolutionalNeuralNetwork.EvolutionaryNeuralNetwork;
-import StandardClasses.Random;
+import NeuralNetwork.*;
 import StandardClasses.Vector2;
 
 import java.awt.*;
+import java.io.Serializable;
+import java.util.Objects;
 
-public class GameCharacter {
-    private final EvolutionaryNeuralNetwork neuralNetwork;
-    private double speed;
-    private Vector2 pos;
+public class GameCharacter implements Serializable {
+    public int finishCounter;
+    Vector2 pos;
+    double speed;
+    NeuralNetwork neuralNetwork;
+    private boolean disabled = false;
+    private final int INPUT_COUNT;
 
-    public static GameCharacter reproduce(double mutationRate, double mutationStep, double[] fitnesses, GameCharacter... parents) {
-        Vector2 pos = parents[Random.randomIntInRange(0, parents.length - 1)].getPos();
-        EvolutionaryNeuralNetwork[] parentNets = new EvolutionaryNeuralNetwork[parents.length];
-        for (int i = 0; i < parents.length; i++) {
-            parentNets[i] = parents[i].neuralNetwork;
-        }
-        return new GameCharacter(EvolutionaryNeuralNetwork.reproduce(mutationRate, mutationStep, fitnesses, parentNets), parents[Random.randomIntInRange(0, parents.length - 1)].speed, pos);
+    public GameCharacter(final double speed, final Vector2 pos, final int inputCount, final int... layerSizes) {
+        this.speed = speed;
+        this.pos = pos;
+        this.neuralNetwork = new NeuralNetwork(NeuralNetworkType.EVOLUTIONARY, inputCount, layerSizes);
+        this.INPUT_COUNT = inputCount;
+        finishCounter = -1;
     }
 
     public Vector2 getPos() {
         return pos;
     }
 
-    public GameCharacter(double speed, Vector2 startingPos, int inputCount, int... layerSizes) {
-        this.speed = speed;
-        this.pos = startingPos;
-        this.neuralNetwork = new EvolutionaryNeuralNetwork(inputCount, layerSizes);
+    public Vector2 gameLoop(final Rectangle[] obstacles, final Vector2 targetPos) {
+        if (!disabled) {
+            double[] inputs = new double[INPUT_COUNT];
+            Vector2 relativeTargetPos = pos.getDir(targetPos);
+            final double x = pos.getX();
+            final double y = pos.getY();
+            inputs[0] = relativeTargetPos.getX();
+            inputs[1] = relativeTargetPos.getY();
+            int j = 2;
+            for (final Rectangle obstacle : obstacles) {
+                inputs[j] = obstacle.x - x;
+                inputs[j + 1] = obstacle.y - y;
+                inputs[j + 2] = obstacle.x + obstacle.width - x;
+                inputs[j + 3] = obstacle.y + obstacle.height - y;
+                j += 4;
+            }
+            double[] outputs = neuralNetwork.getOutputs(inputs);
+            Vector2 movement = new Vector2(outputs[0]-0.5, outputs[1]-0.5);
+            movement.clamp(speed);
+            pos.add(movement);
+        }
+        return pos;
     }
 
-    public GameCharacter(EvolutionaryNeuralNetwork neuralNetwork, double speed, Vector2 pos) {
-        this.neuralNetwork = neuralNetwork;
-        this.speed = speed;
-        this.pos = pos;
+    public void setPos(final Vector2 currentPos) {
+        pos = currentPos;
     }
 
-    public Vector2 gameLoop(Rectangle[] obstacles, Vector2 targetPos) {
-        Vector2 dir1 = pos.getDir(targetPos);
-        /*TODO double dist1 = Ray.getDist(pos, new Vector2(1, 1), obstacles);
-        double dist2 = Ray.getDist(pos, new Vector2(2, 1), obstacles);
-        double dist3 = Ray.getDist(pos, new Vector2(1, 2), obstacles);*/
-        double[] outputs = neuralNetwork.getOutputs(dir1.getX(), dir1.getY());
-        return new Vector2(outputs[0] * speed, outputs[1] * speed);
+    public GameCharacter mutate(double standardDeviation) {
+        GameCharacter result = new GameCharacter(speed, pos, INPUT_COUNT, 0);
+        result.neuralNetwork = neuralNetwork.clone();
+        result.neuralNetwork.mutate(standardDeviation);
+        return result;
     }
 
-    public void move(Vector2 dir) {
-        pos.add(dir);
+    public void disable() {
+        disabled = true;
     }
 
-    public void setPos(Vector2 vector2) {
-        this.pos = new Vector2(vector2);
+    public void finished(final int counter) {
+        finishCounter = counter;
+        disable();
+    }
+
+    public boolean isDisabled() {
+        return disabled;
+    }
+
+    public void reset(final Vector2 vector2) {
+        pos = vector2;
+        disabled = false;
+        finishCounter = -1;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final GameCharacter that = (GameCharacter) o;
+        return neuralNetwork.equals(that.neuralNetwork);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(finishCounter, pos, speed, neuralNetwork, disabled, INPUT_COUNT);
     }
 }

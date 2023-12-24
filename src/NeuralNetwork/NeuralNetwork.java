@@ -2,14 +2,17 @@ package NeuralNetwork;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class NeuralNetwork implements Serializable {
     @Serial
     private static final long serialVersionUID = 1;
-    Layer[] layers;
+    private final NeuralNetworkType NEURAL_NETWORK_TYPE;
+    public Layer[] layers;
     NetworkLearnData networkLearnData;
 
-    public NeuralNetwork(int inputs, int... layerSizes) {
+    public NeuralNetwork(NeuralNetworkType neuralNetworkType, int inputs, int... layerSizes) {
         layers = new Layer[layerSizes.length];
         for (int i = 0; i < layers.length; i++) {
             if (i == 0) {
@@ -19,7 +22,10 @@ public class NeuralNetwork implements Serializable {
             }
         }
 
-        networkLearnData = new NetworkLearnData(layers);
+        if (neuralNetworkType.equals(NeuralNetworkType.GRADIENT_DESCENT))
+            networkLearnData = new NetworkLearnData(layers);
+
+        NEURAL_NETWORK_TYPE = neuralNetworkType;
     }
 
     public double[] getOutputs(double... inputs) {
@@ -34,6 +40,10 @@ public class NeuralNetwork implements Serializable {
         return getOutputs(inputs);
     }
 
+    /**
+     * Only for gradient descent network
+     * @param data
+     */
     public double getCost(DataPoint data) {
         double[] inputs = data.getInputs();
         double[] expectedOutputs = data.getExpectedOutputs();
@@ -41,6 +51,10 @@ public class NeuralNetwork implements Serializable {
         return Cost.costFunction(outputs, expectedOutputs);
     }
 
+    /**
+     * Only for gradient descent network
+     * @param trainingData
+     */
     public double getCost(DataPoint[] trainingData) {
         double totalCost = 0;
         for (DataPoint trainingDatum : trainingData) {
@@ -85,7 +99,16 @@ public class NeuralNetwork implements Serializable {
 
     }
 
+    /**
+     * Only for gradient descent network
+     * @param trainingBatch
+     * @param learnRate
+     */
     public void learn(DataPoint[] trainingBatch, double learnRate) {
+        learn(trainingBatch, learnRate, .1, .9);
+    }
+
+    public void learn(DataPoint[] trainingBatch, double learnRate, double regularization, double momentum) {
         // Use the backpropagation algorithm to calculate the gradient of the cost function
         // (with respect to the network's weights and biases). This is done for each data
         // point, and the gradients are added together.
@@ -94,7 +117,7 @@ public class NeuralNetwork implements Serializable {
             updateAllGradients(dataPoint, networkLearnData);
         }
         // Gradient descent step: update all the weights and biases in the network
-        applyAllGradients(learnRate, trainingBatch.length, 0.1, 0.9);
+        applyAllGradients(learnRate, trainingBatch.length, regularization, momentum);
     }
 
     public double[][] getOutputs(DataPoint[] trainingData) {
@@ -103,5 +126,42 @@ public class NeuralNetwork implements Serializable {
             outputs[i] = getOutputs(trainingData[i]);
         }
         return outputs;
+    }
+
+
+    /**
+     * Only for evolutionary Neural Network
+     * @param standardDeviation
+     */
+    public void mutate(double standardDeviation) {
+        for (final Layer layer : layers) {
+            layer.mutate(standardDeviation);
+        }
+    }
+
+    public NeuralNetwork clone() {
+        NeuralNetwork result = new NeuralNetwork(NEURAL_NETWORK_TYPE, 0);
+        result.layers = new Layer[layers.length];
+        for (int i = 0; i < layers.length; i++) {
+            result.layers[i] = layers[i].clone();
+        }
+        if (NEURAL_NETWORK_TYPE == NeuralNetworkType.GRADIENT_DESCENT)
+            result.networkLearnData = networkLearnData.clone();
+        return result;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final NeuralNetwork that = (NeuralNetwork) o;
+        return NEURAL_NETWORK_TYPE == that.NEURAL_NETWORK_TYPE && Arrays.equals(layers, that.layers);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(NEURAL_NETWORK_TYPE, networkLearnData);
+        result = 31 * result + Arrays.hashCode(layers);
+        return result;
     }
 }

@@ -7,7 +7,7 @@ import static org.junit.Assert.assertEquals;
 // TODO: Replace examples and use TDD development by writing your own tests
 
 public class FindUniqueTest {
-    private double precision = 0.0000000000001;
+    private final double precision = 0.0000000000001;
 
     @Test
     public void sampleTestCases() {

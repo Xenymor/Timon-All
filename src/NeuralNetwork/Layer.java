@@ -2,6 +2,8 @@ package NeuralNetwork;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Objects;
 
 public class Layer implements Serializable {
     @Serial
@@ -10,13 +12,13 @@ public class Layer implements Serializable {
     final int INPUT_COUNT;
     final int OUTPUT_COUNT;
 
-    private final double[] weights;
-    private final double[] biases;
+    private double[] weights;
+    private double[] biases;
 
     double[] costGradientB;
     double[] costGradientW;
-    private final double[] weightVelocities;
-    private final double[] biasVelocities;
+    private double[] weightVelocities;
+    private double[] biasVelocities;
 
     public Layer(int layerSize, int inputCount) {
         this.INPUT_COUNT = inputCount;
@@ -153,5 +155,45 @@ public class Layer implements Serializable {
             newNodeValue *= Activation.derivative(layerLearnData.weightedInputs, newNodeIndex);
             layerLearnData.nodeValues[newNodeIndex] = newNodeValue;
         }
+    }
+
+    public Layer clone() {
+        Layer result = new Layer(OUTPUT_COUNT, INPUT_COUNT);
+        result.weights = weights.clone();
+        result.costGradientW = costGradientW.clone();
+        result.weightVelocities = weightVelocities.clone();
+        result.biases = biases.clone();
+        result.costGradientB = costGradientB.clone();
+        result.biasVelocities = biasVelocities.clone();
+        return result;
+    }
+
+    public void mutate(final double standardDeviation) {
+        for (int i = 0; i < weights.length; i++) {
+            weights[i] = RandomInNormalDistribution(weights[i], standardDeviation);
+        }
+        for (int i = 0; i < biases.length; i++) {
+            biases[i] = RandomInNormalDistribution(biases[i], standardDeviation);
+        }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final Layer layer = (Layer) o;
+        return INPUT_COUNT == layer.INPUT_COUNT && OUTPUT_COUNT == layer.OUTPUT_COUNT && Arrays.equals(weights, layer.weights) && Arrays.equals(biases, layer.biases) && Arrays.equals(costGradientB, layer.costGradientB) && Arrays.equals(costGradientW, layer.costGradientW) && Arrays.equals(weightVelocities, layer.weightVelocities) && Arrays.equals(biasVelocities, layer.biasVelocities);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(INPUT_COUNT, OUTPUT_COUNT);
+        result = 31 * result + Arrays.hashCode(weights);
+        result = 31 * result + Arrays.hashCode(biases);
+        result = 31 * result + Arrays.hashCode(costGradientB);
+        result = 31 * result + Arrays.hashCode(costGradientW);
+        result = 31 * result + Arrays.hashCode(weightVelocities);
+        result = 31 * result + Arrays.hashCode(biasVelocities);
+        return result;
     }
 }

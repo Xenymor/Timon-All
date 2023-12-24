@@ -2,6 +2,7 @@ package SquareCircleClassification;
 
 import NeuralNetwork.DataPoint;
 import NeuralNetwork.NeuralNetwork;
+import NeuralNetwork.NeuralNetworkType;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -102,13 +103,13 @@ public class Main {
 
     private void run() throws IOException {
         Form[] trainingData = getTrainingData();
-        NeuralNetwork neuralNetwork = new NeuralNetwork(784, 50, 5, 2);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, 784, 50, 5, 2);
         System.out.println(neuralNetwork.getCost(trainingData));
         trainInChunks(trainingData, neuralNetwork, CHUNK_SIZE, LEARN_RATE, TRAINING_REPETITIONS);
     }
 
     private void trainInChunks(Form[] trainingData, NeuralNetwork neuralNetwork, int chunkSize, double learnRate, int trainingRepetitions) {
-        int chunkCount = trainingData.length/chunkSize;
+        int chunkCount = trainingData.length / chunkSize;
         List<Form> list = Arrays.asList(trainingData);
         Collections.shuffle(list);
         trainingData = list.toArray(trainingData);

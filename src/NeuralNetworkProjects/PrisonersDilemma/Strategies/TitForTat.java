@@ -1,10 +1,8 @@
-package NeuralNetworkProjects.PrisonersDilemma;
+package NeuralNetworkProjects.PrisonersDilemma.Strategies;
 
-import java.util.Random;
-
-public class RandomStrategy implements Strategy {
+public class TitForTat implements Strategy {
     int rewardSum = 0;
-    Random random = new Random((long) (Math.random()*1_000_000_000));
+    boolean lastAnswer = true;
 
     @Override
     public int getRewardSum() {
@@ -18,16 +16,27 @@ public class RandomStrategy implements Strategy {
 
     @Override
     public boolean getMove() {
-        return random.nextBoolean();
+        return lastAnswer;
     }
 
     @Override
     public void otherMove(final boolean otherCooperated) {
-
+        lastAnswer = otherCooperated;
     }
 
     @Override
     public void reset() {
         rewardSum = 0;
+        lastAnswer = true;
+    }
+
+    @Override
+    public String getName() {
+        return "TitForTat";
+    }
+
+    @Override
+    public Strategy clone() {
+        return new TitForTat();
     }
 }

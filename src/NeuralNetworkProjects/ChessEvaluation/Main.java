@@ -2,6 +2,7 @@ package NeuralNetworkProjects.ChessEvaluation;
 
 import NeuralNetwork.DataPoint;
 import NeuralNetwork.NeuralNetwork;
+import NeuralNetwork.NeuralNetworkType;
 import StandardClasses.MyArrays;
 
 import java.io.*;
@@ -26,14 +27,14 @@ public class Main {
     private NeuralNetwork loadAndTrainNetwork(int iterations) throws IOException, ClassNotFoundException {
         DataPoint[] trainingData = loadData();
         List<DataPoint[]> trainingChunks = MyArrays.getChunks(DataPoint[].class, trainingData, 128);
-        int validationDataCount = trainingChunks.size()/10*2;
+        int validationDataCount = trainingChunks.size() / 10 * 2;
         DataPoint[] validationData = trainingChunks.get(0);
         for (int i = 0; i < validationDataCount; i++) {
             validationData = MyArrays.concatenate(validationData, trainingChunks.get(0));
             trainingChunks.remove(0);
         }
         Collections.shuffle(trainingChunks);
-        NeuralNetwork neuralNetwork = new NeuralNetwork(64, 1048, 500, 50, 1);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, 64, 1048, 500, 50, 1);
         if (Files.exists(Path.of("C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\NeuralNetworkProjects\\ChessEvaluation\\neuralNetworkChess.nn"))) {
             neuralNetwork = (NeuralNetwork) new ObjectInputStream(new FileInputStream("C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\NeuralNetworkProjects\\ChessEvaluation\\neuralNetworkChess.nn")).readObject();
             System.out.println("Loaded");
@@ -77,7 +78,7 @@ public class Main {
     private EvaluationData getEvaluationDatum(final String line) {
         String[] argumentStrings = line.split(",");
         double[] arguments = new double[argumentStrings.length - 1];
-        double output = Integer.parseInt(argumentStrings[0])/60_000d + 0.5d;
+        double output = Integer.parseInt(argumentStrings[0]) / 60_000d + 0.5d;
         for (int i = 0; i < arguments.length - 1; i++) {
             arguments[i] = Integer.parseInt(argumentStrings[i + 1]);
         }

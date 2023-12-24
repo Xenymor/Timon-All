@@ -205,17 +205,13 @@ class ChessBoard {
             if (Math.abs(rowDiff) != 1) {
                 return false;
             }
-            if (board[toRow][toCol].type == PieceType.EMPTY) {
-                return false;
-            }
+            return board[toRow][toCol].type != PieceType.EMPTY;
         } else if (Math.abs(colDiff) == 1) {
             // Pawn can only move one row forward if it's taking a piece
             if (Math.abs(rowDiff) != 1) {
                 return false;
             }
-            if (board[toRow][toCol].type == PieceType.EMPTY) {
-                return false;
-            }
+            return board[toRow][toCol].type != PieceType.EMPTY;
         } else {
             // Pawn can move one or two rows forward
             if (Math.abs(rowDiff) > 2) {
@@ -229,12 +225,8 @@ class ChessBoard {
                     return false;
                 }
             }
-            if (board[toRow][toCol].type != PieceType.EMPTY) {
-                return false;
-            }
+            return board[toRow][toCol].type == PieceType.EMPTY;
         }
-
-        return true;
     }
 
 
@@ -243,11 +235,7 @@ class ChessBoard {
         int colDiff = Math.abs(toCol - fromCol);
 
         // Check if the move is L-shaped
-        if (!((rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2))) {
-            return false;
-        }
-
-        return true;
+        return (rowDiff == 2 && colDiff == 1) || (rowDiff == 1 && colDiff == 2);
     }
 
 
@@ -318,11 +306,7 @@ class ChessBoard {
         int colDiff = Math.abs(toCol - fromCol);
 
         // Check if the move is too far
-        if (rowDiff > 1 || colDiff > 1) {
-            return false;
-        }
-
-        return true;
+        return rowDiff <= 1 && colDiff <= 1;
     }
 
 
@@ -468,10 +452,7 @@ class ChessBoard {
         if (isStalemate()) {
             return true;
         }
-        if (isDraw()) {
-            return true;
-        }
-        return false;
+        return isDraw();
     }
 
     boolean isCheckmate() {
@@ -495,12 +476,9 @@ class ChessBoard {
         }
 
         // Return true if the same position has occurred three times, or if a claim for a draw by repetition has been made and the opponent accepts
-        if (isDrawByRepetition()) {
-            return true;
-        }
+        return isDrawByRepetition();
 
         // Return false if none of the draw conditions are met
-        return false;
     }
 
     boolean isDrawByInsufficientMaterial() {
@@ -512,10 +490,7 @@ class ChessBoard {
                 }
             }
         }
-        if (pieceCount == 2) {
-            return true;
-        }
-        return false;
+        return pieceCount == 2;
     }
 
     public boolean isDrawBy50MoveRule() {

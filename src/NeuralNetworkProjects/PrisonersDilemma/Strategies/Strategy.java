@@ -1,4 +1,4 @@
-package NeuralNetworkProjects.PrisonersDilemma;
+package NeuralNetworkProjects.PrisonersDilemma.Strategies;
 
 public interface Strategy {
 
@@ -15,4 +15,8 @@ public interface Strategy {
     void otherMove(boolean otherCooperated);
 
     void reset();
+
+    String getName();
+
+    Strategy clone();
 }

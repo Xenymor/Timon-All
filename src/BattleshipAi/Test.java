@@ -20,8 +20,8 @@ public class Test {
     static final Collection<Integer> gameLengths = Collections.synchronizedCollection(new ArrayList<>());
 
     public static void main(String[] args) throws InterruptedException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        //showBot(new HeatMapBot3(WIDTH, HEIGHT, SHIP_LENGTHS));
-        testBotMultiThreaded();
+        showBot(new HeatMapBot3(WIDTH, HEIGHT, SHIP_LENGTHS));
+        //testBotMultiThreaded();
     }
 
     private static void testBotMultiThreaded() {

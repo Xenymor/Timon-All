@@ -1,8 +1,8 @@
 package EvolutionalCatchingGame;
 
 public class DoubleInt implements Comparable {
-    private double v;
-    private int i;
+    private final double v;
+    private final int i;
 
     public DoubleInt(double v, int i) {
         this.v = v;
