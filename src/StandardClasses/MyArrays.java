@@ -8,7 +8,7 @@ public class MyArrays {
     public static double[] multiply(double[] a, double[] b) {
         double[] result = new double[a.length];
         for (int i = 0; i < a.length; i++) {
-            result[i] = a[i]*b[i];
+            result[i] = a[i] * b[i];
         }
         return result;
     }
@@ -39,5 +39,40 @@ public class MyArrays {
             counter++;
         }
         return outList;
+    }
+
+    public static <T> T[][] switchCords(final T[][] toSwitch) {
+        T[][] result = toSwitch.clone();
+        for (int i = 0; i < result.length; i++) {
+            for (int j = 0; j < result[i].length; j++) {
+                result[i][j] = toSwitch[j][i];
+            }
+        }
+        return result;
+    }
+
+    public static <T> T[][] reverseInner(final T[][] toReverse) {
+        T[][] result = toReverse.clone();
+        for (int i = 0; i < toReverse.length; i++) {
+            result[i] = reverse(toReverse[i]);
+        }
+        return result;
+    }
+
+    private static <T> T[] reverse(final T[] toReverse) {
+        T[] result = toReverse.clone();
+        for (int i = 0; i < toReverse.length / 2; i++) {
+            result[i] = toReverse[toReverse.length - i - 1];
+            result[toReverse.length - i - 1] = toReverse[i];
+        }
+        return result;
+    }
+
+    public static <T> T[] resort(final T[] toSort, final Integer[] integers) {
+        T[] result = toSort.clone();
+        for (int i = 0; i < result.length; i++) {
+            result[i] = toSort[integers[i]];
+        }
+        return result;
     }
 }
