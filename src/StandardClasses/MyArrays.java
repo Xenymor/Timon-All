@@ -59,7 +59,25 @@ public class MyArrays {
         return result;
     }
 
-    private static <T> T[] reverse(final T[] toReverse) {
+    public static int[][] reverseInner(final int[][] toReverse) {
+        int[][] result = toReverse.clone();
+        for (int i = 0; i < toReverse.length; i++) {
+            result[i] = reverse(toReverse[i]);
+        }
+        return result;
+    }
+
+    private static int[] reverse(final int[] toReverse) {
+        int[] result = toReverse.clone();
+        for (int i = 0; i < toReverse.length / 2; i++) {
+            result[i] = toReverse[toReverse.length - i - 1];
+            result[toReverse.length - i - 1] = toReverse[i];
+        }
+        return result;
+    }
+
+
+    public static <T> T[] reverse(final T[] toReverse) {
         T[] result = toReverse.clone();
         for (int i = 0; i < toReverse.length / 2; i++) {
             result[i] = toReverse[toReverse.length - i - 1];
@@ -68,8 +86,33 @@ public class MyArrays {
         return result;
     }
 
-    public static <T> T[] resort(final T[] toSort, final Integer[] integers) {
+    public static float[] reverse(final float[] toReverse) {
+        float[] result = toReverse.clone();
+        for (int i = 0; i < toReverse.length / 2; i++) {
+            result[i] = toReverse[toReverse.length - i - 1];
+            result[toReverse.length - i - 1] = toReverse[i];
+        }
+        return result;
+    }
+
+    public static <T> T[] resort(final T[] toSort, final int[] integers) {
         T[] result = toSort.clone();
+        for (int i = 0; i < result.length; i++) {
+            result[i] = toSort[integers[i]];
+        }
+        return result;
+    }
+
+    public static int[] resort(final int[] toSort, final int[] integers) {
+        int[] result = toSort.clone();
+        for (int i = 0; i < result.length; i++) {
+            result[i] = toSort[integers[i]];
+        }
+        return result;
+    }
+
+    public static float[] resort(final float[] toSort, final int[] integers) {
+        float[] result = toSort.clone();
         for (int i = 0; i < result.length; i++) {
             result[i] = toSort[integers[i]];
         }
