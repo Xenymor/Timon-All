@@ -1,38 +1,120 @@
 package NeuralNetworkProjects.PrisonersDilemma;
 
-import NeuralNetworkProjects.PrisonersDilemma.Strategies.*;
+import NeuralNetworkProjects.PrisonersDilemma.Strategies.Strategy;
 import StandardClasses.MyArrays;
 
-import java.util.Arrays;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class PrisonersDilemma {
-    private final Integer[][] rewards;
+    private final int[][] rewards;
 
-    public PrisonersDilemma(Integer[]... rewards) {
+    public PrisonersDilemma(int[]... rewards) {
         this.rewards = rewards;
     }
 
-    public static void main(String[] args) {
-        final PrisonersDilemma dilemma = new PrisonersDilemma(new Integer[]{3, 3}, new Integer[]{5, 0}, new Integer[]{1, 1});
+    public static void main(String[] args) throws InvocationTargetException, InstantiationException, IllegalAccessException {
+        final PrisonersDilemma dilemma = new PrisonersDilemma(new int[]{3, 3}, new int[]{5, 0}, new int[]{1, 1});
         printRuleset(dilemma);
-        final Strategy[] strategies = {new RandomStrategy(), new AlwaysChooseStrategy(true), new AlwaysChooseStrategy(false), new TitForTat(), new TitForTwoTat(), new GrudgeStrategy(), new AnikaStrategy(), new AnalyzerStrategy()};
-        Integer[][][][] results = dilemma.doTournament(200, 5, strategies);
-        printResults(results, strategies);
+        Collection<Class> strategyClasses = getAllClasses("NeuralNetworkProjects.PrisonersDilemma.Strategies");
+        List<Strategy> strategiesList = new ArrayList<>();
+        for (Class foundClass : strategyClasses) {
+            if (!foundClass.isInterface()) {
+                final Constructor<?>[] constructors = ((Class<Strategy>) foundClass).getConstructors();
+                for (Constructor<?> constructor : constructors) {
+                    final Class<?>[] parameterTypes = constructor.getParameterTypes();
+                    List<List<Object>> allParameters = getAllParameterCombinations(parameterTypes, 0, new ArrayList<>(), new ArrayList<>());
+                    for (List<Object> parameters : allParameters) {
+                        strategiesList.add((Strategy) constructor.newInstance(parameters.toArray()));
+                    }
+                }
+            }
+        }
+        //final Strategy[] strategies = {new RandomStrategy(), new AlwaysChooseStrategy(true), new AlwaysChooseStrategy(false), new TitForTat(), new TitForTwoTat(), new GrudgeStrategy(), new AnikaStrategy(), new AnalyzerStrategy()};
+        final Strategy[] strategies = strategiesList.toArray(new Strategy[0]);
+        int[][][][] results = dilemma.doTournament(200, 5, strategies);
+        //printResults(results, strategies);
+        printRanking(results, strategies);
     }
 
-    public static void printResults(final Integer[][][][] originalResults, final Strategy[] ogStrats) {
-        Integer[] ints = new Integer[ogStrats.length];
+    private static void printRanking(final int[][][][] results, final Strategy[] ogStrategies) {
+        int[] ints = new int[ogStrategies.length];
         for (int i = 0; i < ints.length; i++) {
             ints[i] = i;
         }
-        ints = IntStream.range(0, ints.length)
+        float[] scores = new float[ogStrategies.length];
+        for (int i = 0; i < scores.length; i++) {
+            scores[i] = getAvgScore(i, results);
+        }
+        final float[] finalScores = scores;
+        ints = IntStream.of(ints)
+                .boxed()
+                .sorted((a, b) -> Float.compare(finalScores[a], finalScores[b]))
+                .mapToInt(Integer::intValue)
+                .toArray();
+        Strategy[] strategies = ogStrategies.clone();
+        strategies = MyArrays.resort(strategies, ints);
+        scores = MyArrays.resort(scores, ints);
+        strategies = MyArrays.reverse(strategies);
+        scores = MyArrays.reverse(scores);
+        for (int i = 0; i < strategies.length; i++) {
+            System.out.println((i + 1) + ". " + strategies[i].getName() + "\t" + scores[i]);
+        }
+    }
+
+    private static List<List<Object>> getAllParameterCombinations(final Class<?>[] parameterTypes, final int i, final ArrayList<Object> currentParameters, final List<List<Object>> result) {
+        if (i == parameterTypes.length) {
+            result.add(new ArrayList<>(currentParameters));
+        } else {
+            switch (parameterTypes[i].getName()) {
+                case "boolean" -> {
+                    currentParameters.add(true);
+                    getAllParameterCombinations(parameterTypes, i + 1, currentParameters, result);
+                    currentParameters.remove(currentParameters.size() - 1); // backtrack
+                    currentParameters.add(false);
+                    getAllParameterCombinations(parameterTypes, i + 1, currentParameters, result);
+                    currentParameters.remove(currentParameters.size() - 1); // backtrack
+                }
+                case "int" -> {
+                    for (int j = 1; j < 10; j++) {
+                        currentParameters.add(j);
+                        getAllParameterCombinations(parameterTypes, i + 1, currentParameters, result);
+                        currentParameters.remove(currentParameters.size() - 1); // backtrack
+                    }
+                }
+                case "double" -> {
+                    for (double j = 0.01; j < 0.5; j += 0.05) {
+                        currentParameters.add(j);
+                        getAllParameterCombinations(parameterTypes, i + 1, currentParameters, result);
+                        currentParameters.remove(currentParameters.size() - 1); // backtrack
+                    }
+                }
+                default -> System.out.println("Couldn't get parameter " + parameterTypes[i]);
+            }
+        }
+        return result;
+    }
+
+
+    public static void printResults(final int[][][][] originalResults, final Strategy[] ogStrategies) {
+        int[] ints = new int[ogStrategies.length];
+        for (int i = 0; i < ints.length; i++) {
+            ints[i] = i;
+        }
+        ints = IntStream.of(ints)
                 .boxed()
                 .sorted((a, b) -> Float.compare(getAvgScore(a, originalResults), getAvgScore(b, originalResults)))
-                .toList().toArray(new Integer[0]);
-        Strategy[] strategies = ogStrats.clone();
+                .mapToInt(Integer::intValue)
+                .toArray();
+        Strategy[] strategies = ogStrategies.clone();
         strategies = MyArrays.resort(strategies, ints);
-        Integer[][][][] results = MyArrays.resort(originalResults, ints);
+        int[][][][] results = MyArrays.resort(originalResults, ints);
         for (int i = 0; i < results.length; i++) {
             results[i] = MyArrays.resort(results[i], ints);
         }
@@ -43,10 +125,10 @@ public class PrisonersDilemma {
         final String str3 = ")";
         final String str4 = "(";
         for (int i = 0; i < results.length; i++) {
-            final Integer[][][] result = results[i];
+            final int[][][] result = results[i];
             msg.append(strategies[i].getName()).append(str4).append(getAvgScore(i, results)).append(str3).append(str2).append(str);
             for (int j = 0; j < result.length; j++) {
-                final Integer[][] localInts = result[j];
+                final int[][] localInts = result[j];
                 msg.append(str1).append(strategies[j].getName()).append(str2).append(Arrays.deepToString(localInts)).append(str);
             }
             msg.append(str);
@@ -54,40 +136,40 @@ public class PrisonersDilemma {
         System.out.print(msg);
     }
 
-    public static float getAvgScore(final int index, final Integer[][][][] results) {
+    public static float getAvgScore(final int index, final int[][][][] results) {
         int[] scores = getScores(index, results);
         int sum = 0;
-        for (final Integer score : scores) {
+        for (final int score : scores) {
             sum += score;
         }
         return sum / (float) scores.length;
     }
 
-    public static int[] getScores(final int index, final Integer[][][][] results) {
+    public static int[] getScores(final int index, final int[][][][] results) {
         int[] scores = new int[results.length];
-        final Integer[][][] result = results[index];
-        for (final Integer[][] ints : result) {
+        final int[][][] result = results[index];
+        for (final int[][] ints : result) {
             for (int j = 0; j < ints.length; j++) {
-                final Integer[] anInt = ints[j];
+                final int[] anInt = ints[j];
                 scores[j] += anInt[0];
             }
         }
         return scores;
     }
 
-    public static Integer[] getScores(final Integer[][][] results) {
-        Integer[] scores = new Integer[results.length];
-        for (final Integer[][] ints : results) {
+    public static int[] getScores(final int[][][] results) {
+        int[] scores = new int[results.length];
+        for (final int[][] ints : results) {
             for (int j = 0; j < ints.length; j++) {
-                final Integer[] anInt = ints[j];
+                final int[] anInt = ints[j];
                 scores[j] += anInt[0];
             }
         }
         return scores;
     }
 
-    public Integer[][][][] doTournament(final int gameCount, final int matchCount, final Strategy... strategies) {
-        Integer[][][][] results = new Integer[strategies.length][strategies.length][][];
+    public int[][][][] doTournament(final int gameCount, final int matchCount, final Strategy... strategies) {
+        int[][][][] results = new int[strategies.length][strategies.length][][];
         for (int i = 0; i < strategies.length; i++) {
             final Strategy strategy1 = strategies[i];
             for (int j = 0; j < strategies.length; j++) {
@@ -104,8 +186,8 @@ public class PrisonersDilemma {
         return results;
     }
 
-    public Integer[][] matchStrategies(Strategy strategy1, Strategy strategy2, int gameCount, int matchCount) {
-        Integer[][] record = new Integer[matchCount][2];
+    public int[][] matchStrategies(Strategy strategy1, Strategy strategy2, int gameCount, int matchCount) {
+        int[][] record = new int[matchCount][2];
         for (int matchCounter = 0; matchCounter < matchCount; matchCounter++) {
             strategy1.reset();
             strategy2.reset();
@@ -145,5 +227,26 @@ public class PrisonersDilemma {
                 return rewards[2][0];
             }
         }
+    }
+
+    public static Set<Class> getAllClasses(String packageName) {
+        InputStream stream = ClassLoader.getSystemClassLoader()
+                .getResourceAsStream(packageName.replaceAll("[.]", "/"));
+        assert stream != null;
+        BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
+        return reader.lines()
+                .filter(line -> line.endsWith(".class"))
+                .map(line -> getClass(line, packageName))
+                .collect(Collectors.toSet());
+    }
+
+    private static Class getClass(String className, String packageName) {
+        try {
+            return Class.forName(packageName + "."
+                    + className.substring(0, className.lastIndexOf('.')));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
