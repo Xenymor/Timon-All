@@ -1,0 +1,82 @@
+package TextAdventure;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
+
+public class TextAdventure {
+    public static final String STORY_PATH = "src/TextAdventure/story_Mama";
+    public static final String START_KEY = "Start";
+    static HashMap<String, StoryPoint> story = new HashMap<>();
+
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        //createStory();
+        tellStory();
+    }
+
+    private static void createStory() throws IOException {
+        final HashSet<String> existingKeys = new HashSet<>();
+        existingKeys.add(START_KEY);
+        createStoryRecursively(START_KEY, new Scanner(System.in), existingKeys);
+        final Path path = Path.of(STORY_PATH);
+        if (!Files.exists(path)) {
+            Files.createFile(path);
+        }
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(STORY_PATH));
+        objectOutputStream.writeObject(story);
+        objectOutputStream.close();
+    }
+
+    private static void createStoryRecursively(final String key, final Scanner scanner, final Set<String> existingKeys) {
+        System.out.println("We are at key: \u001B[31m" + key + "\u001B[0m");
+        System.out.println("Enter story");
+        String msg = getString(scanner);
+        System.out.println("Enter number of options");
+        int optionCount = getInt(scanner);
+        String[] options = new String[optionCount];
+        String[] keys = new String[optionCount];
+        for (int i = 0; i < optionCount; i++) {
+            System.out.println("We are at key: \u001B[31m" + key + " Option" + (i+1) + "\u001B[0m");
+            System.out.println("Enter option");
+            options[i] = getString(scanner);
+            System.out.println("Enter key");
+            keys[i] = getString(scanner);
+            if (existingKeys.contains(keys[i])) {
+                System.out.println("Loop created");
+            } else {
+                existingKeys.add(keys[i]);
+                createStoryRecursively(keys[i], scanner, existingKeys);
+            }
+        }
+        story.put(key, new StoryPoint(msg, optionCount == 0, options, keys));
+    }
+
+    private static String getString(final Scanner scanner) {
+        return scanner.nextLine();
+    }
+
+    private static int getInt(final Scanner scanner) {
+        while (true) {
+            try {
+                int num = Integer.parseInt(getString(scanner));
+                return num;
+            } catch (Exception e) {
+                System.out.println("Error please try again.");
+            }
+        }
+    }
+
+    private static void tellStory() throws IOException, ClassNotFoundException {
+        final ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(STORY_PATH));
+        story = (HashMap<String, StoryPoint>) inputStream.readObject();
+        inputStream.close();
+        StoryPoint current = story.get("Start");
+        Scanner scanner = new Scanner(System.in);
+        do {
+            current.printMsg();
+            current = story.get(current.getKey(scanner.nextInt()-1));
+        } while (!current.isEnd());
+        current.printMsg();
+    }
+}
