@@ -3,7 +3,10 @@ package TextAdventure;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
 
 public class TextAdventure {
     public static final String STORY_PATH = "src/TextAdventure/story_Mama";
@@ -11,11 +14,29 @@ public class TextAdventure {
     static HashMap<String, StoryPoint> story = new HashMap<>();
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
-        //createStory();
-        tellStory();
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("Do you want to create a story(c), play one(p) or quit(q)?");
+            String msg = scanner.nextLine();
+            try {
+                if (msg.equalsIgnoreCase("c")) {
+                    createStory();
+                } else if (msg.equalsIgnoreCase("p")) {
+                    System.out.println("Enter the story path!");
+                    tellStory(scanner.nextLine());
+                } else if (msg.equalsIgnoreCase("q")) {
+                    System.out.println("Quitting");
+                    System.exit(0);
+                } else {
+                    System.out.println("Answer not recognised. Try again!");
+                }
+            } catch (Exception e) {
+                System.out.println("Error. Please try again!");
+            }
+        }
     }
 
-    private static void createStory() throws IOException {
+    public static void createStory() throws IOException {
         final HashSet<String> existingKeys = new HashSet<>();
         existingKeys.add(START_KEY);
         createStoryRecursively(START_KEY, new Scanner(System.in), existingKeys);
@@ -37,7 +58,7 @@ public class TextAdventure {
         String[] options = new String[optionCount];
         String[] keys = new String[optionCount];
         for (int i = 0; i < optionCount; i++) {
-            System.out.println("We are at key: \u001B[31m" + key + " Option" + (i+1) + "\u001B[0m");
+            System.out.println("We are at key: \u001B[31m" + key + " Option" + (i + 1) + "\u001B[0m");
             System.out.println("Enter option");
             options[i] = getString(scanner);
             System.out.println("Enter key");
@@ -67,15 +88,15 @@ public class TextAdventure {
         }
     }
 
-    private static void tellStory() throws IOException, ClassNotFoundException {
-        final ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(STORY_PATH));
+    public static void tellStory(String storyPath) throws IOException, ClassNotFoundException {
+        final ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(storyPath));
         story = (HashMap<String, StoryPoint>) inputStream.readObject();
         inputStream.close();
         StoryPoint current = story.get("Start");
         Scanner scanner = new Scanner(System.in);
         do {
             current.printMsg();
-            current = story.get(current.getKey(scanner.nextInt()-1));
+            current = story.get(current.getKey(scanner.nextInt() - 1));
         } while (!current.isEnd());
         current.printMsg();
     }
