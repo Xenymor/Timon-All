@@ -1,6 +1,8 @@
 package NeuralNetworkProjects.PrisonersDilemma.Strategies;
 
-public interface Strategy {
+import java.io.Serializable;
+
+public interface Strategy extends Serializable {
 
     default void addReward(int reward) {
         setRewardSum(getRewardSum()+reward);

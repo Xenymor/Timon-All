@@ -1,16 +1,24 @@
 package NeuralNetworkProjects.PrisonersDilemma.Strategies;
 
-public class TitForTatWithCounts implements Strategy {
+import java.util.Random;
+
+public class ParamTitForTat implements Strategy{
     private int rewardSum;
     private final int deceptionsBeforeRetaliate;
     private final int deceptionCount;
     private int beenDeceptedCounter = 0;
     private boolean isDecepting = false;
     private int deceptionCounter = 0;
+    Random random = new Random();
+    boolean lastMove = true;
+    private final double forgivenessProbability;
+    private final double deceitProbability;
 
-    public TitForTatWithCounts(int deceptionsBeforeRetaliate, int deceptionCount) {
+    public ParamTitForTat(int deceptionsBeforeRetaliate, int deceptionCount, final double forgivenessProbability, final double deceitProbability) {
         this.deceptionsBeforeRetaliate = deceptionsBeforeRetaliate;
         this.deceptionCount = deceptionCount;
+        this.forgivenessProbability = forgivenessProbability;
+        this.deceitProbability = deceitProbability;
         reset();
     }
 
@@ -35,13 +43,18 @@ public class TitForTatWithCounts implements Strategy {
             }
             return false;
         } else {
-            return true;
+            return random.nextDouble() > deceitProbability;
         }
     }
 
     @Override
     public void otherMove(boolean otherCooperated) {
-        if (!otherCooperated && !isDecepting) {
+        if (otherCooperated) {
+            lastMove = true;
+        } else {
+            lastMove = random.nextDouble() < forgivenessProbability;
+        }
+        if (!lastMove && !isDecepting) {
             beenDeceptedCounter++;
             if (beenDeceptedCounter >= deceptionsBeforeRetaliate) {
                 isDecepting = true;
@@ -60,11 +73,11 @@ public class TitForTatWithCounts implements Strategy {
 
     @Override
     public String getName() {
-        return deceptionsBeforeRetaliate + "TitFor" + deceptionCount + "Tat";
+        return deceptionsBeforeRetaliate + "TitFor" + deceptionCount + "Tat" + Math.round(forgivenessProbability*100)/100f + ";" + Math.round(deceitProbability*100)/100f;
     }
 
     @Override
     public Strategy clone() {
-        return new TitForTatWithCounts(deceptionsBeforeRetaliate, deceptionCount);
+        return new ParamTitForTat(deceptionsBeforeRetaliate, deceptionCount, forgivenessProbability, deceitProbability);
     }
 }

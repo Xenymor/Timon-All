@@ -2,6 +2,7 @@ package StandardClasses;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MyArrays {
@@ -51,46 +52,40 @@ public class MyArrays {
         return result;
     }
 
-    public static <T> T[][] reverseInner(final T[][] toReverse) {
-        T[][] result = toReverse.clone();
-        for (int i = 0; i < toReverse.length; i++) {
-            result[i] = reverse(toReverse[i]);
+    public static <T> void reverseInner(final T[][] toReverse) {
+        for (final T[] ts : toReverse) {
+            reverse(ts);
         }
-        return result;
     }
 
-    public static int[][] reverseInner(final int[][] toReverse) {
-        int[][] result = toReverse.clone();
-        for (int i = 0; i < toReverse.length; i++) {
-            result[i] = reverse(toReverse[i]);
+    public static void reverseInner(final int[][] toReverse) {
+        for (final int[] ints : toReverse) {
+            reverse(ints);
         }
-        return result;
     }
 
-    private static int[] reverse(final int[] toReverse) {
-        int[] result = toReverse.clone();
+    public static void reverse(final int[] toReverse) {
         for (int i = 0; i < toReverse.length / 2; i++) {
-            result[i] = toReverse[toReverse.length - i - 1];
-            result[toReverse.length - i - 1] = toReverse[i];
+            int temp = toReverse[i];
+            toReverse[i] = toReverse[toReverse.length - i - 1];
+            toReverse[toReverse.length - i - 1] = temp;
         }
-        return result;
     }
 
-
-    public static <T> T[] reverse(final T[] toReverse) {
-        T[] result = toReverse.clone();
+    public static <T> void reverse(final T[] toReverse) {
         for (int i = 0; i < toReverse.length / 2; i++) {
-            result[i] = toReverse[toReverse.length - i - 1];
-            result[toReverse.length - i - 1] = toReverse[i];
+            T temp = toReverse[i];
+            toReverse[i] = toReverse[toReverse.length - i - 1];
+            toReverse[toReverse.length - i - 1] = temp;
         }
-        return result;
     }
 
     public static float[] reverse(final float[] toReverse) {
         float[] result = toReverse.clone();
         for (int i = 0; i < toReverse.length / 2; i++) {
-            result[i] = toReverse[toReverse.length - i - 1];
-            result[toReverse.length - i - 1] = toReverse[i];
+            float temp = toReverse[i];
+            toReverse[i] = toReverse[toReverse.length - i - 1];
+            toReverse[toReverse.length - i - 1] = temp;
         }
         return result;
     }
@@ -115,6 +110,14 @@ public class MyArrays {
         float[] result = toSort.clone();
         for (int i = 0; i < result.length; i++) {
             result[i] = toSort[integers[i]];
+        }
+        return result;
+    }
+
+    public static int[][] deepClone(final int[][] ints) {
+        int[][] result = ints.clone();
+        for (int i = 0; i < result.length; i++) {
+            result[i] = result[i].clone();
         }
         return result;
     }
