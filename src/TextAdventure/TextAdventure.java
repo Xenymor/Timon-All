@@ -80,8 +80,7 @@ public class TextAdventure {
     private static int getInt(final Scanner scanner) {
         while (true) {
             try {
-                int num = Integer.parseInt(getString(scanner));
-                return num;
+                return Integer.parseInt(getString(scanner));
             } catch (Exception e) {
                 System.out.println("Error please try again.");
             }
