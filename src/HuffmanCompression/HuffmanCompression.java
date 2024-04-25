@@ -3,7 +3,6 @@ package HuffmanCompression;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,14 +26,14 @@ public class HuffmanCompression {
         long decompressStart = System.nanoTime();
         String output = decompress(compressed);
         long finish = System.nanoTime();
-        System.out.println("Time for compressing: " + TimeUnit.NANOSECONDS.toMillis(decompressStart-startingTime));
-        System.out.println("Time for decompressing: " + TimeUnit.NANOSECONDS.toMillis(finish-decompressStart));
+        System.out.println("Time for compressing: " + TimeUnit.NANOSECONDS.toMillis(decompressStart - startingTime));
+        System.out.println("Time for decompressing: " + TimeUnit.NANOSECONDS.toMillis(finish - decompressStart));
         System.out.println(input.equals(output));
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(path + ".hfmcpr"));
         objectOutputStream.writeObject(compressed);
         objectOutputStream.close();
         System.out.println(compressed.result.length + "/" + input.length());
-        System.out.println(Arrays.toString(compressed.result));
+        //System.out.println(Arrays.toString(compressed.result));
     }
 
     private static String decompress(CompressionResult compressed) {
@@ -144,72 +143,5 @@ public class HuffmanCompression {
             temp.put(aa.getKey(), aa.getValue());
         }
         return temp;
-    }
-
-    private static class TreeNode implements Comparable<TreeNode>, Serializable {
-        private final BitSet letter;
-        private final int frequency;
-        private final TreeNode left;
-        private final TreeNode right;
-        private char uncompressedChar;
-
-        public TreeNode(BitSet letter, Integer frequency, TreeNode left, TreeNode right) {
-            this.letter = letter;
-            this.frequency = frequency;
-            this.left = left;
-            this.right = right;
-        }
-
-        public TreeNode(Character character, Integer frequency, TreeNode left, TreeNode right) {
-            this(charToBitSet(character), frequency, left, right);
-            uncompressedChar = character;
-        }
-
-        private static BitSet charToBitSet(Character character) {
-            BitSet result = new BitSet();
-            result.set(character);
-            return result;
-        }
-
-        public TreeNode getLeft() {
-            return left;
-        }
-
-        public TreeNode getRight() {
-            return right;
-        }
-
-        public BitSet getString() {
-            return letter;
-        }
-
-        public int getFrequency() {
-            return frequency;
-        }
-
-        @Override
-        public int compareTo(TreeNode o) {
-            return Integer.compare(frequency, o.frequency);
-        }
-
-        public boolean isLast() {
-            return right == null || left == null;
-        }
-
-        public boolean contains(char aChar) {
-            return letter.get(aChar);
-        }
-    }
-
-    private static class CompressionResult implements Serializable {
-        TreeNode codeTree;
-        byte[] result;
-        int bitCount;
-
-        public CompressionResult(TreeNode codeTree, byte[] result, int bitCount) {
-            this.codeTree = codeTree;
-            this.result = result;
-            this.bitCount = bitCount;
-        }
     }
 }
