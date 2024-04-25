@@ -9,26 +9,45 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class TextAdventure {
-    public static final String STORY_PATH = "src/TextAdventure/story_Mama";
+    public static final String STORY_PATH = "src/TextAdventure/";
     public static final String START_KEY = "Start";
     static HashMap<String, StoryPoint> story = new HashMap<>();
 
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         Scanner scanner = new Scanner(System.in);
+        boolean tellStoryAgain = false;
+        String msg = "";
+        String storyPath = "";
         while (true) {
-            System.out.println("Do you want to create a story(c), play one(p) or quit(q)?");
-            String msg = scanner.nextLine();
+            if (!tellStoryAgain) {
+                System.out.println("Do you want to create a story(c), play one(p) or quit(q)?");
+                msg = scanner.nextLine();
+            }
+            boolean justOutOfStory = false;
             try {
                 if (msg.equalsIgnoreCase("c")) {
                     createStory();
-                } else if (msg.equalsIgnoreCase("p")) {
-                    System.out.println("Enter the story path!");
-                    tellStory(scanner.nextLine());
+                } else if (msg.equalsIgnoreCase("p") || tellStoryAgain) {
+                    if (tellStoryAgain) {
+                        tellStoryAgain = false;
+                    } else {
+                        System.out.println("Enter the story name!");
+                        storyPath = STORY_PATH + scanner.nextLine();
+                    }
+                    tellStory(storyPath);
+                    justOutOfStory = true;
                 } else if (msg.equalsIgnoreCase("q")) {
                     System.out.println("Quitting");
                     System.exit(0);
                 } else {
                     System.out.println("Answer not recognised. Try again!");
+                }
+                if (justOutOfStory) {
+                    System.out.println("Do you want to play the same story again? (p)");
+                    msg = scanner.nextLine();
+                    if (msg.equalsIgnoreCase("p")) {
+                        tellStoryAgain = true;
+                    }
                 }
             } catch (Exception e) {
                 System.out.println("Error. Please try again!");
