@@ -25,6 +25,7 @@ public class Main {
     public static final String SAVE_PATH = "C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\EvolutionalCatchingGame\\best.enl";
     private static final int MAX_ITERATIONS = 100_000;
     public static final int FIELD_SIZE = 200;
+    GameCharacter lastBest = null;
     GameCharacter best = null;
     GameCharacter[] agents = new GameCharacter[AGENT_COUNT];
     Rectangle[] obstacles = new Rectangle[2];
@@ -47,7 +48,7 @@ public class Main {
         obstacles[0] = new Rectangle(25, 15, 0, 0);
         obstacles[1] = new Rectangle(150, 15, 0, 0);
         for (int i = 0; i < agents.length; i++) {
-            agents[i] = new GameCharacter(SPEED, new Vector2(START_POS), INPUT_COUNT + obstacles.length * 4, 10, 5, 3, OUTPUT_COUNT);
+            agents[i] = new GameCharacter(SPEED, new Vector2(START_POS), INPUT_COUNT + obstacles.length * 4, 12, 5, OUTPUT_COUNT);
         }
     }
 
@@ -182,6 +183,11 @@ public class Main {
                 agents[i].reset(new Vector2(START_POS));
             }
             if (finishedCounter > agents.length/10 || outerCounter-startOuterCounter > 100) {
+                if (outerCounter-startOuterCounter > 100 && lastBest != null) {
+                    agents[1] = lastBest;
+                } else {
+                    lastBest = best;
+                }
                 startOuterCounter = outerCounter;
                 final double x = START_POS.getX();
                 final double y = START_POS.getY();
