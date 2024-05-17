@@ -36,4 +36,13 @@ public class Random {
         }
         return result;
     }
+
+    public static Integer[] randomIntArray(final int arrLen) {
+        Integer[] result = new Integer[arrLen];
+        final int max = arrLen * 10;
+        for (int i = 0; i < result.length; i++) {
+            result[i] = randomIntInRange(0, max);
+        }
+        return result;
+    }
 }
