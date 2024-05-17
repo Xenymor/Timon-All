@@ -79,8 +79,8 @@ public class Main {
         String[] argumentStrings = line.split(",");
         double[] arguments = new double[argumentStrings.length - 1];
         double output = Integer.parseInt(argumentStrings[0]) / 60_000d + 0.5d;
-        for (int i = 0; i < arguments.length - 1; i++) {
-            arguments[i] = Integer.parseInt(argumentStrings[i + 1]);
+        for (int i = 1; i < arguments.length; i++) {
+            arguments[i] = Integer.parseInt(argumentStrings[i]);
         }
         return new EvaluationData(arguments, output);
     }
