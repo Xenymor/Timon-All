@@ -44,8 +44,9 @@ public class Simulation {
                 }
             }
         }
+        long before = System.nanoTime();
         board.update();
-        System.out.println("Duration: " + (System.nanoTime() - start)/1_000_000F + "ms");
+        System.out.println("Duration: " + (before - start)/1_000_000F + "ms; " + (System.nanoTime()-before)/1_000_000F + "ms");
     }
 
     public boolean changed() {

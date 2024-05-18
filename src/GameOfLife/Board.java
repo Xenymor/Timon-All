@@ -5,8 +5,7 @@ public class Board {
     public int width;
     boolean[][] board;
     private final boolean[][] change;
-
-    private final Object lock = new Object();
+    private int[] lineCount;
 
     public Board(final int width, final int height) {
         this.width = width;
@@ -18,8 +17,9 @@ public class Board {
     public Board(final boolean[][] board) {
         width = board.length;
         height = board[0].length;
-        this.board = board;
-        change = new boolean[width][height];
+        this.board = new boolean[width][height];
+        change = board;
+        update();
     }
 
     public boolean getState(final int x, final int y) {
@@ -27,23 +27,23 @@ public class Board {
     }
 
     public void setState(final int x, final int y, final boolean b) {
-        if (getState(x,y) != b) {
+        if (getState(x, y) != b) {
             change[x][y] = true;
         }
     }
 
-    public void executeWithLock(final Runnable runnable) {
-        runnable.run();
-    }
-
     public void update() {
-        synchronized (lock) {
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    if (change[x][y]) {
-                        board[x][y] = !getState(x, y);
-                        change[x][y] = false;
-                    }
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (change[x][y]) {
+                    final boolean newState = !getState(x, y);
+                    /*if (newState) {
+                        lineCount[y]++;
+                    } else {
+                        lineCount[y]--;
+                    }*/
+                    board[x][y] = newState;
+                    change[x][y] = false;
                 }
             }
         }
@@ -52,15 +52,15 @@ public class Board {
     public int getNeighbourCount(final int x, final int y) {
         int count = 0;
         for (int dx = -1; dx < 2; dx++) {
+            int x1 = x + dx;
+            if (x1 < 0) {
+                x1 += width;
+            } else if (x1 >= width) {
+                x1 -= width;
+            }
             for (int dy = -1; dy < 2; dy++) {
                 if (!(dx == 0 && dy == 0)) {
-                    int x1 = x + dx;
                     int y1 = y + dy;
-                    if (x1 < 0) {
-                        x1 += width;
-                    } else if (x1 >= width) {
-                        x1 -= width;
-                    }
                     if (y1 < 0) {
                         y1 += height;
                     } else if (y1 >= height) {
