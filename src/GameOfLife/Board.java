@@ -33,9 +33,7 @@ public class Board {
     }
 
     public void executeWithLock(final Runnable runnable) {
-        synchronized (lock) {
-            runnable.run();
-        }
+        runnable.run();
     }
 
     public void update() {

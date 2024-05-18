@@ -29,31 +29,23 @@ public class Simulation {
     }
 
     public void nextStep() {
-        changed = false;
+        final long start = System.nanoTime();
         for (int y = 0; y < board.height; y++) {
             for (int x = 0; x < board.width; x++) {
                 int neighbours = board.getNeighbourCount(x, y);
                 if (neighbours < 2) {
-                    if (board.getState(x, y)) {
-                        changed = true;
-                    }
                     board.setState(x, y, false);
                 } else if (neighbours < 4) {
                     if (neighbours == 3) {
-                        if (!board.getState(x, y)) {
-                            changed = true;
-                        }
                         board.setState(x, y, true);
                     }
                 } else {
-                    if (board.getState(x, y)) {
-                        changed = true;
-                    }
                     board.setState(x, y, false);
                 }
             }
         }
         board.update();
+        System.out.println("Duration: " + (System.nanoTime() - start)/1_000_000F + "ms");
     }
 
     public boolean changed() {
