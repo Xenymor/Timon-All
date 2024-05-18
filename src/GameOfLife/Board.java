@@ -5,13 +5,14 @@ public class Board {
     public int width;
     boolean[][] board;
     private final boolean[][] change;
-    private int[] lineCount;
+    private int[] columnCount;
 
     public Board(final int width, final int height) {
         this.width = width;
         this.height = height;
         board = new boolean[width][height];
         change = new boolean[width][height];
+        columnCount = new int[width];
     }
 
     public Board(final boolean[][] board) {
@@ -19,6 +20,7 @@ public class Board {
         height = board[0].length;
         this.board = new boolean[width][height];
         change = board;
+        columnCount = new int[width];
         update();
     }
 
@@ -37,11 +39,11 @@ public class Board {
             for (int y = 0; y < height; y++) {
                 if (change[x][y]) {
                     final boolean newState = !getState(x, y);
-                    /*if (newState) {
-                        lineCount[y]++;
+                    if (newState) {
+                        columnCount[x]++;
                     } else {
-                        lineCount[y]--;
-                    }*/
+                        columnCount[x]--;
+                    }
                     board[x][y] = newState;
                     change[x][y] = false;
                 }
@@ -58,16 +60,18 @@ public class Board {
             } else if (x1 >= width) {
                 x1 -= width;
             }
-            for (int dy = -1; dy < 2; dy++) {
-                if (!(dx == 0 && dy == 0)) {
-                    int y1 = y + dy;
-                    if (y1 < 0) {
-                        y1 += height;
-                    } else if (y1 >= height) {
-                        y1 -= height;
-                    }
-                    if (getState(x1, y1)) {
-                        count++;
+            if (columnCount[x1] > 0) {
+                for (int dy = -1; dy < 2; dy++) {
+                    if (!(dx == 0 && dy == 0)) {
+                        int y1 = y + dy;
+                        if (y1 < 0) {
+                            y1 += height;
+                        } else if (y1 >= height) {
+                            y1 -= height;
+                        }
+                        if (getState(x1, y1)) {
+                            count++;
+                        }
                     }
                 }
             }
