@@ -4,7 +4,7 @@ import StandardClasses.MyArrays;
 
 public class Simulation {
     private Board board;
-    private boolean changed = true;
+    private final boolean changed = true;
 
     public Simulation(final Board board) {
         this.board = board;
