@@ -5,7 +5,7 @@ public class Board {
     public int width;
     boolean[][] board;
     private final boolean[][] change;
-    private int[] columnCount;
+    private final int[] columnCount;
 
     public Board(final int width, final int height) {
         this.width = width;
