@@ -4,7 +4,7 @@ public class Board {
     public int height;
     public int width;
     boolean[][] board;
-    private final boolean[][] change;
+    private boolean[][] change;
 
     private final Object lock = new Object();
 
@@ -27,27 +27,18 @@ public class Board {
     }
 
     public void setState(final int x, final int y, final boolean b) {
-        if (getState(x,y) != b) {
-            change[x][y] = true;
-        }
+        change[x][y] = b;
     }
 
     public void executeWithLock(final Runnable runnable) {
-        synchronized (lock) {
             runnable.run();
-        }
     }
 
     public void update() {
         synchronized (lock) {
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    if (change[x][y]) {
-                        board[x][y] = !getState(x, y);
-                        change[x][y] = false;
-                    }
-                }
-            }
+            final boolean[][] temp = board;
+            board = change;
+            change = temp;
         }
     }
 

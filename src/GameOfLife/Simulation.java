@@ -1,10 +1,7 @@
 package GameOfLife;
 
-import StandardClasses.MyArrays;
-
 public class Simulation {
     private Board board;
-    private boolean changed = true;
 
     public Simulation(final Board board) {
         this.board = board;
@@ -29,34 +26,20 @@ public class Simulation {
     }
 
     public void nextStep() {
-        changed = false;
+        final long start = System.nanoTime();
         for (int y = 0; y < board.height; y++) {
             for (int x = 0; x < board.width; x++) {
                 int neighbours = board.getNeighbourCount(x, y);
-                if (neighbours < 2) {
-                    if (board.getState(x, y)) {
-                        changed = true;
-                    }
+                if (neighbours < 2 || neighbours > 3) {
                     board.setState(x, y, false);
-                } else if (neighbours < 4) {
-                    if (neighbours == 3) {
-                        if (!board.getState(x, y)) {
-                            changed = true;
-                        }
-                        board.setState(x, y, true);
-                    }
+                } else if (neighbours == 3) {
+                    board.setState(x, y, true);
                 } else {
-                    if (board.getState(x, y)) {
-                        changed = true;
-                    }
-                    board.setState(x, y, false);
+                    board.setState(x, y, board.getState(x, y));
                 }
             }
         }
         board.update();
-    }
-
-    public boolean changed() {
-        return changed;
+        System.out.println("Duration: " + (System.nanoTime() - start)/1_000_000F + "ms");
     }
 }
