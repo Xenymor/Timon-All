@@ -5,7 +5,8 @@ public class Board {
     public int width;
     boolean[][] board;
     private final boolean[][] change;
-    private int[] columnCount;
+    private final int[] columnCount;
+    private final int[] chunkCount = new int[4096];
 
     public Board(final int width, final int height) {
         this.width = width;
@@ -34,6 +35,16 @@ public class Board {
         }
     }
 
+    private int getChunkId(int x, int y) {
+        return (x + y) >>> 6;
+    }
+
+    private int getChunkIdSafe(int x, int y) {
+        int xx = x & 63;
+        int yy = y & 63;
+        return xx == 0 || yy == 0 || xx == 63 || yy == 63 ? -1 : (x + y) >>> 6;
+    }
+
     public void update() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
@@ -41,8 +52,10 @@ public class Board {
                     final boolean newState = !getState(x, y);
                     if (newState) {
                         columnCount[x]++;
+                        chunkCount[getChunkId(x, y)]++;
                     } else {
                         columnCount[x]--;
+                        chunkCount[getChunkId(x, y)]--;
                     }
                     board[x][y] = newState;
                     change[x][y] = false;
@@ -52,6 +65,10 @@ public class Board {
     }
 
     public int getNeighbourCount(final int x, final int y) {
+        int chunkIdSafe = getChunkIdSafe(x, y);
+        if (chunkIdSafe >= 0 && chunkCount[chunkIdSafe] == 0) {
+            return 0;
+        }
         int count = 0;
         for (int dx = -1; dx < 2; dx++) {
             int x1 = x + dx;
