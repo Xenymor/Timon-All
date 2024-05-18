@@ -1,10 +1,7 @@
 package GameOfLife;
 
-import StandardClasses.MyArrays;
-
 public class Simulation {
     private Board board;
-    private final boolean changed = true;
 
     public Simulation(final Board board) {
         this.board = board;
@@ -46,10 +43,6 @@ public class Simulation {
         }
         long before = System.nanoTime();
         board.update();
-        System.out.println("Duration: " + (before - start)/1_000_000F + "ms; " + (System.nanoTime()-before)/1_000_000F + "ms");
-    }
-
-    public boolean changed() {
-        return changed;
+        System.out.println("Duration: " + (before - start) / 1_000_000F + "ms; " + (System.nanoTime() - before) / 1_000_000F + "ms");
     }
 }
