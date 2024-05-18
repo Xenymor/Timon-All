@@ -121,4 +121,12 @@ public class MyArrays {
         }
         return result;
     }
+
+    public static boolean[][] deepClone(final boolean[][] arr) {
+        boolean[][] result = arr.clone();
+        for (int i = 0; i < result.length; i++) {
+            result[i] = result[i].clone();
+        }
+        return result;
+    }
 }
