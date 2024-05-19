@@ -39,7 +39,7 @@ class EvolutionaryNeuralNetworkTest {
             }
         }
         double endFitness = 100_000;
-        for (final EvolutionaryNeuralNetwork.EvolutionaryNeuralNetwork evolutionaryNeuralNetwork : testGroup) {
+        for (final EvolutionaryNeuralNetwork evolutionaryNeuralNetwork : testGroup) {
             current = getFitness(evolutionaryNeuralNetwork);
             if (current <= endFitness) {
                 endFitness = current;

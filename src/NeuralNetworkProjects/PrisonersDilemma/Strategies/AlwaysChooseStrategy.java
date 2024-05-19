@@ -44,7 +44,6 @@ public class AlwaysChooseStrategy implements Strategy {
 
     @Override
     public Strategy clone() {
-        final Strategy strategy = (Strategy) super.clone();
         return new AlwaysChooseStrategy(choice);
     }
 

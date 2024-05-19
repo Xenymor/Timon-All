@@ -78,7 +78,6 @@ public class ParamTitForTat implements Strategy{
 
     @Override
     public Strategy clone() {
-        final Strategy strategy = (Strategy) super.clone();
         return new ParamTitForTat(deceptionsBeforeRetaliate, deceptionCount, forgivenessProbability, deceitProbability);
     }
 }

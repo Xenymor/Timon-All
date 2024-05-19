@@ -19,7 +19,6 @@ public class LayerLearnData implements Serializable {
     }
 
     public LayerLearnData clone() {
-        final NeuralNetwork.LayerLearnData layerLearnData = (NeuralNetwork.LayerLearnData) super.clone();
         LayerLearnData result = new LayerLearnData(new Layer(0,0));
         result.inputs = inputs.clone();
         result.weightedInputs = weightedInputs.clone();
