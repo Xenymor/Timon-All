@@ -158,6 +158,7 @@ public class Layer implements Serializable {
     }
 
     public Layer clone() {
+        final NeuralNetwork.Layer layer = (NeuralNetwork.Layer) super.clone();
         Layer result = new Layer(OUTPUT_COUNT, INPUT_COUNT);
         result.weights = weights.clone();
         result.costGradientW = costGradientW.clone();

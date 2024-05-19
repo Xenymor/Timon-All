@@ -13,7 +13,6 @@ public class Main {
 
     public static final int FRUIT_COUNT = 1_000;
     private static final double INITIAL_LEARNING_RATE = 0.5;
-    private static double learnRate;
     public static final int CHUNK_SIZE = 100;
     private static final double LEARN_RATE_DECAY = 0.075;
 
@@ -22,7 +21,7 @@ public class Main {
     }
 
     private void run() throws InterruptedException {
-        learnRate = INITIAL_LEARNING_RATE;
+        double learnRate = INITIAL_LEARNING_RATE;
         Fruit[] trainingData = getFruits(FRUIT_COUNT);
         List<Fruit[]> trainingDataChunks = getChunks(Fruit[].class, trainingData, CHUNK_SIZE);
         NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, 2, 50, 4, 2);
@@ -69,6 +68,7 @@ public class Main {
         return trues;
     }
 
+    @SuppressWarnings("CommentedOutCode")
     private Fruit[] getFruits(int fruitCount) {
         double[] lengths = new double[fruitCount];
         double[] widths = new double[fruitCount];
@@ -111,7 +111,7 @@ public class Main {
     private static class Fruit implements DataPoint {
         final double[] inputs;
         final double[] expectedOutputs;
-        boolean isPoisonous;
+        final boolean isPoisonous;
 
 
         public Fruit(boolean poisonous, double... inputs) {
@@ -140,8 +140,8 @@ public class Main {
     }
 
     private static class MyFrame extends JFrame {
-        NeuralNetwork neuralNetwork;
-        Fruit[] trainingData;
+        final NeuralNetwork neuralNetwork;
+        final Fruit[] trainingData;
 
         public MyFrame(NeuralNetwork neuralNetwork, Fruit[] trainingData) {
             this.neuralNetwork = neuralNetwork;

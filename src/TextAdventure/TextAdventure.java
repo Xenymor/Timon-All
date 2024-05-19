@@ -13,7 +13,7 @@ public class TextAdventure {
     public static final String START_KEY = "Start";
     static HashMap<String, StoryPoint> story = new HashMap<>();
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         boolean tellStoryAgain = false;
         String msg = "";

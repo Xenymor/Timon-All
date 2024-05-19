@@ -140,6 +140,7 @@ public class NeuralNetwork implements Serializable {
     }
 
     public NeuralNetwork clone() {
+        final NeuralNetwork.NeuralNetwork neuralNetwork = (NeuralNetwork.NeuralNetwork) super.clone();
         NeuralNetwork result = new NeuralNetwork(NEURAL_NETWORK_TYPE, 0);
         result.layers = new Layer[layers.length];
         for (int i = 0; i < layers.length; i++) {

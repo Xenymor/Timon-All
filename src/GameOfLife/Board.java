@@ -1,9 +1,9 @@
 package GameOfLife;
 
 public class Board {
-    public int height;
-    public int width;
-    boolean[][] board;
+    public final int height;
+    public final int width;
+    final boolean[][] board;
     private final boolean[][] change;
     private final int[] columnCount;
 

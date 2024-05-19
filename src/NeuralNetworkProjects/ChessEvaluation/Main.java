@@ -24,6 +24,7 @@ public class Main {
         System.out.println("Finished training");
     }
 
+    @SuppressWarnings("SameParameterValue")
     private NeuralNetwork loadAndTrainNetwork(int iterations) throws IOException, ClassNotFoundException {
         DataPoint[] trainingData = loadData();
         List<DataPoint[]> trainingChunks = MyArrays.getChunks(DataPoint[].class, trainingData, 128);

@@ -10,7 +10,7 @@ import java.util.Set;
 public class BattleshipBoard {
     private final int WIDTH;
     private final int HEIGHT;
-    Field[][] board;
+    final Field[][] board;
     private final int[] SHIP_LENGTHS;
 
     public BattleshipBoard(int width, int height, final int[] shipLengths) {

@@ -31,7 +31,7 @@ public class VSHuman {
     private boolean editMode = true;
     private final BoardUI boardUI = new BoardUI(botBoard, ZOOM);
     private Vector2I clicked = null;
-    Lock clickedLock = new ReentrantLock();
+    final Lock clickedLock = new ReentrantLock();
     private boolean confirmed = false;
 
     private void startMatch() throws InterruptedException {
@@ -139,8 +139,8 @@ public class VSHuman {
         }
     }
 
-    List<Integer> remainingShipLengths = new ArrayList<>();
-    HashSet<Field> checkedPositions = new HashSet<>();
+    final List<Integer> remainingShipLengths = new ArrayList<>();
+    final HashSet<Field> checkedPositions = new HashSet<>();
 
     private boolean checkShipLengths() {
         remainingShipLengths.clear();
@@ -212,23 +212,6 @@ public class VSHuman {
 
 
     private boolean isAllowedPlacement(final int x, final int y) {
-        /*Vector2I[] adjacentPosArr = getAdjacentPositions(x, y);
-        boolean isConnectedShip = false;
-        boolean isHorizontal = true;
-        final Field[][] board = botBoard.board;
-        for (Vector2I pos : adjacentPosArr) {
-            if (board[pos.getX()][pos.getY()].isShip()) {
-                if (isConnectedShip) {
-                    if (isHorizontal && pos.getX() == x
-                            || !isHorizontal && pos.getY() == y) {
-                        return false;
-                    }
-                }
-                isConnectedShip = true;
-                isHorizontal = pos.getX() != x;
-            }
-        }
-        return true;*/
         final Field[][] board = botBoard.board;
         final Field field = board[x][y];
         field.setShip(true);

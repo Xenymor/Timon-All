@@ -10,7 +10,7 @@ import java.util.Objects;
 public class GameCharacter implements Serializable {
     public int finishCounter;
     Vector2 pos;
-    double speed;
+    final double speed;
     NeuralNetwork neuralNetwork;
     private boolean disabled = false;
     private final int INPUT_COUNT;

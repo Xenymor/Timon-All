@@ -7,9 +7,9 @@ import java.awt.image.BufferedImage;
 public class Graphics extends JFrame {
     private static final Color ALIVE_COL = new Color(199, 192, 17);
     private static final Color DEAD_COL = new Color(255, 255, 255);
-    Board board;
+    final Board board;
     final int BLOCK_SIZE;
-    BufferedImage img;
+    final BufferedImage img;
 
     public Graphics(Board board, int blockSize) throws HeadlessException {
         this.board = board;

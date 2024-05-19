@@ -172,9 +172,6 @@ public class LanguageClassificationMain {
             }
             //learnRate *= 1 - LEARN_RATE_DECAY;
         }
-        //System.out.println(performance);
-        //saveNeuralNetwork(neuralNetwork);
-        //System.exit(0);
     }
 
     private double getPercentage(final List<Map<Integer, Double>> percentageMapList, final String string) {
@@ -351,34 +348,6 @@ public class LanguageClassificationMain {
         }
         return dataPoints;
     }
-
-    /*private int getCharPercentage() throws IOException {
-        int chars = 0;
-        List<Character> charsList = new ArrayList<>();
-        List<String> lines = Files.readAllLines(Paths.get(english.getAbsolutePath()));
-        englishLines = lines;
-        chars = getChars(chars, charsList, lines);
-        lines = Files.readAllLines(Paths.get(german.getAbsolutePath()));
-        germanLines = lines;
-        chars = getChars(chars, charsList, lines);
-        lines = Files.readAllLines(Paths.get(italian.getAbsolutePath()));
-        italianLines = lines;
-        chars = getChars(chars, charsList, lines);
-        return chars;
-    }
-
-    private int getChars(int chars, List<Character> charsList, List<String> lines) {
-        for (String line : lines) {
-            char[] current = line.toCharArray();
-            for (char o : current) {
-                if (!charsList.contains(o)) {
-                    charsList.add(o);
-                    chars++;
-                }
-            }
-        }
-        return chars;
-    }*/
 
     private List<Character> getChars() throws IOException {
         List<Character> charsList = new ArrayList<>();

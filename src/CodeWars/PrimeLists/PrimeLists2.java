@@ -12,7 +12,7 @@ public class PrimeLists2 {
     }
 
     private void run() {
-        List<Integer> allPrimes = getPrimes(100);
+        List<Integer> allPrimes = getPrimes();
         System.out.println(allPrimes);
         List<Integer>[] primesWithDigits = getNumbersWithOneDigit(allPrimes, digitsToContain);
         System.out.println(Arrays.toString(primesWithDigits));
@@ -20,8 +20,6 @@ public class PrimeLists2 {
         System.out.println(allCombis);
         removeAllSolutionsContainedTwice(allCombis);
         System.out.println(allCombis);
-        //removeAllDoubleDigitCombis(allCombis);
-        //System.out.println(allCombis);
         List<Integer> result = getAllContainedEverywhere(primesWithDigits, allCombis);
         System.out.println(result);
     }
@@ -190,9 +188,9 @@ public class PrimeLists2 {
         return result;
     }
 
-    private List<Integer> getPrimes(final int i) {
+    private List<Integer> getPrimes() {
         List<Integer> result = new ArrayList<>();
-        for (int j = 2; j < i; j++) {
+        for (int j = 2; j < 100; j++) {
             boolean isPrime = true;
             final double sqrt = Math.sqrt(j);
             for (Integer prime : result) {

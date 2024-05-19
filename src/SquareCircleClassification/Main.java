@@ -13,6 +13,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("SameParameterValue")
 public class Main {
     private static final double LEARN_RATE = 0.1;
     public static final int CHUNK_SIZE = 10;
@@ -65,19 +66,6 @@ public class Main {
         return bufferedImage;
     }
 
-    /*private BufferedImage getCircleImage(int width, int height) {
-        BufferedImage result = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
-        Graphics2D g = (Graphics2D) result.getGraphics();
-        g.clearRect(0, 0, width, height);
-        //drawing the circle
-        g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        g.setColor(Color.black);
-        double x = Math.random();
-        double y = Math.random();
-        g.drawOval((int)(x * (width-10)), (int) (y*(height-10)), 200, 200);
-        return result;
-    }*/
-
     public static void makeGray(BufferedImage img) {
         for (int x = 0; x < img.getWidth(); ++x)
             for (int y = 0; y < img.getHeight(); ++y) {
@@ -122,8 +110,8 @@ public class Main {
             }
         }
         for (int i = 0; i < trainingRepetitions; i++) {
-            for (int j = 0; j < chunks.length; j++) {
-                neuralNetwork.learn(chunks[j], learnRate);
+            for (final Form[] chunk : chunks) {
+                neuralNetwork.learn(chunk, learnRate);
                 System.out.println(neuralNetwork.getCost(trainingData));
             }
         }
@@ -149,8 +137,8 @@ public class Main {
     }
 
     private class Form implements DataPoint {
-        double[] expectedOutputs;
-        double[] inputs;
+        final double[] expectedOutputs;
+        final double[] inputs;
 
         Form(BufferedImage img, boolean isCircle) {
             expectedOutputs = isCircle ? new double[]{1, 0} : new double[]{0, 1};

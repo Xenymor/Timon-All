@@ -6,7 +6,7 @@ import java.util.Arrays;
 
 //63.700794 MPG
 public class RandomBot implements BattleshipBot {
-    Boolean[][] board;
+    final Boolean[][] board;
     final int WIDTH;
     final int HEIGHT;
 

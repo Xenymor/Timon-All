@@ -27,9 +27,9 @@ public class Main {
     public static final int FIELD_SIZE = 200;
     GameCharacter lastBest = null;
     GameCharacter best = null;
-    GameCharacter[] agents = new GameCharacter[AGENT_COUNT];
-    Rectangle[] obstacles = new Rectangle[2];
-    Vector2 targetPos = new Vector2(0, FIELD_SIZE);
+    final GameCharacter[] agents = new GameCharacter[AGENT_COUNT];
+    final Rectangle[] obstacles = new Rectangle[2];
+    final Vector2 targetPos = new Vector2(0, FIELD_SIZE);
     int outerCounter = 0;
 
     public static void main(String[] args) throws InterruptedException, IOException, ClassNotFoundException {

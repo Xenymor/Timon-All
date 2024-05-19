@@ -42,8 +42,8 @@ enum PieceType {
 }
 
 class Piece {
-    PieceType type;
-    boolean isWhite;
+    final PieceType type;
+    final boolean isWhite;
     int row, col;
 
     Piece(PieceType type, boolean isWhite) {
@@ -55,7 +55,7 @@ class Piece {
 class ChessBoard {
     private static final int BOARD_SIZE = 8;
     boolean whiteOnTurn = true;  // WHITE moves first
-    Piece[][] board;
+    final Piece[][] board;
     private int halfMoveClock = 0;
 
     ChessBoard() {
@@ -95,9 +95,12 @@ class ChessBoard {
     }
 
     static class Move {
-        int fromRow, fromCol, toRow, toCol;
-        Piece capturedPiece;
-        Piece[][] board;
+        final int fromRow;
+        final int fromCol;
+        final int toRow;
+        final int toCol;
+        final Piece capturedPiece;
+        final Piece[][] board;
 
         @Override
         public String toString() {
@@ -136,9 +139,10 @@ class ChessBoard {
         return new Move(fromRow, fromCol, toRow, toCol, board[toCol][toRow], board);
     }
 
-    Stack<Move> movesMade = new Stack<>();
+    final Stack<Move> movesMade = new Stack<>();
     private final List<Move> moveHistory = new ArrayList<>();
 
+    @SuppressWarnings("UnusedReturnValue")
     public boolean makeMove(Move move) {
         moveHistory.add(move);
         if (!isValidMove(move.fromRow, move.fromCol, move.toRow, move.toCol)) {
@@ -362,22 +366,15 @@ class ChessBoard {
         if (piece.isWhite != whiteOnTurn) {
             return false;  // Can only move pieces of your own color
         }
-        switch (piece.type) {
-            case PAWN:
-                return isValidPawnMove(fromRow, fromCol, toRow, toCol, piece.isWhite);
-            case KNIGHT:
-                return isValidKnightMove(fromRow, fromCol, toRow, toCol);
-            case BISHOP:
-                return isValidBishopMove(fromRow, fromCol, toRow, toCol);
-            case ROOK:
-                return isValidRookMove(fromRow, fromCol, toRow, toCol);
-            case QUEEN:
-                return isValidQueenMove(fromRow, fromCol, toRow, toCol);
-            case KING:
-                return isValidKingMove(fromRow, fromCol, toRow, toCol);
-            default:
-                return false;
-        }
+        return switch (piece.type) {
+            case PAWN -> isValidPawnMove(fromRow, fromCol, toRow, toCol, piece.isWhite);
+            case KNIGHT -> isValidKnightMove(fromRow, fromCol, toRow, toCol);
+            case BISHOP -> isValidBishopMove(fromRow, fromCol, toRow, toCol);
+            case ROOK -> isValidRookMove(fromRow, fromCol, toRow, toCol);
+            case QUEEN -> isValidQueenMove(fromRow, fromCol, toRow, toCol);
+            case KING -> isValidKingMove(fromRow, fromCol, toRow, toCol);
+            default -> false;
+        };
     }
 
     List<Move> getAllValidMovesForColor(boolean color) {
@@ -394,8 +391,8 @@ class ChessBoard {
     }
 
     class ScoreAndMove {
-        int score;
-        Move move;
+        final int score;
+        final Move move;
 
         @Override
         public String toString() {
@@ -516,27 +513,15 @@ class ChessBoard {
             for (int col = 0; col < 8; col++) {
                 Piece piece = board[row][col];
                 if (piece == null) continue;
-                int pieceValue = 0;
-                switch (piece.type) {
-                    case PAWN:
-                        pieceValue = 1;
-                        break;
-                    case KNIGHT:
-                        pieceValue = 3;
-                        break;
-                    case BISHOP:
-                        pieceValue = 3;
-                        break;
-                    case ROOK:
-                        pieceValue = 5;
-                        break;
-                    case QUEEN:
-                        pieceValue = 9;
-                        break;
-                    case KING:
-                        pieceValue = 900;
-                        break;
-                }
+                int pieceValue = switch (piece.type) {
+                    case PAWN -> 1;
+                    case KNIGHT -> 3;
+                    case BISHOP -> 3;
+                    case ROOK -> 5;
+                    case QUEEN -> 9;
+                    case KING -> 900;
+                    default -> 0;
+                };
                 if (piece.isWhite) {
                     score += pieceValue;
                 } else {

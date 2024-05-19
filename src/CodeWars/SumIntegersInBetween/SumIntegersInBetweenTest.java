@@ -2,12 +2,11 @@ package CodeWars.SumIntegersInBetween;
 
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
-import org.junit.runners.JUnit4;
 
 
 public class SumIntegersInBetweenTest {
 
-    SumIntegersInBetween s = new SumIntegersInBetween();
+    final SumIntegersInBetween s = new SumIntegersInBetween();
 
     @Test
     public void Test1()

@@ -10,16 +10,17 @@ import java.util.Map;
 
 public class TicTacToe {
     public static final int FIELD_SIZE = 3;
-    FieldPosition field;
+    final FieldPosition field;
     private boolean computerOnTurn;
-    BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+    final BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
     public TicTacToe() {
         this.field = new FieldPosition();
         field.setField(new int[FIELD_SIZE][FIELD_SIZE]);
     }
 
-    public static void main(String[] args) throws IOException {
+    @SuppressWarnings("CommentedOutCode")
+    public static void main(String[] args) throws CloneNotSupportedException {
         TicTacToe game = new TicTacToe();
         /*MinMaxResult bestMoveWithScore = game.findBestMoveWithScore();
         System.out.println(bestMoveWithScore.getMove() + "; " + bestMoveWithScore.getScore());
@@ -27,7 +28,7 @@ public class TicTacToe {
         game.playSelfAndPrintMoves();
     }
 
-    private void playSelfAndPrintMoves() {
+    private void playSelfAndPrintMoves() throws CloneNotSupportedException {
         while (!this.isWon() && !this.isDrawn()) {
             MinMaxResult move = findBestMoveWithScore();
             makeMove(move.getX(), move.getY(), field, getComputerOnTurn() ? 1 : -1);
@@ -37,7 +38,7 @@ public class TicTacToe {
         }
     }
 
-    private void start() throws IOException {
+    private void start() throws IOException, CloneNotSupportedException {
         printField();
         boolean computerStarting = askComputerStarting();
         setComputerOnTurn(computerStarting);
@@ -64,7 +65,7 @@ public class TicTacToe {
         return true;
     }
 
-    private void gameLoop() throws IOException {
+    private void gameLoop() throws IOException, CloneNotSupportedException {
         boolean moveWorked = getAndMakeMove();
         if (getComputerOnTurn()) {
             printField();
@@ -74,7 +75,7 @@ public class TicTacToe {
         }
     }
 
-    private boolean getAndMakeMove() throws IOException {
+    private boolean getAndMakeMove() throws IOException, CloneNotSupportedException {
         Vector2L move = getMove();
         if (isValidMove(move)) {
             makeMove((int) move.getX(), (int) move.getY(), field, getComputerOnTurn() ? 1 : -1);
@@ -88,7 +89,7 @@ public class TicTacToe {
         }
     }
 
-    private Vector2L getMove() throws IOException {
+    private Vector2L getMove() throws IOException, CloneNotSupportedException {
         return getComputerOnTurn() ? findBestMove() : askMove();
     }
 
@@ -103,7 +104,7 @@ public class TicTacToe {
         System.out.println("You drew the game");
     }
 
-    private Vector2L findBestMove() {
+    private Vector2L findBestMove() throws CloneNotSupportedException {
         FieldPosition fieldAfterMove = new FieldPosition();
         fieldAfterMove.setField(field.getField().clone());
         for (int i = 0; i < fieldAfterMove.getField().length; i++) {
@@ -113,7 +114,7 @@ public class TicTacToe {
         return result.getMove();
     }
 
-    private MinMaxResult findBestMoveWithScore() {
+    private MinMaxResult findBestMoveWithScore() throws CloneNotSupportedException {
         FieldPosition fieldAfterMove = new FieldPosition();
         fieldAfterMove.setField(field.getField().clone());
         for (int i = 0; i < fieldAfterMove.getField().length; i++) {
@@ -122,9 +123,9 @@ public class TicTacToe {
         return minMax(fieldAfterMove, 1);
     }
 
-    Map<FieldPosition, MinMaxResult> checkedPositions = new HashMap<>();
+    final Map<FieldPosition, MinMaxResult> checkedPositions = new HashMap<>();
 
-    private MinMaxResult minMax(FieldPosition fieldAfterMove, int player) {
+    private MinMaxResult minMax(FieldPosition fieldAfterMove, int player) throws CloneNotSupportedException {
         if (checkedPositions.containsKey(fieldAfterMove)) {
             return checkedPositions.get(fieldAfterMove);
         }

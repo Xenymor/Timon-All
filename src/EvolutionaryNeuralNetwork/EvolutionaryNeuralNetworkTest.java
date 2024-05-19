@@ -39,8 +39,8 @@ class EvolutionaryNeuralNetworkTest {
             }
         }
         double endFitness = 100_000;
-        for (int j = 0; j < testGroup.length; j++) {
-            current = getFitness(testGroup[j]);
+        for (final EvolutionaryNeuralNetwork.EvolutionaryNeuralNetwork evolutionaryNeuralNetwork : testGroup) {
+            current = getFitness(evolutionaryNeuralNetwork);
             if (current <= endFitness) {
                 endFitness = current;
             }

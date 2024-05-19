@@ -25,9 +25,11 @@ public class ImageExtender {
 
     private final BufferedImage image;
     private final NeuralNetwork neuralNetwork;
-    List<DataPoint[]> trainingData;
+    final List<DataPoint[]> trainingData;
     private double learnRate = 0.01;
+    @SuppressWarnings("FieldCanBeLocal")
     private final double momentum = 0.8;
+    @SuppressWarnings("FieldCanBeLocal")
     private final double regularization = 0.1;
 
     public ImageExtender(final BufferedImage image) {
@@ -153,8 +155,8 @@ public class ImageExtender {
     }
 
     private static class PixelDataPoint implements DataPoint {
-        double[] inputs;
-        double[] expectedOutputs;
+        final double[] inputs;
+        final double[] expectedOutputs;
 
         public PixelDataPoint(final double[] inputs, final double[] expectedOutputs) {
             this.inputs = inputs;

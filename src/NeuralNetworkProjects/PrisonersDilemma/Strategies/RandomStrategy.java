@@ -4,7 +4,7 @@ import java.util.Random;
 
 public class RandomStrategy implements Strategy {
     int rewardSum = 0;
-    Random random = new Random((long) (Math.random()*1_000_000_000));
+    final Random random = new Random((long) (Math.random()*1_000_000_000));
 
     @Override
     public int getRewardSum() {
@@ -38,6 +38,7 @@ public class RandomStrategy implements Strategy {
 
     @Override
     public Strategy clone() {
+        final Strategy strategy = (Strategy) super.clone();
         return new RandomStrategy();
     }
 }

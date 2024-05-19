@@ -6,7 +6,7 @@ import java.util.*;
 
 //45.247655 MPG; Med MPG: 45
 public class HeatMapBot3 implements BattleshipBot {
-    Boolean[][] board;
+    final Boolean[][] board;
     final int WIDTH;
     final int HEIGHT;
     private final int[] SHIP_LENGTHS;
@@ -254,8 +254,8 @@ public class HeatMapBot3 implements BattleshipBot {
         }
     }
 
-    HashSet<Vector2I> checkedPositions = new HashSet<>();
-    ArrayList<Integer> foundShipLengths = new ArrayList<>();
+    final HashSet<Vector2I> checkedPositions = new HashSet<>();
+    final ArrayList<Integer> foundShipLengths = new ArrayList<>();
 
     private void checkShipLengths() {
         checkedPositions.clear();

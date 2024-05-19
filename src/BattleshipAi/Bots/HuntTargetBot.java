@@ -8,7 +8,7 @@ import java.util.List;
 
 //74.102823 MPG
 public class HuntTargetBot implements BattleshipBot{
-    Boolean[][] board;
+    final Boolean[][] board;
     final int WIDTH;
     final int HEIGHT;
 

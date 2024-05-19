@@ -7,7 +7,7 @@ public class lbHistoryGrudgeHolder implements Strategy {
     private int rewardSum;
     private final int lookbackRounds;
 
-    boolean[] opponentHistory;
+    final boolean[] opponentHistory;
 
     public lbHistoryGrudgeHolder(int lookbackRounds) {
         this.rewardSum = 0;
@@ -39,7 +39,7 @@ public class lbHistoryGrudgeHolder implements Strategy {
         return contains(false);
     }
 
-    private boolean contains(final boolean b) {
+    private boolean contains(@SuppressWarnings("SameParameterValue") final boolean b) {
         for (final boolean value : opponentHistory) {
             if (value == b) {
                 return true;
@@ -68,6 +68,7 @@ public class lbHistoryGrudgeHolder implements Strategy {
 
     @Override
     public Strategy clone() {
+        final Strategy strategy = (Strategy) super.clone();
         return new lbHistoryGrudgeHolder(lookbackRounds);
     }
 

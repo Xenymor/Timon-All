@@ -19,6 +19,7 @@ import java.util.List;
 
 import static StandardClasses.MyArrays.getChunks;
 
+@SuppressWarnings("FieldCanBeLocal")
 public class MainDigitIdentification {
 
     public static final int CHUNK_SIZE = 100;
@@ -165,12 +166,12 @@ public class MainDigitIdentification {
     }
 
     public static class TrainingDataPoint implements DataPoint {
-        double[] inputs;
-        double[] expectedOutputs;
+        final double[] inputs;
+        final double[] expectedOutputs;
 
         public TrainingDataPoint(final byte label, final double[] inputs) {
             this.inputs = inputs;
-            this.expectedOutputs = getEmptyArrayExcept(10, label, 1);
+            this.expectedOutputs = getEmptyArrayExcept(label);
         }
 
         @Override
@@ -184,24 +185,24 @@ public class MainDigitIdentification {
         }
     }
 
-    private static double[] getEmptyArrayExcept(final int length, final int index, final int value) {
-        double[] result = new double[length];
+    private static double[] getEmptyArrayExcept(final int index) {
+        double[] result = new double[10];
         Arrays.fill(result, 0);
-        result[index] = value;
+        result[index] = 1;
         return result;
     }
 
     private class MyFrame extends JFrame {
         public boolean mouseDown = false;
-        boolean[][] pixels;
+        final boolean[][] pixels;
 
         public MyFrame() throws HeadlessException {
             pixels = new boolean[SIZE][SIZE];
         }
 
         BufferedImage buffer;
-        BufferedImage resizedImage = new BufferedImage(28, 28, BufferedImage.TYPE_BYTE_GRAY);
-        Graphics2D graphics1 = resizedImage.createGraphics();
+        final BufferedImage resizedImage = new BufferedImage(28, 28, BufferedImage.TYPE_BYTE_GRAY);
+        final Graphics2D graphics1 = resizedImage.createGraphics();
 
         @Override
         public void paint(final Graphics g) {
@@ -227,13 +228,6 @@ public class MainDigitIdentification {
                     }
                 }
             }
-            /*double[] inputs = new double[28 * 28];
-            for (int x = 0; x < pixels.length; x+=ZOOM) {
-                for (int y = 0; y < pixels.length; y+=ZOOM) {
-                    inputs[(x * 28)/ZOOM + y/ZOOM] = pixels[x][y] ? 0 : 255;
-                }
-            }
-            double[] outputs = neuralNetwork.getOutputs(inputs);*/
             graphics1.drawImage(buffer, 0, 0, 28, 28, null);
             for (int x = 0; x < resizedImage.getWidth(); x++) {
                 for (int y = 0; y < resizedImage.getHeight(); y++) {

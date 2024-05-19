@@ -3,7 +3,7 @@ package EvolutionaryNeuralNetwork;
 import java.util.Arrays;
 
 public class Node {
-    double[] weights;
+    final double[] weights;
     double bias;
 
     public Node(int inputCount) {

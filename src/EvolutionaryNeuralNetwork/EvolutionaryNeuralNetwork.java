@@ -1,9 +1,9 @@
 package EvolutionaryNeuralNetwork;
 
 public class EvolutionaryNeuralNetwork {
-    Layer[] layers;
-    int[] layerSizes;
-    int inputCount;
+    final Layer[] layers;
+    final int[] layerSizes;
+    final int inputCount;
 
     public EvolutionaryNeuralNetwork(int inputCount, int... layerSizes) {
         this.layerSizes = layerSizes;
@@ -37,8 +37,8 @@ public class EvolutionaryNeuralNetwork {
             return null;
         }
         long fitnessSum = 0;
-        for (int i = 0; i < fitnesses.length; i++) {
-            fitnessSum += fitnesses[i];
+        for (final double fitness : fitnesses) {
+            fitnessSum += fitness;
         }
         double[] percentages = new double[fitnesses.length];
         for (int i = 0; i < fitnesses.length; i++) {

@@ -37,6 +37,7 @@ public class AnikaStrategy implements Strategy {
 
     @Override
     public Strategy clone() {
+        final Strategy strategy = (Strategy) super.clone();
         return new AnikaStrategy();
     }
 }

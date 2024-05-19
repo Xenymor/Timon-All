@@ -4,9 +4,9 @@ import java.io.Serializable;
 
 public class StoryPoint implements Serializable {
     private final boolean isEnd;
-    String message;
-    String[] options;
-    String[] keys;
+    final String message;
+    final String[] options;
+    final String[] keys;
 
     public StoryPoint(final String message, final boolean isEnd, final String[] options, final String[] keys) {
         this.message = message;

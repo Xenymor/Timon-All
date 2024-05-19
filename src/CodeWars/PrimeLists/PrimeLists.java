@@ -12,7 +12,7 @@ public class PrimeLists {
     }
 
     private void run() {
-        List<Integer> allPrimes = getPrimes(100);
+        List<Integer> allPrimes = getPrimes();
         System.out.println(allPrimes);
         List<Integer>[] primesWithDigits = getNumbersWithOneDigit(allPrimes, digitsToContain);
         System.out.println(Arrays.toString(primesWithDigits));
@@ -118,9 +118,9 @@ public class PrimeLists {
         return result;
     }
 
-    private List<Integer> getPrimes(final int i) {
+    private List<Integer> getPrimes() {
         List<Integer> result = new ArrayList<>();
-        for (int j = 2; j < i; j++) {
+        for (int j = 2; j < 100; j++) {
             boolean isPrime = true;
             for (Integer prime : result) {
                 if (j % prime == 0) {

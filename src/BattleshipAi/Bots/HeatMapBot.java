@@ -8,7 +8,7 @@ import java.util.List;
 
 //47.921395 MPG
 public class HeatMapBot implements BattleshipBot {
-    Boolean[][] board;
+    final Boolean[][] board;
     final int WIDTH;
     final int HEIGHT;
     private final int[] SHIP_LENGTHS;

@@ -3,9 +3,9 @@ package HuffmanCompression;
 import java.io.Serializable;
 
 public class CompressionResult implements Serializable {
-    TreeNode codeTree;
-    byte[] result;
-    int bitCount;
+    final TreeNode codeTree;
+    final byte[] result;
+    final int bitCount;
 
     public CompressionResult(TreeNode codeTree, byte[] result, int bitCount) {
         this.codeTree = codeTree;

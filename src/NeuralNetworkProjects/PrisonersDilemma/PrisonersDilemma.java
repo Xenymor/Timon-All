@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class PrisonersDilemma {
+public record PrisonersDilemma(int[]... rewards) {
     private static final int STRATEGY_COUNT = 100;
     private static final int ITER_COUNT = 100_000;
     private static final int ITER_BETWEEN_RESULTS = 200;
@@ -18,18 +18,13 @@ public class PrisonersDilemma {
     public static final int[][] REWARDS = {new int[]{3, 3}, new int[]{5, 0}, new int[]{MATCH_COUNT, MATCH_COUNT}};
     public static final int GAME_COUNT = 1000;
     public static final int THREAD_COUNT = 12;
-    private final int[][] rewards;
-
-    public PrisonersDilemma(int[]... rewards) {
-        this.rewards = rewards;
-    }
 
     public static void main(String[] args) throws InvocationTargetException, InstantiationException, IllegalAccessException, IOException, ClassNotFoundException {
         final PrisonersDilemma dilemma = new PrisonersDilemma(REWARDS);
         printRuleset(dilemma);
         //final Strategy[] allStrategies = getAllStrategies();
         List<Strategy> result = new ArrayList<>();
-        getAllClasses(List.of(new Class[] {lbHistoryGrudgeHolder.class}), result);
+        getAllClasses(List.of(new Class[]{lbHistoryGrudgeHolder.class}), result);
         Strategy[] allStrategies = result.toArray(new Strategy[0]);
         System.out.println(allStrategies.length);
         Strategy[] strategies = new Strategy[STRATEGY_COUNT];
@@ -152,7 +147,7 @@ public class PrisonersDilemma {
         strategies = MyArrays.resort(strategies, ints);
         scores = MyArrays.resort(scores, ints);
         final int length = strategies.length;
-        for (int i = 0; i < length /10; i++) {
+        for (int i = 0; i < length / 10; i++) {
             System.out.println((i + MATCH_COUNT) + ". " + strategies[i].getName() + "\t" + scores[i]);
         }
         System.out.println("...");

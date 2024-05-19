@@ -13,13 +13,14 @@ import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 
+@SuppressWarnings("ALL")
 public class Sudoku {
 
     public static final int SIZE = 900;
     public static final Color RED = new Color(255, 100, 100);
     public static final Color CHOSEN_COLOR = new Color(100, 255, 100);
     private final double diff;
-    AtomicIntegerArray[] newSudoku;
+    final AtomicIntegerArray[] newSudoku;
     boolean[][] changeable;
     private boolean checked = false;
     private boolean won = false;
@@ -136,12 +137,6 @@ public class Sudoku {
         }
     }
 
-    /*public static void main(String[] args) throws InterruptedException {
-        System.out.println("Enter your difficulty from 0.25 (easy) to 0.7 (hard)");
-        double diff = Double.parseDouble(new Scanner(System.in).nextLine());
-        new Sudoku(diff).run();
-    }*/
-
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Do you want to play yourself(p) or do you want to let the computer solve something?(c)");
         Scanner scanner = new Scanner(System.in);
@@ -193,7 +188,7 @@ public class Sudoku {
     }
 
     private class IntegerList {
-        List <Integer> list;
+        final List <Integer> list;
 
         public IntegerList() {
             this.list = new ArrayList<>();
@@ -758,10 +753,6 @@ public class Sudoku {
                     if (chosenX != -1) {
                         for (int x = 0; x < 9; x++) {
                             for (int y = 0; y < 9; y++) {
-//                                if (chosenX == x && chosenY == y) {
-//                                    g.setColor(CHOSEN_COLOR);
-//                                    g.fillRect(x*SIZE/9+3, y*SIZE/9+8, SIZE/9-7, SIZE/9-7);
-//                                }
                                 if (sudoku[x][y] != 0) {
                                     g.setColor(LINE_COLOR);
                                     g.drawString(Integer.toString(sudoku[x][y]), x * WIDTH / 9 + WIDTH / 18 - 4, y * HEIGHT / 9 + HEIGHT / 18 + 4);

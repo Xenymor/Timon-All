@@ -9,7 +9,7 @@ public class ParamTitForTat implements Strategy{
     private int beenDeceptedCounter = 0;
     private boolean isDecepting = false;
     private int deceptionCounter = 0;
-    Random random = new Random();
+    final Random random = new Random();
     boolean lastMove = true;
     private final double forgivenessProbability;
     private final double deceitProbability;
@@ -78,6 +78,7 @@ public class ParamTitForTat implements Strategy{
 
     @Override
     public Strategy clone() {
+        final Strategy strategy = (Strategy) super.clone();
         return new ParamTitForTat(deceptionsBeforeRetaliate, deceptionCount, forgivenessProbability, deceitProbability);
     }
 }
