@@ -20,7 +20,6 @@ public class Test {
         start[5][7] = true;
         start[4][7] = true;
         start[3][6] = true;
-        boolean[][] lastState = MyArrays.deepClone(start);
         final Board board = new Board(start);
         Simulation test = new Simulation(board);
         Graphics gfx = new Graphics(board, 10);
@@ -59,16 +58,16 @@ public class Test {
             //System.out.println(shouldRun[0]);
             if (shouldRun.get()) {
                 //System.out.println("Simulating");
-                test.nextStep();
+                test.setStates();
+                final boolean[][] state = board.getChange();
                 for (int x = 0; x < board.width; x++) {
                     for (int y = 0; y < board.height; y++) {
-                        final boolean state = board.getState(x, y);
-                        if (state != lastState[x][y]) {
+                        if (state[x][y] && !board.getState(x, y)) {
                             player.playNote(10 + x * 3 + (board.height - y) * 5, FRAME_LENGTH);
-                            lastState[x][y] = state;
                         }
                     }
                 }
+                board.update();
                 Thread.sleep(FRAME_LENGTH);
             }
         }

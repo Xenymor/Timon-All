@@ -28,13 +28,13 @@ public class Board {
         return board[x][y];
     }
 
-    public void setState(final int x, final int y, final boolean b) {
+    void setState(final int x, final int y, final boolean b) {
         if (getState(x, y) != b) {
             change[x][y] = true;
         }
     }
 
-    public void update() {
+    void update() {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 if (change[x][y]) {
@@ -77,5 +77,9 @@ public class Board {
             }
         }
         return count;
+    }
+
+    boolean[][] getChange() {
+        return change;
     }
 }

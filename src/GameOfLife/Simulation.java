@@ -27,6 +27,13 @@ public class Simulation {
 
     public void nextStep() {
         final long start = System.nanoTime();
+        setStates();
+        long before = System.nanoTime();
+        board.update();
+        System.out.println("Duration: " + (before - start) / 1_000_000F + "ms; " + (System.nanoTime() - before) / 1_000_000F + "ms");
+    }
+
+    void setStates() {
         for (int y = 0; y < board.height; y++) {
             for (int x = 0; x < board.width; x++) {
                 int neighbours = board.getNeighbourCount(x, y);
@@ -41,8 +48,5 @@ public class Simulation {
                 }
             }
         }
-        long before = System.nanoTime();
-        board.update();
-        System.out.println("Duration: " + (before - start) / 1_000_000F + "ms; " + (System.nanoTime() - before) / 1_000_000F + "ms");
     }
 }
