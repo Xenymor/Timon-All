@@ -1,0 +1,102 @@
+package WordCoding.WordsWithSameLetters;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class WordsWithSameLetters {
+    public static void main(String[] args) throws IOException {
+        CreatePairFile();
+        //Fix();
+    }
+
+    private static void Fix() throws IOException {
+        List<String> germanWords = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/german.txt"), StandardCharsets.ISO_8859_1);
+        List<String> pairs = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt"), StandardCharsets.ISO_8859_1);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String curr : pairs) {
+            final String[] split = curr.split(",");
+            final String append = germanWords.get(Integer.parseInt(split[1]));
+            stringBuilder.append(split[0]).append(",").append(append).append("\n");
+        }
+        final Path path = Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt");
+        Files.writeString(path, stringBuilder.toString(), StandardCharsets.ISO_8859_1);
+    }
+
+    private static void CreatePairFile() throws IOException {
+        List<String> englishWords = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/english.txt"));
+        List<String> germanWords = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/german.txt"), StandardCharsets.ISO_8859_1);
+        System.out.println("Loaded: En:" + englishWords.size() + "; De:" + germanWords.size());
+        List<Pair> pairs = WordsWithSameLetters.findWords(englishWords, germanWords);
+        StringBuilder stringBuilder = new StringBuilder();
+        for (Pair pair : pairs) {
+            //System.out.println(englishWords.get(pair.i1) + " : " + germanWords.get(pair.i2));
+            stringBuilder.append(englishWords.get(pair.i1)).append(",").append(germanWords.get(pair.i2)).append("\n");
+        }
+        final Path path = Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt");
+        try {
+            Files.createFile(path);
+        } catch (FileAlreadyExistsException ignored) {
+        }
+        Files.writeString(path, stringBuilder.toString(), StandardCharsets.ISO_8859_1);
+    }
+
+    private static List<Pair> findWords(final List<String> words1, final List<String> words2) {
+        List<Pair> result = new ArrayList<>();
+        /*List<String> words2Sorted = new ArrayList<>();
+        for (String word : words2) {
+            words2Sorted.add(sort(word));
+        }*/
+        final int size = words1.size();
+        for (int j = 0; j < size; j++) {
+            final String word1 = words1.get(j);
+            if (j % 10_000 == 0) {
+                System.out.println(j + "/" + size + " done");
+            }
+            for (int i = 0; i < words2.size(); i++) {
+                if (word1.equalsIgnoreCase(words2.get(i))) {
+                    result.add(new Pair(j, i));
+                    //System.out.println(word1 + " : " + words2.get(i));
+                }
+            }
+        }
+        return result;
+    }
+
+    private static String sort(final String word) {
+        final char[] arr = word.toCharArray();
+        Arrays.sort(arr);
+        return new String(arr);
+    }
+
+    private static class Pair {
+        int i1;
+        int i2;
+
+        public Pair(final int i1, final int i2) {
+            this.i1 = i1;
+            this.i2 = i2;
+        }
+
+        public int getI1() {
+            return i1;
+        }
+
+        public void setI1(final int i1) {
+            this.i1 = i1;
+        }
+
+        public int getI2() {
+            return i2;
+        }
+
+        public void setI2(final int i2) {
+            this.i2 = i2;
+        }
+    }
+}
