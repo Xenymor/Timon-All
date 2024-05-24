@@ -11,8 +11,53 @@ import java.util.List;
 
 public class WordsWithSameLetters {
     public static void main(String[] args) throws IOException {
-        CreatePairFile();
-        //Fix();
+        //CreatePairFile();
+        //ParseGerman();
+        GetTopPairs();
+    }
+
+    private static void ParseGerman() throws IOException {
+        List<String> commons = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/FrequenciesGerman.txt"));
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < commons.size(); i++) {
+            String curr = commons.get(i).split("\t")[0];
+            if (curr.length() <= 1) {
+                commons.remove(i);
+                i--;
+                continue;
+            } else {
+                commons.set(i, curr);
+            }
+            stringBuilder.append(curr).append("\n");
+        }
+        final Path path = Path.of("src/WordCoding/WordsWithSameLetters/wiki-100k-ger.txt");
+        try {
+            Files.createFile(path);
+        } catch (FileAlreadyExistsException ignored) {
+        }
+        Files.writeString(path, stringBuilder.toString(), StandardCharsets.ISO_8859_1);
+    }
+
+    private static void GetTopPairs() throws IOException {
+        List<String> pairs = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt"), StandardCharsets.ISO_8859_1);
+        List<String> commons = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/wiki-100k.txt"));
+        List<String> commonsGer = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/wiki-100k-ger.txt"), StandardCharsets.ISO_8859_1);
+        commons = commons.subList(0, 1_250);
+        commonsGer = commonsGer.subList(0, 1_250);
+        for (int i = 0; i < commons.size(); i++) {
+            final String curr = commons.get(i);
+            commons.set(i, curr.toLowerCase());
+        }
+        for (int i = 0; i < commonsGer.size(); i++) {
+            final String curr = commonsGer.get(i);
+            commonsGer.set(i, curr.toLowerCase());
+        }
+        for (String pair : pairs) {
+            String word = pair.split(",")[0].toLowerCase();
+            if (commons.contains(word) && commonsGer.contains(word)) {
+                System.out.println(pair);
+            }
+        }
     }
 
     private static void Fix() throws IOException {
