@@ -19,14 +19,14 @@ public class Test {
     static final Collection<Integer> gameLengths = Collections.synchronizedCollection(new ArrayList<>());
 
     public static void main(String[] args) throws InterruptedException {
-        showBot(new HeatMapBot3(WIDTH, HEIGHT, SHIP_LENGTHS));
-        //testBotMultiThreaded();
+        //showBot(new HeatMapBot4(WIDTH, HEIGHT, SHIP_LENGTHS));
+        testBotMultiThreaded();
     }
 
     private static void testBotMultiThreaded() {
         for (int i = 0; i < THREAD_COUNT; i++) {
             new Thread(() -> {
-                testBot(new HeatMapBot3(WIDTH, HEIGHT, SHIP_LENGTHS));
+                testBot(new HeatMapBot4(WIDTH, HEIGHT, SHIP_LENGTHS));
             }).start();
         }
     }

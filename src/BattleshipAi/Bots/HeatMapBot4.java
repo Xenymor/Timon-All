@@ -4,7 +4,7 @@ import StandardClasses.Vector2I;
 
 import java.util.*;
 
-//45.247655 MPG; Med MPG: 45
+//445.24766177104406 MPG; Med MPG: 45
 public class HeatMapBot4 implements BattleshipBot {
     final Boolean[][] board;
     final int WIDTH;
