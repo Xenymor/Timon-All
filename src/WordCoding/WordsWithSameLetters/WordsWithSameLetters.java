@@ -54,7 +54,7 @@ public class WordsWithSameLetters {
         }
         for (String pair : pairs) {
             String word = pair.split(",")[0].toLowerCase();
-            if (commons.contains(word) && commonsGer.contains(word)) {
+            if (word.length() >= 3 && commons.contains(word) && commonsGer.contains(word)) {
                 System.out.println(pair);
             }
         }
