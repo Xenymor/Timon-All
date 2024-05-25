@@ -32,7 +32,7 @@ public class LanguageClassificationMain {
     }
 
     private void test() throws IOException, ClassNotFoundException {
-        loadFiles();
+        setUpFiles();
         usedStringCombos = getCharCombos(getChars());
         NeuralNetwork neuralNetwork = (NeuralNetwork) new ObjectInputStream(new FileInputStream(SAVE_FILE_PATH)).readObject();
         Scanner scanner = new Scanner(System.in);
@@ -88,43 +88,14 @@ public class LanguageClassificationMain {
     boolean shouldBreak = false;
 
     private void run() throws IOException, ClassNotFoundException {
-        new Thread(() -> {
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                if (scanner.hasNextLine()) {
-                    if (scanner.nextLine().equalsIgnoreCase("exit")) {
-                        shouldBreak = true;
-                    }
-                }
-            }
-        }).start();
-        loadFiles();
+        setUpBreak();
+        setUpFiles();
         usedStringCombos = new HashMap<>();
         getChars();
         System.out.println("Got Char Combos");
-        List<Map<Integer, Double>> percentageMapList = new ArrayList<>();
+        printInformation();
 
-        this.seldomnessChecker = new SeldomnessChecker(Arrays.stream(linesArray).flatMap(Collection::stream).toList());
-
-        for (final List<String> strings : linesArray) {
-            percentageMapList.add(getCharPercentages(strings));
-        }
-        StringBuilder msg = new StringBuilder();
-        for (String combo : usedStringCombos.keySet().stream().sorted((string1, string2) -> {
-            double percentage1 = getPercentage(percentageMapList, string1);
-            double percentage2 = getPercentage(percentageMapList, string2);
-            return Double.compare(percentage1, percentage2);
-        }).toList()) {
-            final int index = usedStringCombos.get(combo);
-            msg.append(combo).append(" : ");
-            for (Map<Integer, Double> integerDoubleMap : percentageMapList) {
-                msg.append(integerDoubleMap.get(index)).append(", ");
-            }
-            msg.append("\n");
-            System.out.println(msg);
-        }
-        System.out.println(usedStringCombos.size());
-        NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, usedStringCombos.size(), 300, 100, 20, 5);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, usedStringCombos.size(), 500, 100, 20, 5);
 
         File file = new File(SAVE_FILE_PATH);
         if (file.exists()) {
@@ -172,6 +143,44 @@ public class LanguageClassificationMain {
             }
             //learnRate *= 1 - LEARN_RATE_DECAY;
         }
+    }
+
+    private void printInformation() {
+        List<Map<Integer, Double>> percentageMapList = new ArrayList<>();
+
+        this.seldomnessChecker = new SeldomnessChecker(Arrays.stream(linesArray).flatMap(Collection::stream).toList());
+
+        for (final List<String> strings : linesArray) {
+            percentageMapList.add(getCharPercentages(strings));
+        }
+        StringBuilder msg = new StringBuilder();
+        for (String combo : usedStringCombos.keySet().stream().sorted((string1, string2) -> {
+            double percentage1 = getPercentage(percentageMapList, string1);
+            double percentage2 = getPercentage(percentageMapList, string2);
+            return Double.compare(percentage1, percentage2);
+        }).toList()) {
+            final int index = usedStringCombos.get(combo);
+            msg.append(combo).append(" : ");
+            for (Map<Integer, Double> integerDoubleMap : percentageMapList) {
+                msg.append(integerDoubleMap.get(index)).append(", ");
+            }
+            msg.append("\n");
+            System.out.println(msg);
+        }
+        System.out.println(usedStringCombos.size());
+    }
+
+    private void setUpBreak() {
+        new Thread(() -> {
+            Scanner scanner = new Scanner(System.in);
+            while (true) {
+                if (scanner.hasNextLine()) {
+                    if (scanner.nextLine().equalsIgnoreCase("exit")) {
+                        shouldBreak = true;
+                    }
+                }
+            }
+        }).start();
     }
 
     private double getPercentage(final List<Map<Integer, Double>> percentageMapList, final String string) {
@@ -377,7 +386,7 @@ public class LanguageClassificationMain {
         }
     }
 
-    private void loadFiles() {
+    private void setUpFiles() {
         files = new File[5];
         files[0] = new File("src/NeuralNetworkProjects/LanguageClassification/TrainingDataEnglish.txt");
         files[1] = new File("src/NeuralNetworkProjects/LanguageClassification/TrainingDataGerman.txt");
