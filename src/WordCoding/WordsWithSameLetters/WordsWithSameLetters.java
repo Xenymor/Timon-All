@@ -11,12 +11,12 @@ import java.util.List;
 
 public class WordsWithSameLetters {
     public static void main(String[] args) throws IOException {
-        //CreatePairFile();
-        //ParseGerman();
-        GetTopPairs();
+        //createPairFile();
+        //parseGerman();
+        getTopPairs();
     }
 
-    private static void ParseGerman() throws IOException {
+    private static void parseGerman() throws IOException {
         List<String> commons = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/FrequenciesGerman.txt"));
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < commons.size(); i++) {
@@ -38,7 +38,7 @@ public class WordsWithSameLetters {
         Files.writeString(path, stringBuilder.toString(), StandardCharsets.ISO_8859_1);
     }
 
-    private static void GetTopPairs() throws IOException {
+    private static void getTopPairs() throws IOException {
         List<String> pairs = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt"), StandardCharsets.ISO_8859_1);
         List<String> commons = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/wiki-100k.txt"));
         List<String> commonsGer = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/wiki-100k-ger.txt"), StandardCharsets.ISO_8859_1);
@@ -60,7 +60,7 @@ public class WordsWithSameLetters {
         }
     }
 
-    private static void Fix() throws IOException {
+    private static void fix() throws IOException {
         List<String> germanWords = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/german.txt"), StandardCharsets.ISO_8859_1);
         List<String> pairs = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt"), StandardCharsets.ISO_8859_1);
         StringBuilder stringBuilder = new StringBuilder();
@@ -73,7 +73,7 @@ public class WordsWithSameLetters {
         Files.writeString(path, stringBuilder.toString(), StandardCharsets.ISO_8859_1);
     }
 
-    private static void CreatePairFile() throws IOException {
+    private static void createPairFile() throws IOException {
         List<String> englishWords = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/english.txt"));
         List<String> germanWords = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/german.txt"), StandardCharsets.ISO_8859_1);
         System.out.println("Loaded: En:" + englishWords.size() + "; De:" + germanWords.size());
