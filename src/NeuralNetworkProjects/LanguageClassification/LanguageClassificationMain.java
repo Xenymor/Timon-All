@@ -85,7 +85,7 @@ public class LanguageClassificationMain {
         return Math.abs(output) / sum;
     }
 
-    boolean shouldBreak = false;
+    volatile boolean shouldBreak = false;
 
     private void run() throws IOException, ClassNotFoundException {
         setUpBreak();
@@ -95,11 +95,12 @@ public class LanguageClassificationMain {
         System.out.println("Got Char Combos");
         printInformation();
 
-        NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, usedStringCombos.size(), 500, 100, 20, 5);
+        NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, usedStringCombos.size(), 600, 50, 20, 5);
 
         File file = new File(SAVE_FILE_PATH);
         if (file.exists()) {
             neuralNetwork = (NeuralNetwork) new ObjectInputStream(new FileInputStream(file.getAbsolutePath())).readObject();
+            System.out.println("Loaded Neural Network");
         }
         DataPoint[] dataPoints = getDataPointArray();
         List<DataPoint[]> trainingBatches = MyArrays.getChunks(DataPoint[].class, dataPoints, CHUNK_SIZE);
