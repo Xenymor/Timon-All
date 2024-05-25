@@ -40,23 +40,24 @@ public class WordsWithSameLetters {
 
     private static void getTopPairs() throws IOException {
         List<String> pairs = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt"), StandardCharsets.ISO_8859_1);
-        List<String> commons = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/wiki-100k.txt"));
-        List<String> commonsGer = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/wiki-100k-ger.txt"), StandardCharsets.ISO_8859_1);
-        commons = commons.subList(0, 1_250);
-        commonsGer = commonsGer.subList(0, 1_250);
-        for (int i = 0; i < commons.size(); i++) {
-            final String curr = commons.get(i);
-            commons.set(i, curr.toLowerCase());
-        }
-        for (int i = 0; i < commonsGer.size(); i++) {
-            final String curr = commonsGer.get(i);
-            commonsGer.set(i, curr.toLowerCase());
-        }
+        List<String> commonsEn = Files.readAllLines(Path.of("src/WordCoding/WordFrequencies/FrequenciesEn.csv"));
+        List<String> commonsDe = Files.readAllLines(Path.of("src/WordCoding/WordFrequencies/FrequenciesDe.csv"), StandardCharsets.ISO_8859_1);
+        commonsEn = commonsEn.subList(1, 1_250);
+        commonsDe = commonsDe.subList(1, 1_250);
+        formatData(commonsEn);
+        formatData(commonsDe);
         for (String pair : pairs) {
             String word = pair.split(",")[0].toLowerCase();
-            if (word.length() >= 3 && commons.contains(word) && commonsGer.contains(word)) {
+            if (commonsEn.contains(word) && commonsDe.contains(word)) {
                 System.out.println(pair);
             }
+        }
+    }
+
+    private static void formatData(final List<String> commonsEn) {
+        for (int i = 0; i < commonsEn.size(); i++) {
+            final String curr = commonsEn.get(i).split(",")[0];
+            commonsEn.set(i, curr.toLowerCase());
         }
     }
 
