@@ -38,7 +38,7 @@ public class FrequencyCounter {
         }
         builder.append("Word,Percentage\n");
         for (var entry : sorted) {
-            builder.append(entry.getKey()).append(",").append((entry.getValue() / (double) sum)*100).append("%\n");
+            builder.append(entry.getKey()).append(",").append((entry.getValue() / (double) sum)).append("\n");
         }
         try {
             Files.writeString(path, builder.toString());

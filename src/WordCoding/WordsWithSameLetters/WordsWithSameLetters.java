@@ -5,9 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 public class WordsWithSameLetters {
     public static void main(String[] args) throws IOException {
@@ -40,25 +38,39 @@ public class WordsWithSameLetters {
 
     private static void getTopPairs() throws IOException {
         List<String> pairs = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt"), StandardCharsets.ISO_8859_1);
-        List<String> commonsEn = Files.readAllLines(Path.of("src/WordCoding/WordFrequencies/FrequenciesEn.csv"));
-        List<String> commonsDe = Files.readAllLines(Path.of("src/WordCoding/WordFrequencies/FrequenciesDe.csv"), StandardCharsets.ISO_8859_1);
-        commonsEn = commonsEn.subList(1, 1_250);
-        commonsDe = commonsDe.subList(1, 1_250);
-        formatData(commonsEn);
-        formatData(commonsDe);
+        List<String> linesEn = prepareCommons(Files.readAllLines(Path.of("src/WordCoding/WordFrequencies/FrequenciesEn.csv")));
+        List<String> linesDe = prepareCommons(Files.readAllLines(Path.of("src/WordCoding/WordFrequencies/FrequenciesDe.csv"), StandardCharsets.ISO_8859_1));
+        Map<String, Double> commonsEn = formatData(linesEn);
+        Map<String, Double> commonsDe = formatData(linesDe);
+        List<String> commonPairs = new ArrayList<>();
         for (String pair : pairs) {
             String word = pair.split(",")[0].toLowerCase();
-            if (commonsEn.contains(word) && commonsDe.contains(word)) {
-                System.out.println(pair);
+            if (commonsEn.containsKey(word) && commonsDe.containsKey(word)) {
+                commonPairs.add(word);
             }
+        }
+        commonPairs.sort((o1, o2) -> Double.compare(Math.min(commonsEn.get(o2), commonsDe.get(o2)), Math.min(commonsEn.get(o1), commonsDe.get(o1))));
+        commonPairs = commonPairs.subList(0, 100);
+        for (String word : commonPairs) {
+            System.out.println(word);
         }
     }
 
-    private static void formatData(final List<String> commonsEn) {
-        for (int i = 0; i < commonsEn.size(); i++) {
-            final String curr = commonsEn.get(i).split(",")[0];
-            commonsEn.set(i, curr.toLowerCase());
+    private static List<String> prepareCommons(final List<String> strings) {
+        strings.remove(0);
+        strings.removeIf(entry -> Double.parseDouble(entry.split(",")[1]) < 3.840009830425166E-6);
+        return strings;
+    }
+
+    private static Map<String, Double> formatData(final List<String> commonsEn) {
+        Map<String, Double> result = new HashMap<>();
+        for (String s : commonsEn) {
+            final String[] strings = s.split(",");
+            final String word = strings[0];
+            final Double percentage = Double.parseDouble(strings[1]);
+            result.put(word, percentage);
         }
+        return result;
     }
 
     private static void fix() throws IOException {
