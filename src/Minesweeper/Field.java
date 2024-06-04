@@ -2,7 +2,7 @@ package Minesweeper;
 
 public class Field {
     private boolean isMine;
-    private boolean isFound = false;
+    private boolean isExplored = false;
 
     public Field(final boolean isMine) {
         this.isMine = isMine;
@@ -16,11 +16,11 @@ public class Field {
         this.isMine = mine;
     }
 
-    public boolean isFound() {
-        return isFound;
+    public boolean isExplored() {
+        return isExplored;
     }
 
-    public void setFound(final boolean found) {
-        this.isFound = found;
+    public void setExplored(final boolean explored) {
+        this.isExplored = explored;
     }
 }

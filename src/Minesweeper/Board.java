@@ -6,6 +6,7 @@ public class Board {
     Field[][] board;
     int width;
     int height;
+    int mineCount;
 
     public Board(final int width, final int height, final int mineCount) {
         board = new Field[width][height];
@@ -13,6 +14,7 @@ public class Board {
         this.height = height;
         initializeFields();
         placeMines(width, height, mineCount);
+        this.mineCount = mineCount;
     }
 
     private void placeMines(final int width, final int height, final int mineCount) {
@@ -25,6 +27,28 @@ public class Board {
                 board[x][y].setMine(true);
             }
         }
+    }
+
+
+    private void placeMines(final int width, final int height, final int mineCount, final int x, final int y) throws CouldNotCreateBoardException {
+        int counter = 0;
+        for (int i = 0; i < mineCount; i++) {
+            int x1 = Random.randomIntInRange(0, width - 1);
+            int y1 = Random.randomIntInRange(0, height - 1);
+            if (board[x1][y1].isMine() || areNeighbours(x, y, x1, y1)) {
+                i--;
+                counter++;
+                if (counter >= 100) {
+                    throw new CouldNotCreateBoardException();
+                }
+            } else {
+                board[x1][y1].setMine(true);
+            }
+        }
+    }
+
+    private boolean areNeighbours(final int x, final int y, final int x1, final int y1) {
+        return Math.abs(x-x1) <= 1 && Math.abs(y-y1) <=1;
     }
 
     private void initializeFields() {
@@ -44,11 +68,11 @@ public class Board {
     }
 
     public void explore(final int x, final int y) {
-        board[x][y].setFound(true);
+        board[x][y].setExplored(true);
     }
 
-    public boolean isDiscovered(final int x, final int y) {
-        return board[x][y].isFound();
+    public boolean isExplored(final int x, final int y) {
+        return board[x][y].isExplored();
     }
 
     public int getNeighbourCount(final int x, final int y) {
@@ -73,7 +97,7 @@ public class Board {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 final Field field = board[x][y];
-                if (!field.isMine() && !field.isFound()) {
+                if (!field.isMine() && !field.isExplored()) {
                     return false;
                 }
             }
@@ -85,11 +109,39 @@ public class Board {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
                 final Field field = board[x][y];
-                if (field.isMine() && field.isFound()) {
+                if (field.isMine() && field.isExplored()) {
                     return true;
                 }
             }
         }
         return false;
+    }
+
+    public void setMineCount(final int mineCount) {
+        this.mineCount = mineCount;
+    }
+
+    public void reset() {
+        initializeFields();
+        placeMines(width, height, mineCount);
+    }
+
+    public void reset(final int x, final int y) throws CouldNotCreateBoardException {
+        initializeFields();
+        placeMines(width, height, mineCount, x, y);
+    }
+
+    public boolean noFieldsExplored() {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (board[x][y].isExplored()) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    public class CouldNotCreateBoardException extends Throwable {
     }
 }
