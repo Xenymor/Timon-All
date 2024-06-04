@@ -48,8 +48,8 @@ public class Vector2I {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Vector2I vector2L = (Vector2I) o;
-        return x == vector2L.x && y == vector2L.y;
+        Vector2I vector2I = (Vector2I) o;
+        return x == vector2I.x && y == vector2I.y;
     }
 
     public void add(Vector2I dir) {
