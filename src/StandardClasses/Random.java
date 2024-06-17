@@ -11,7 +11,7 @@ public class Random {
         return (float) (min + Math.random() * (max - min));
     }
 
-    public static double randomDoubleInRange(float min, float max) {
+    public static double randomDoubleInRange(double min, double max) {
         return (min + Math.random() * (max - min));
     }
 
