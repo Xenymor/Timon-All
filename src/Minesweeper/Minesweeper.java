@@ -7,20 +7,25 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
 
 public class Minesweeper {
     private static final int BLOCK_SIZE = 40;
-    final static Vector2I DEFAULT_VECTOR = new Vector2I(-1, -1);
     private static final Color BACKGROUND_COLOR = new Color(56, 56, 56);
     private static final Color TEXT_COLOR = new Color(0, 206, 210);
     private static final Color UNDISCOVERED_COLOR = new Color(176, 176, 176);
     private static final Color MINE_COLOR = new Color(255, 0, 0);
+    private static final Color MARK_COLOR = new Color(255, 0, 0, 150);
+    public static final int SIZE = 12;
     final Board board;
     final int width;
     final int height;
     int mineCount;
-    volatile Vector2I clickPos = DEFAULT_VECTOR;
+    volatile Vector2I clickPos = new Vector2I(0,0);
+    volatile ClickType clickType = ClickType.NONE;
 
     public Minesweeper(final int width, final int height, final int mineCount) {
         board = new Board(width, height, mineCount);
@@ -30,7 +35,7 @@ public class Minesweeper {
     }
 
     public static void main(String[] args) {
-        Minesweeper minesweeper = new Minesweeper(12, 12, 8);
+        Minesweeper minesweeper = new Minesweeper(SIZE, SIZE, 8);
         minesweeper.play();
         /*Scanner scanner = new Scanner(System.in);
         while (!minesweeper.isFinished()) {
@@ -64,7 +69,15 @@ public class Minesweeper {
 
             @Override
             public void mouseReleased(final MouseEvent e) {
-                clickPos = new Vector2I(e.getX() - myFrame.getX(), e.getY() - myFrame.getY());
+                final int button = e.getButton();
+                //clickPos = new Vector2I(e.getX() - myFrame.getX(), e.getY() - myFrame.getY());
+                clickPos.setX(e.getX() - myFrame.getX());
+                clickPos.setY(e.getY() - myFrame.getY());
+                if (button == 1) {
+                    clickType = ClickType.LEFT_CLICK;
+                } else {
+                    clickType = ClickType.RIGHT_CLICK;
+                }
             }
 
             @Override
@@ -76,31 +89,45 @@ public class Minesweeper {
             }
         });
         myFrame.setVisible(true);
+        Scanner scanner = new Scanner(System.in);
         outer:
         while (true) {
-            if (!clickPos.equals(DEFAULT_VECTOR)) {
+            try {
+                if (System.in.available() > 0) {
+                    if (scanner.nextLine().equalsIgnoreCase("exit")) {
+                        System.exit(3);
+                    }
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            if (!clickType.equals(ClickType.NONE)) {
                 if (!isFinished()) {
                     final int x = clickPos.getX() / BLOCK_SIZE;
                     final int y = clickPos.getY() / BLOCK_SIZE;
-                    if (board.noFieldsExplored() && (board.isMine(x, y) || board.getNeighbourCount(x, y) > 0)) {
-                        for (int i = 0; i < 10; i++) {
-                            try {
-                                board.reset(x, y);
-                                break;
-                            } catch (Board.CouldNotCreateBoardException e) {
-                                if (i == 9) {
-                                    e.printStackTrace();
-                                    mineCount--;
-                                    continue outer;
+                    if (clickType.equals(ClickType.LEFT_CLICK)) {
+                        if (board.noFieldsExplored() && (board.isMine(x, y) || board.getNeighbourCount(x, y) > 0)) {
+                            for (int i = 0; i < 10; i++) {
+                                try {
+                                    board.reset(x, y);
+                                    break;
+                                } catch (Board.CouldNotCreateBoardException e) {
+                                    if (i == 9) {
+                                        e.printStackTrace();
+                                        mineCount--;
+                                        continue outer;
+                                    }
                                 }
                             }
                         }
+                        makeMove(x, y);
+                    } else if (clickType.equals(ClickType.RIGHT_CLICK)) {
+                        board.toggleMarked(x, y);
                     }
-                    makeMove(x, y);
                 } else {
                     restart();
                 }
-                clickPos = DEFAULT_VECTOR;
+                clickType = ClickType.NONE;
             }
         }
     }
@@ -179,7 +206,7 @@ public class Minesweeper {
 
         public MyFrame(final Board board) {
             this.board = board;
-            buffer = new BufferedImage(board.width * BLOCK_SIZE, board.height * BLOCK_SIZE, BufferedImage.TYPE_INT_RGB);
+            buffer = new BufferedImage(board.width * BLOCK_SIZE, board.height * BLOCK_SIZE, BufferedImage.TYPE_INT_ARGB);
             setSize(board.width * BLOCK_SIZE, board.height * BLOCK_SIZE);
         }
 
@@ -206,6 +233,10 @@ public class Minesweeper {
                     } else {
                         gfx.setColor(UNDISCOVERED_COLOR);
                         gfx.fillRect(x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);
+                        if (board.isMarked(x, y)) {
+                            gfx.setColor(MARK_COLOR);
+                            gfx.fillPolygon(getTriangle(x, y, BLOCK_SIZE));
+                        }
                     }
                 }
             }
@@ -223,6 +254,24 @@ public class Minesweeper {
             } catch (InterruptedException ignored) {
             }
             repaint();
+        }
+
+        private Polygon getTriangle(final int x, final int y, final int blockSize) {
+            int[] xPoints = new int[3];
+            int[] yPoints = new int[3];
+
+            // Define the points of the triangle
+            xPoints[0] = x * blockSize + blockSize / 2; // Top point (center)
+            yPoints[0] = y * blockSize + blockSize / 4;
+
+            xPoints[1] = x * blockSize + blockSize / 4; // Bottom left point
+            final int bottomHeight = y * blockSize + 3 * blockSize / 4;
+            yPoints[1] = bottomHeight;
+
+            xPoints[2] = x * blockSize + 3 * blockSize / 4; // Bottom right point
+            yPoints[2] = bottomHeight;
+
+            return new Polygon(xPoints, yPoints, 3);
         }
     }
 }

@@ -48,7 +48,7 @@ public class Board {
     }
 
     private boolean areNeighbours(final int x, final int y, final int x1, final int y1) {
-        return Math.abs(x-x1) <= 1 && Math.abs(y-y1) <=1;
+        return Math.abs(x - x1) <= 1 && Math.abs(y - y1) <= 1;
     }
 
     private void initializeFields() {
@@ -140,6 +140,19 @@ public class Board {
             }
         }
         return true;
+    }
+
+    public void mark(final int x, final int y) {
+        board[x][y].setMarked(true);
+    }
+
+    public boolean isMarked(final int x, final int y) {
+        return board[x][y].isMarked();
+    }
+
+    public void toggleMarked(final int x, final int y) {
+        final Field field = board[x][y];
+        field.setMarked(!field.isMarked());
     }
 
     public class CouldNotCreateBoardException extends Throwable {
