@@ -16,16 +16,8 @@ public class InputNode implements Node {
     }
 
     @Override
-    public void setPredecessor(final int index, final int newValue) {
+    public void addConnection() {
 
-    }
-
-    @Override
-    public void connectFrom(final int fromIndex) {}
-
-    @Override
-    public Integer[] getPredecessors() {
-        return null;
     }
 
     @Override

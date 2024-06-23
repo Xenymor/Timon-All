@@ -6,8 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HiddenNode implements Node {
-
-    private final List<Integer> predecessors = new ArrayList<>();
     private final List<Double> inputs = new ArrayList<>();
     private final List<Double> weights = new ArrayList<>();
     double bias = Random.randomDoubleInRange(-Configuration.WEIGHT_RANGE, Configuration.WEIGHT_RANGE);
@@ -20,22 +18,9 @@ public class HiddenNode implements Node {
     }
 
     @Override
-    public void setPredecessor(final int index, final int newValue) {
-        predecessors.set(index, newValue);
-    }
-
-    @Override
-    public void connectFrom(final int fromIndex) {
-        if (!predecessors.contains(fromIndex)) {
-            predecessors.add(fromIndex);
-            weights.add(Random.randomDoubleInRange(-Configuration.WEIGHT_RANGE, Configuration.WEIGHT_RANGE));
-            inputs.add(0.0);
-        }
-    }
-
-    @Override
-    public Integer[] getPredecessors() {
-        return predecessors.toArray(Integer[]::new);
+    public void addConnection() {
+        weights.add(Random.randomDoubleInRange(-Configuration.WEIGHT_RANGE, Configuration.WEIGHT_RANGE));
+        inputs.add(0.0);
     }
 
     @Override
@@ -78,10 +63,7 @@ public class HiddenNode implements Node {
         result.recalculate = true;
         result.bias = bias;
         result.weights.addAll(weights);
-        for (int i = 0; i < inputs.size(); i++) {
-            result.inputs.add(0d);
-        }
-        result.predecessors.addAll(predecessors);
+        result.inputs.addAll(inputs);
         return result;
     }
 }

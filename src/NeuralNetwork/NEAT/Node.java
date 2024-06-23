@@ -4,9 +4,7 @@ import java.util.List;
 
 public interface Node {
 
-    void connectFrom(int fromIndex);
-
-    Integer[] getPredecessors();
+    void addConnection();
 
     List<Double> getWeights();
 
@@ -21,6 +19,4 @@ public interface Node {
     Node clone();
 
     NodeType getType();
-
-    void setPredecessor(int index, int newValue);
 }

@@ -15,13 +15,17 @@ public class Configuration {
                 constexpr uint32_t max_hidden_nodes = 30;
             }
         */
+    public static final int MAX_HIDDEN_NODES = 30;
+    public static final int KEPT_AGENT_PERCENTAGE = 3;
+
+    public static final double WEIGHT_RANGE = 1.0;
+    public static final double SMALL_RANGE_MULT = 0.01;
+
     public static final int MUTATION_COUNT = 4;
     public static final double MUTATION_CHANCE = 0.25;
-    public static final double NEW_NODE_PROBABILITY = 0.05;
-    public static final double NEW_CONNECTION_PROBABILITY = 0.8;
-    public static final int MAX_HIDDEN_NODES = 30;
-    public static final double NEW_VALUE_PROBABILITY = 0.2;
-    public static final double WEIGHT_RANGE = 1.0;
+
     public static final double BIG_MUTATION_PROBABILITY = 0.25;
-    public static final double SMALL_RANGE_MULT = 0.01;
+    public static final double NEW_VALUE_PROBABILITY = 0.2;
+    public static final double NEW_CONNECTION_PROBABILITY = 0.8;
+    public static final double NEW_NODE_PROBABILITY = 0.05;
 }

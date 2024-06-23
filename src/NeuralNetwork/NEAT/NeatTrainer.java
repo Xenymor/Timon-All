@@ -32,37 +32,14 @@ public class NeatTrainer {
     }
 
     public void train() {
-        for (int i = 0; i < agentCount; i++) {
-            boolean shouldContinue = false;
-            while (!shouldContinue) {
-                for (final TrainThread thread : threads) {
-                    if (thread.isFree) {
-                        thread.startTask(i);
-                        shouldContinue = true;
-                        break;
-                    }
-                }
-                //scores[i] = scenario.getScore(agents[i]);
-                //agentScores[i] = new AgentScore(agents[i], scores[i]);
-            }
-        }
-        boolean allFree = false;
-        outer: while (!allFree) {
-            for (TrainThread thread : threads) {
-                if (!thread.isFree) {
-                    continue outer;
-                }
-            }
-            allFree = true;
-        }
-        Arrays.sort(agentScores, (a, b) -> Double.compare(b.score, a.score));
-        best = agentScores[0];
-        double sum = 0;
-        for (final AgentScore agentScore : agentScores) {
-            sum += agentScore.score;
-            agentScore.score = sum;
-        }
-        final int percentageKept = agentCount / 3;
+        startTraining();
+        waitForThreads();
+        double sum = prepareLists();
+        prepareNextGeneration(sum);
+    }
+
+    private void prepareNextGeneration(final double sum) {
+        final int percentageKept = agentCount / Configuration.KEPT_AGENT_PERCENTAGE;
         for (int i = 0; i < agentCount; i++) {
             if (i < percentageKept) {
                 agents[i] = agentScores[i].agent;
@@ -76,6 +53,46 @@ public class NeatTrainer {
                         break;
                     }
                 }
+            }
+        }
+    }
+
+    private double prepareLists() {
+        Arrays.sort(agentScores, (a, b) -> Double.compare(b.score, a.score));
+        best = agentScores[0];
+        double sum = 0;
+        for (final AgentScore agentScore : agentScores) {
+            sum += agentScore.score;
+            agentScore.score = sum;
+        }
+        return sum;
+    }
+
+    private void waitForThreads() {
+        boolean allFree = false;
+        outer: while (!allFree) {
+            for (TrainThread thread : threads) {
+                if (!thread.isFree) {
+                    continue outer;
+                }
+            }
+            allFree = true;
+        }
+    }
+
+    private void startTraining() {
+        for (int i = 0; i < agentCount; i++) {
+            boolean shouldContinue = false;
+            while (!shouldContinue) {
+                for (final TrainThread thread : threads) {
+                    if (thread.isFree) {
+                        thread.startTask(i);
+                        shouldContinue = true;
+                        break;
+                    }
+                }
+                //scores[i] = scenario.getScore(agents[i]);
+                //agentScores[i] = new AgentScore(agents[i], scores[i]);
             }
         }
     }

@@ -11,7 +11,7 @@ public class NeatTest {
             if (iteration % 100 == 0) {
                 bestScore = trainer.getBestScore();
                 final int hiddenCount = trainer.getBestAgent().getHiddenCount();
-                System.out.println(iteration + ":" + (bestScore-hiddenCount*20) + " \t" + hiddenCount);
+                System.out.println(iteration + ":" + (bestScore - hiddenCount * 20) + " \t" + hiddenCount);
             }
             iteration++;
         }
@@ -21,6 +21,7 @@ public class NeatTest {
 
     private static class EasyScenario implements NeatScenario {
         final double[] random;
+
         public EasyScenario() {
             random = new double[100];
             for (int i = 0; i < random.length; i++) {
