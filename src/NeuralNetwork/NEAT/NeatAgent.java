@@ -171,6 +171,7 @@ public class NeatAgent {
             createRandomConnection();
             createLists();
         }
+
     }
 
     private void createRandomConnection() {
