@@ -22,7 +22,6 @@ public class NeatTrainer {
         agentScores = new AgentScore[agentCount];
         for (int i = 0; i < agents.length; i++) {
             agents[i] = new NeatAgent(inputCount, outputCount);
-
         }
 
         threads = new TrainThread[threadCount];

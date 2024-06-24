@@ -151,7 +151,6 @@ public class NeatAgent {
 
 
     public void mutate() {
-
         for (int i = 0; i < MUTATION_COUNT; i++) {
             if (chanceOf(MUTATION_CHANCE)) {
                 if (chanceOf(0.5)) {
@@ -174,7 +173,6 @@ public class NeatAgent {
             createRandomConnection();
             createLists();
         }
-
     }
 
     private void mutateActivationFunctions() {
@@ -281,6 +279,7 @@ public class NeatAgent {
             cloned.add(node.clone());
         }
         final NeatAgent neatAgent = new NeatAgent(inputCount, outputCount, cloned);
+        neatAgent.hiddenCount = hiddenCount;
         neatAgent.connections.addAll(connections);
         neatAgent.createLists();
         return neatAgent;
