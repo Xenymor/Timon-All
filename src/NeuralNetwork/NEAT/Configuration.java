@@ -28,4 +28,5 @@ public class Configuration {
     public static final double NEW_VALUE_PROBABILITY = 0.2;
     public static final double NEW_CONNECTION_PROBABILITY = 0.8;
     public static final double NEW_NODE_PROBABILITY = 0.1;
+    public static final double ACTIVATION_MUTATION_CHANCE = 0.01;
 }

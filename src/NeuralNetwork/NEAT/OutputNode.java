@@ -18,6 +18,10 @@ public class OutputNode implements Node {
     ActivationType activationType;
 
     public OutputNode() {
+        chooseRandomActivation();
+    }
+
+    public void chooseRandomActivation() {
         ActivationType[] types = ActivationType.values();
         activationType = types[Random.randomIntInRange(types.length)];
         while (true) {

@@ -16,6 +16,11 @@ public class InputNode implements Node {
     }
 
     @Override
+    public void chooseRandomActivation() {
+
+    }
+
+    @Override
     public void addConnection() {
 
     }

@@ -29,7 +29,7 @@ public class NeatTest {
             if (iteration % 100 == 0) {
                 bestScore = trainer.getBestScore();
                 final NeatAgent bestAgent = trainer.getBestAgent();
-                frame.agent = bestAgent;
+                frame.newAgent = bestAgent;
                 frame.repaint();
                 final int hiddenCount = bestAgent.getHiddenCount();
                 System.out.println(iteration + ":" + (bestScore - hiddenCount * 20) + " \t" + hiddenCount);
@@ -42,14 +42,14 @@ public class NeatTest {
 
     private static class MyFrame extends JFrame {
         double range;
-        NeatAgent agent;
+        NeatAgent newAgent;
         final int blockSize;
         BufferedImage image;
         NeatScenario scenario;
 
         public MyFrame(final double range, NeatAgent agent, int blockSize, NeatScenario scenario) {
             this.range = range;
-            this.agent = agent;
+            this.newAgent = agent;
             this.blockSize = blockSize;
             this.scenario = scenario;
         }
@@ -62,6 +62,7 @@ public class NeatTest {
 
         @Override
         public void paint(final Graphics graphics) {
+            NeatAgent agent = newAgent;
             Graphics g = image.getGraphics();
             final int height = getHeight();
             final int halfHeight = height / 2;

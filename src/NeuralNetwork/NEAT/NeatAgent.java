@@ -159,6 +159,9 @@ public class NeatAgent {
                 } else {
                     mutateWeights();
                 }
+                if (chanceOf(Configuration.ACTIVATION_MUTATION_CHANCE)) {
+                    mutateActivationFunctions();
+                }
             }
         }
 
@@ -172,6 +175,11 @@ public class NeatAgent {
             createLists();
         }
 
+    }
+
+    private void mutateActivationFunctions() {
+        Node node = nodes.get(randomIntInRange(inputCount, nodes.size()));
+        node.chooseRandomActivation();
     }
 
     private void createRandomConnection() {

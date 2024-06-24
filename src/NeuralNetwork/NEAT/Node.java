@@ -19,4 +19,6 @@ public interface Node {
     Node clone();
 
     NodeType getType();
+
+    void chooseRandomActivation();
 }

@@ -17,6 +17,10 @@ public class HiddenNode implements Node {
     double lastOutput = 0;
 
     public HiddenNode() {
+        chooseRandomActivation();
+    }
+
+    public void chooseRandomActivation() {
         ActivationType[] types = ActivationType.values();
         activationType = types[Random.randomIntInRange(types.length)];
         while (true) {
