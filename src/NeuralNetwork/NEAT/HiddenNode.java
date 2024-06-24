@@ -5,12 +5,28 @@ import StandardClasses.Random;
 import java.util.ArrayList;
 import java.util.List;
 
+import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.BOTH;
+import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.ONLY_HIDDEN;
+
 public class HiddenNode implements Node {
     private final List<Double> inputs = new ArrayList<>();
     private final List<Double> weights = new ArrayList<>();
     double bias = Random.randomDoubleInRange(-Configuration.WEIGHT_RANGE, Configuration.WEIGHT_RANGE);
+    ActivationType activationType;
     boolean recalculate = false;
     double lastOutput = 0;
+
+    public HiddenNode() {
+        ActivationType[] types = ActivationType.values();
+        activationType = types[Random.randomIntInRange(types.length)];
+        while (true) {
+            final ActivationType.ActivationTypeType type = activationType.getType();
+            if (type.equals(BOTH)
+                    || type.equals(ONLY_HIDDEN))
+                break;
+            activationType = types[Random.randomIntInRange(types.length)];
+        }
+    }
 
     @Override
     public NodeType getType() {
@@ -51,7 +67,7 @@ public class HiddenNode implements Node {
             for (Double input : inputs) {
                 sum += input;
             }
-            lastOutput = Math.max(0, sum);
+            lastOutput = Activation.get(sum, activationType);
             recalculate = false;
         }
         return lastOutput;

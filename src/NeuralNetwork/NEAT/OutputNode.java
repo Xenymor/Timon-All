@@ -1,9 +1,13 @@
 package NeuralNetwork.NEAT;
 
+import NeuralNetwork.NEAT.ActivationType.ActivationTypeType;
 import StandardClasses.Random;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.BOTH;
+import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.ONLY_OUTPUTS;
 
 public class OutputNode implements Node {
     private final List<Double> inputs = new ArrayList<>();
@@ -11,6 +15,19 @@ public class OutputNode implements Node {
     double bias = Random.randomDoubleInRange(-Configuration.WEIGHT_RANGE, Configuration.WEIGHT_RANGE);
     boolean recalculate = false;
     double lastOutput = 0;
+    ActivationType activationType;
+
+    public OutputNode() {
+        ActivationType[] types = ActivationType.values();
+        activationType = types[Random.randomIntInRange(types.length)];
+        while (true) {
+            final ActivationTypeType type = activationType.getType();
+            if (type.equals(BOTH)
+                    || type.equals(ONLY_OUTPUTS))
+                break;
+            activationType = types[Random.randomIntInRange(types.length)];
+        }
+    }
 
     @Override
     public NodeType getType() {
@@ -51,7 +68,7 @@ public class OutputNode implements Node {
             for (Double input : inputs) {
                 sum += input;
             }
-            lastOutput = Math.tanh(sum);
+            lastOutput = Activation.get(sum, activationType);
             recalculate = false;
         }
         return lastOutput;
