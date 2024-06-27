@@ -11,6 +11,7 @@ public class NeatTest {
     public static final double TEST_RANGE = Math.PI;
     public static final int BLOCK_SIZE = 4;
     public static final int SAMPLE_SIZE = 200;
+    public static final int MAX_SCORE = SAMPLE_SIZE * 2 + 40;
 
     public static void main(String[] args) {
         final EasyScenario scenario = new EasyScenario();
@@ -24,7 +25,7 @@ public class NeatTest {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        while (bestScore < SAMPLE_SIZE * 2 * 0.95) {
+        while (bestScore < MAX_SCORE * 0.99) {
             trainer.train();
             if (iteration % 100 == 0) {
                 bestScore = printResults(trainer, iteration, frame);
@@ -33,7 +34,6 @@ public class NeatTest {
         }
         trainer.stop();
         printResults(trainer, iteration, frame);
-        System.out.println("1: " + trainer.getBestAgent().getOutputs(1d)[0]);
     }
 
     private static double printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame) {
@@ -42,7 +42,7 @@ public class NeatTest {
         frame.newAgent = bestAgent;
         frame.repaint();
         final int hiddenCount = bestAgent.getHiddenCount();
-        System.out.println(iteration + ":" + (bestScore) + " \t" + hiddenCount);
+        System.out.println(iteration + ":" + (bestScore / MAX_SCORE) + " \t" + hiddenCount);
         return bestScore;
     }
 
@@ -123,7 +123,7 @@ public class NeatTest {
 
         @Override
         public double getExpectedOutput(final double x) {
-            return (x % 2) - 1;
+            return -0.5 * Math.sin(x);
         }
 
         @Override
@@ -134,7 +134,7 @@ public class NeatTest {
                 double output = agent.getOutputs(r)[0];
                 score += Math.abs(expectedOutputs[i] - output);
             }
-            return SAMPLE_SIZE * 2 - score;
+            return MAX_SCORE - score - 2 * agent.getHiddenCount();
         }
     }
 }
