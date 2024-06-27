@@ -10,7 +10,7 @@ public class NeatTrainer {
     final int agentCount;
     final NeatAgent[] agents;
     final AgentScore[] agentScores;
-    AgentScore best;
+    private AgentScore best;
     private final TrainThread[] threads;
 
     public NeatTrainer(final int inputCount, final int outputCount, final int agentCount, final NeatScenario scenario, final int threadCount) {
@@ -29,6 +29,10 @@ public class NeatTrainer {
             threads[i] = new TrainThread(scenario, this);
             threads[i].start();
         }
+    }
+
+    public AgentScore getBest() {
+        return new AgentScore(best.agent.clone(), best.score);
     }
 
     public void train() {
@@ -70,7 +74,8 @@ public class NeatTrainer {
 
     private void waitForThreads() {
         boolean allFree = false;
-        outer: while (!allFree) {
+        outer:
+        while (!allFree) {
             for (TrainThread thread : threads) {
                 if (!thread.isFree) {
                     continue outer;
@@ -102,7 +107,7 @@ public class NeatTrainer {
     }
 
     public NeatAgent getBestAgent() {
-        return best.agent;
+        return best.agent.clone();
     }
 
     public void stop() {
