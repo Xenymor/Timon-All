@@ -1,7 +1,5 @@
 package NeuralNetwork.NEAT;
 
-import StandardClasses.MyMath;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -27,7 +25,7 @@ public class NeatTest {
 
         while (bestScore < MAX_SCORE * 0.99) {
             trainer.train();
-            if (iteration % 100 == 0) {
+            if (iteration % 300 == 0) {
                 bestScore = printResults(trainer, iteration, frame);
             }
             iteration++;
@@ -98,9 +96,11 @@ public class NeatTest {
             g.clearRect(0, 0, width, height);
             for (int x = 0; x < valueCount; x++) {
                 g.setColor(Color.green);
-                g.fillRect(x * blockSize, (int) (MyMath.map(values[x], lowest, highest, fourTenthsHeight, -fourTenthsHeight)) + halfHeight, blockSize, blockSize);
+                //g.fillRect(x * blockSize, (int) (MyMath.map(values[x], lowest, highest, fourTenthsHeight, -fourTenthsHeight)) + halfHeight, blockSize, blockSize);
+                g.fillRect(x * blockSize, (int) (-values[x] * fourTenthsHeight) + halfHeight, blockSize, blockSize);
                 g.setColor(Color.red);
-                g.fillRect(x * blockSize, (int) (MyMath.map(outputs[x], lowest, highest, fourTenthsHeight, -fourTenthsHeight)) + halfHeight, blockSize, blockSize);
+                //g.fillRect(x * blockSize, (int) (MyMath.map(outputs[x], lowest, highest, fourTenthsHeight, -fourTenthsHeight)) + halfHeight, blockSize, blockSize);
+                g.fillRect(x * blockSize, (int) (-outputs[x] * fourTenthsHeight) + halfHeight, blockSize, blockSize);
             }
             graphics.drawImage(image, 0, 0, null);
         }
