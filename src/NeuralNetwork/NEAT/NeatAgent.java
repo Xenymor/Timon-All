@@ -19,8 +19,8 @@ public class NeatAgent {
     private final List<Integer> order = new ArrayList<>();
 
     private final Map<Integer, Set<Integer>> ancestors = new HashMap<>();
+    private final Map<Integer, Set<Integer>> descendants = new HashMap<>();
     private final Map<Integer, Set<Integer>> tempAncestors = new HashMap<>();
-    private final Map<Integer, List<Integer>> parents = new HashMap<>();
 
     private NeatAgent(final int inputCount, final int outputCount, final List<Node> nodes) {
         this.nodes = nodes;
@@ -43,7 +43,7 @@ public class NeatAgent {
                 forceConnection(i, j, nodes.get(j).getWeights().size());
             }
         }
-        createLists();
+        initializePedigree();
     }
 
     public int getInputCount() {
@@ -58,18 +58,18 @@ public class NeatAgent {
         return hiddenCount;
     }
 
-    private void createLists() {
-        createAncestorMap();
-        createOrder();
-    }
-
     private void createOrder() {
         order.clear();
+        tempAncestors.clear();
+        ancestors.keySet().forEach((a) -> tempAncestors.put(a, new HashSet<>(ancestors.get(a))));
+
         List<Integer> unfinishedNodes = new ArrayList<>();
         for (int i = 0; i < nodes.size(); i++) {
             unfinishedNodes.add(i);
         }
+
         int i = 0;
+        int iterationCount = 0;
         while (unfinishedNodes.size() > 0) {
             int index = unfinishedNodes.get(i);
             if (tempAncestors.get(index).size() == 0) {
@@ -80,68 +80,70 @@ public class NeatAgent {
             i++;
             if (i >= unfinishedNodes.size()) {
                 i = 0;
+                iterationCount++;
+                if (iterationCount > nodes.size()) {
+                    return;
+                }
             }
         }
     }
 
     private void removeTempConnectionsFrom(final int index) {
         for (int i = 0; i < nodes.size(); i++) {
-            tempAncestors.get(i).remove(index);
+            final Set<Integer> integers = tempAncestors.get(i);
+            integers.remove(index);
         }
     }
 
-    private void createAncestorMap() {
-        parents.clear();
-        for (Connection connection : connections) {
-            if (parents.containsKey(connection.to)) {
-                parents.get(connection.to).add(connection.from);
-            } else {
-                final ArrayList<Integer> list = new ArrayList<>();
-                list.add(connection.from);
-                parents.put(connection.to, list);
-            }
+    private void initializePedigree() {
+        ancestors.clear();
+        descendants.clear();
+        for (int i = 0; i < nodes.size(); i++) {
+            ancestors.put(i, new HashSet<>());
+            descendants.put(i, new HashSet<>());
         }
 
-        Stack<Integer> toCheck = new Stack<>();
-        for (int i = 0; i < nodes.size(); i++) {
-            if (parents.containsKey(i)) {
-                Set<Integer> result = new HashSet<>();
-                final List<Integer> outerParents = parents.get(i);
-                for (final Integer parent : outerParents) {
-                    toCheck.push(parent);
-                    result.add(parent);
-                }
-                while (!toCheck.isEmpty()) {
-                    Integer current = toCheck.pop();
-                    if (parents.containsKey(current)) {
-                        final List<Integer> currentParents = parents.get(current);
-                        for (final Integer parent : currentParents) {
-                            toCheck.push(parent);
-                            result.add(parent);
-                        }
-                    }
-                }
-                ancestors.put(i, result);
-                tempAncestors.put(i, new HashSet<>(result));
-            } else {
-                ancestors.put(i, new HashSet<>());
-                tempAncestors.put(i, new HashSet<>());
+        for (int i = 0; i < inputCount; i++) {
+            Set<Integer> currDescendants = descendants.get(i);
+            for (int j = inputCount; j < outputCount + inputCount; j++) {
+                currDescendants.add(j);
+                ancestors.get(j).add(i);
             }
         }
     }
 
     private boolean addConnection(final int fromNodeIndex, final int toNodeIndex, final int toIndex) {
-        if (((fromNodeIndex < inputCount || fromNodeIndex > inputCount + outputCount) && toNodeIndex >= inputCount)
-                && !(isAncestor(toNodeIndex, fromNodeIndex))) {
+        if ((fromNodeIndex != toNodeIndex)
+                && ((fromNodeIndex < inputCount || fromNodeIndex >= inputCount + outputCount) && toNodeIndex >= inputCount)
+                && !(isAncestor(toNodeIndex, fromNodeIndex))
+                && !(isParent(fromNodeIndex, toNodeIndex))) {
             forceConnection(fromNodeIndex, toNodeIndex, toIndex);
+            final Set<Integer> currAncestors = ancestors.get(toNodeIndex);
+            currAncestors.add(fromNodeIndex);
+            currAncestors.addAll(ancestors.get(fromNodeIndex));
+            final Set<Integer> currDescendants = descendants.get(fromNodeIndex);
+            currDescendants.add(toNodeIndex);
+            currDescendants.addAll(descendants.get(toNodeIndex));
+            updateAncestors(toNodeIndex, fromNodeIndex);
+            updateDescendants(fromNodeIndex, toNodeIndex);
             return true;
         } else {
             return false;
         }
     }
 
+    private boolean isParent(final int fromNodeIndex, final int toNodeIndex) {
+        for (Connection connection : connections) {
+            if (connection.from == fromNodeIndex && connection.to == toNodeIndex) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void forceConnection(final int fromNodeIndex, final int toNodeIndex, final int toIndex) {
-        connections.add(new Connection(fromNodeIndex, toNodeIndex, toIndex));
+        final Connection connection = new Connection(fromNodeIndex, toNodeIndex, toIndex);
+        connections.add(connection);
         nodes.get(toNodeIndex).addConnection();
     }
 
@@ -166,13 +168,19 @@ public class NeatAgent {
 
         if (chanceOf(NEW_NODE_PROBABILITY) && hiddenCount < MAX_HIDDEN_NODES) {
             createNode();
-            createLists();
+            if (ancestors.get(1).size() < nodes.size() - 1) {
+                return;
+            }
         }
 
         if (chanceOf(NEW_CONNECTION_PROBABILITY)) {
             createRandomConnection();
-            createLists();
+            if (ancestors.get(1).size() < nodes.size() - 1) {
+                return;
+            }
         }
+
+        createOrder();
     }
 
     private void mutateActivationFunctions() {
@@ -204,6 +212,41 @@ public class NeatAgent {
         connections.set(connectionIndex, new Connection(old.from, newNodeIndex, 0));
         connections.add(new Connection(newNodeIndex, old.to, old.index));
         hiddenNode.addConnection();
+
+        final HashSet<Integer> newAncestors = new HashSet<>(ancestors.get(old.from));
+        newAncestors.add(old.from);
+        ancestors.put(newNodeIndex, newAncestors);
+        final Set<Integer> oldAncestors = ancestors.get(old.to);
+        oldAncestors.addAll(newAncestors);
+        oldAncestors.add(newNodeIndex);
+
+        final HashSet<Integer> newDescendants = new HashSet<>(descendants.get(old.to));
+        newDescendants.add(old.to);
+        descendants.put(newNodeIndex, newDescendants);
+        final Set<Integer> oldDescendants = descendants.get(old.from);
+        oldDescendants.addAll(newDescendants);
+        oldDescendants.add(newNodeIndex);
+
+        updateAncestors(newNodeIndex, old.from);
+        updateDescendants(newNodeIndex, old.to);
+    }
+
+    private void updateDescendants(final int toUpdate, final int updatedChild) {
+        Set<Integer> currDescendants = descendants.get(toUpdate);
+        currDescendants.addAll(descendants.get(updatedChild));
+        final Set<Integer> currAncestors = ancestors.get(toUpdate);
+        for (Integer i : currAncestors) {
+            updateDescendants(i, toUpdate);
+        }
+    }
+
+    private void updateAncestors(final int toUpdate, final int updatedParent) {
+        Set<Integer> currAncestors = ancestors.get(toUpdate);
+        currAncestors.addAll(ancestors.get(updatedParent));
+        final Set<Integer> currDescendants = descendants.get(toUpdate);
+        for (Integer i : currDescendants) {
+            updateAncestors(i, toUpdate);
+        }
     }
 
     private void mutateWeights() {
@@ -281,7 +324,11 @@ public class NeatAgent {
         final NeatAgent neatAgent = new NeatAgent(inputCount, outputCount, cloned);
         neatAgent.hiddenCount = hiddenCount;
         neatAgent.connections.addAll(connections);
-        neatAgent.createLists();
+        for (int i = 0; i < nodes.size(); i++) {
+            neatAgent.ancestors.put(i, new HashSet<>(ancestors.get(i)));
+            neatAgent.descendants.put(i, new HashSet<>(descendants.get(i)));
+        }
+        neatAgent.order.addAll(order);
         return neatAgent;
     }
 

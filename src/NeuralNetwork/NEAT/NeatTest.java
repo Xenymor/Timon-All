@@ -24,20 +24,26 @@ public class NeatTest {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        while (bestScore < 410) {
+        while (bestScore < SAMPLE_SIZE * 2 * 0.95) {
             trainer.train();
             if (iteration % 100 == 0) {
-                bestScore = trainer.getBestScore();
-                final NeatAgent bestAgent = trainer.getBestAgent();
-                frame.newAgent = bestAgent;
-                frame.repaint();
-                final int hiddenCount = bestAgent.getHiddenCount();
-                System.out.println(iteration + ":" + (bestScore - hiddenCount * 20) + " \t" + hiddenCount);
+                bestScore = printResults(trainer, iteration, frame);
             }
             iteration++;
         }
         trainer.stop();
+        printResults(trainer, iteration, frame);
         System.out.println("1: " + trainer.getBestAgent().getOutputs(1d)[0]);
+    }
+
+    private static double printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame) {
+        double bestScore = trainer.getBestScore();
+        final NeatAgent bestAgent = trainer.getBestAgent();
+        frame.newAgent = bestAgent;
+        frame.repaint();
+        final int hiddenCount = bestAgent.getHiddenCount();
+        System.out.println(iteration + ":" + (bestScore) + " \t" + hiddenCount);
+        return bestScore;
     }
 
     private static class MyFrame extends JFrame {
@@ -116,8 +122,8 @@ public class NeatTest {
         }
 
         @Override
-        public double getExpectedOutput(final double v) {
-            return (Math.abs(v) % 2) - 1;
+        public double getExpectedOutput(final double x) {
+            return (x % 2) - 1;
         }
 
         @Override
@@ -128,7 +134,7 @@ public class NeatTest {
                 double output = agent.getOutputs(r)[0];
                 score += Math.abs(expectedOutputs[i] - output);
             }
-            return 400 - score + agent.getHiddenCount() * 20;
+            return SAMPLE_SIZE * 2 - score;
         }
     }
 }

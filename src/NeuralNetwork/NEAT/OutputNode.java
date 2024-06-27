@@ -85,6 +85,7 @@ public class OutputNode implements Node {
         result.bias = bias;
         result.weights.addAll(weights);
         result.inputs.addAll(inputs);
+        result.activationType = activationType;
         return result;
     }
 }
