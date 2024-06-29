@@ -1,8 +1,7 @@
 package NeuralNetwork.NEAT;
 
-import StandardClasses.Random;
-
 import java.util.Arrays;
+import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,7 +15,7 @@ public class NeatTrainer {
     private AgentScore best;
     private final ExecutorService threadPool;
     private final NeatScenario scenario;
-    private final java.util.Random[] randoms;
+    private final Random[] randoms;
 
     public NeatTrainer(final int inputCount, final int outputCount, final int agentCount, final NeatScenario scenario, final int threadCount) {
         this.inputCount = inputCount;
@@ -31,9 +30,9 @@ public class NeatTrainer {
         for (int i = 0; i < agents.length; i++) {
             agents[i] = new NeatAgent(inputCount, outputCount);
         }
-        randoms = new java.util.Random[threadCount];
+        randoms = new Random[threadCount];
         for (int i = 0; i < randoms.length; i++) {
-            randoms[i] = new java.util.Random();
+            randoms[i] = new Random();
         }
     }
 
