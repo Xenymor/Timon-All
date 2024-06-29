@@ -9,6 +9,7 @@ import static NeuralNetwork.NEAT.NodeType.HIDDEN;
 import static NeuralNetwork.NEAT.NodeType.OUTPUT;
 import static StandardClasses.Random.*;
 
+@SuppressWarnings("ALL")
 public class NeatAgent {
     private final int inputCount;
     private final int outputCount;
@@ -112,6 +113,7 @@ public class NeatAgent {
         }
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     private boolean addConnection(final int fromNodeIndex, final int toNodeIndex, final int toIndex) {
         if ((fromNodeIndex != toNodeIndex)
                 && ((fromNodeIndex < inputCount || fromNodeIndex >= inputCount + outputCount) && toNodeIndex >= inputCount)

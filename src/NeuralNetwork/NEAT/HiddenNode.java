@@ -8,6 +8,7 @@ import java.util.List;
 import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.BOTH;
 import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.ONLY_HIDDEN;
 
+@SuppressWarnings("MethodDoesntCallSuperMethod")
 public class HiddenNode implements Node {
     private final List<Double> inputs = new ArrayList<>();
     private final List<Double> weights = new ArrayList<>();
