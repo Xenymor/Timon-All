@@ -16,6 +16,7 @@ public class NeatTrainer {
     private AgentScore best;
     private final ExecutorService threadPool;
     private final NeatScenario scenario;
+    private final java.util.Random[] randoms;
 
     public NeatTrainer(final int inputCount, final int outputCount, final int agentCount, final NeatScenario scenario, final int threadCount) {
         this.inputCount = inputCount;
@@ -30,7 +31,10 @@ public class NeatTrainer {
         for (int i = 0; i < agents.length; i++) {
             agents[i] = new NeatAgent(inputCount, outputCount);
         }
-
+        randoms = new java.util.Random[threadCount];
+        for (int i = 0; i < randoms.length; i++) {
+            randoms[i] = new java.util.Random();
+        }
     }
 
     public AgentScore getBest() {
@@ -61,7 +65,7 @@ public class NeatTrainer {
                 if (finalI < percentageKept) {
                     agents[finalI] = agentScores[finalI].agent;
                 } else {
-                    double r = Random.randomDoubleInRange(0, sum);
+                    double r = randoms[finalI % randoms.length].nextDouble() * sum;
                     for (int j = agentScores.length - 1; j >= 0; j--) {
                         final AgentScore agentScore = agentScores[j];
                         if (r >= agentScore.score) {
