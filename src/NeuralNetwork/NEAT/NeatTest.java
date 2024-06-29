@@ -17,7 +17,7 @@ public class NeatTest {
     public static final int OUTPUT_COUNT = 1;
     public static final int AGENT_COUNT = 100;
     public static final int THREAD_COUNT = 8;
-    public static final int GRADIENT_DESCENT_ITERATIONS = 2;
+    public static final int GRADIENT_DESCENT_ITERATIONS = 10;
     private static long creationNanos = System.nanoTime();
 
     public static void main(String[] args) throws IOException {
@@ -36,7 +36,7 @@ public class NeatTest {
         Scanner scanner = new Scanner(System.in);
         while (!shouldBreak) {
             trainer.train();
-            if (iteration % 1 == 0) {
+            if (iteration % 300 == 0) {
                 bestScore = printResults(trainer, iteration, frame);
                 if (System.in.available() > 0) {
                     if (scanner.hasNextLine() && scanner.nextLine().equalsIgnoreCase("e")) {
@@ -138,7 +138,7 @@ public class NeatTest {
 
         @Override
         public double getExpectedOutput(final double x) {
-            return Math.cos(1 - 5 * x * x * x);
+            return Math.cos(1 - 15 * x * x * x);
         }
 
         @Override

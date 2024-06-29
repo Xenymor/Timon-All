@@ -3,8 +3,15 @@ package NeuralNetwork.NEAT;
 import StandardClasses.Random;
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class NeatTrainer {
+
+    private final ExecutorService executor = Executors.newFixedThreadPool(8);
+
     final int inputCount;
     final int outputCount;
     final int agentCount;
@@ -46,9 +53,24 @@ public class NeatTrainer {
 
     private void prepareNextGeneration(final double sum) {
         final int percentageKept = agentCount / Configuration.KEPT_AGENT_PERCENTAGE;
+        if (Random.chanceOf(0.005)) {
+            final CountDownLatch count = new CountDownLatch(agents.length);
+            for (final var agent : agents) {
+                executor.execute(() -> {
+                    threads[0].gradientDescent(agent);
+                    count.countDown();
+                });
+            }
+            try {
+                count.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
         for (int i = 0; i < agentCount; i++) {
             if (i < percentageKept) {
                 agents[i] = agentScores[i].agent;
+
             } else {
                 double r = Random.randomDoubleInRange(0, sum);
                 for (int j = agentScores.length - 1; j >= 0; j--) {

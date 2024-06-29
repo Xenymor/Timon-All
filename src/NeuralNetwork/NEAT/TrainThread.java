@@ -1,5 +1,7 @@
 package NeuralNetwork.NEAT;
 
+import StandardClasses.Random;
+
 import java.util.List;
 
 public class TrainThread extends Thread {
@@ -22,7 +24,6 @@ public class TrainThread extends Thread {
         while (shouldRun) {
             if (!isFree) {
                 NeatAgent agent = trainer.agents[index];
-                gradientDescent(agent);
                 double score = scenario.getScore(agent);
                 trainer.agentScores[index] = new NeatTrainer.AgentScore(agent, score);
                 index = -1;
@@ -31,13 +32,16 @@ public class TrainThread extends Thread {
         }
     }
 
-    private void gradientDescent(final NeatAgent agent) {
+    void gradientDescent(final NeatAgent agent) {
         List<Node> nodes = agent.nodes;
         final double stepSize = 0.1d;
         final double sampleValue = 0.01d;
 
         for (int i = 0; i < gradientDescentIterations; i++) {
             for (int j = agent.getInputCount(); j < nodes.size(); j++) {
+                if (Random.chanceOf(0.9)) {
+                    continue;
+                }
                 final Node node = nodes.get(j);
                 double lastScore = scenario.getScore(agent);
 
