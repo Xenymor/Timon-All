@@ -10,13 +10,15 @@ public class NeatTrainer {
     final int agentCount;
     final NeatAgent[] agents;
     final AgentScore[] agentScores;
+    private final int gradientDescentIterations;
     private AgentScore best;
     private final TrainThread[] threads;
 
-    public NeatTrainer(final int inputCount, final int outputCount, final int agentCount, final NeatScenario scenario, final int threadCount) {
+    public NeatTrainer(final int inputCount, final int outputCount, final int agentCount, final NeatScenario scenario, final int threadCount, final int gradientDescentIterations) {
         this.inputCount = inputCount;
         this.outputCount = outputCount;
         this.agentCount = agentCount;
+        this.gradientDescentIterations = gradientDescentIterations;
 
         agents = new NeatAgent[agentCount];
         agentScores = new AgentScore[agentCount];
@@ -26,7 +28,7 @@ public class NeatTrainer {
 
         threads = new TrainThread[threadCount];
         for (int i = 0; i < threads.length; i++) {
-            threads[i] = new TrainThread(scenario, this);
+            threads[i] = new TrainThread(scenario, this, gradientDescentIterations);
             threads[i].start();
         }
     }
