@@ -131,7 +131,7 @@ public class NeatTest {
 
         @Override
         public double getExpectedOutput(final double x) {
-            return x*x*x;
+            return Math.cos(1 - x * x * x);
         }
 
         @Override
