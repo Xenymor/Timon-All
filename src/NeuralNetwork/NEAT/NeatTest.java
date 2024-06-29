@@ -15,7 +15,7 @@ public class NeatTest {
 
     public static void main(String[] args) throws IOException {
         final EasyScenario scenario = new EasyScenario();
-        NeatTrainer trainer = new NeatTrainer(1, 1, 100, scenario, 8);
+        NeatTrainer trainer = new NeatTrainer(1, 1, 100, scenario, 12);
         double bestScore = Double.NEGATIVE_INFINITY;
         int iteration = 0;
 
@@ -29,7 +29,7 @@ public class NeatTest {
         Scanner scanner = new Scanner(System.in);
         while (!shouldBreak) {
             trainer.train();
-            if (iteration % 300 == 0) {
+            if (iteration % 500 == 0) {
                 bestScore = printResults(trainer, iteration, frame);
                 if (System.in.available() > 0) {
                     if (scanner.hasNextLine() && scanner.nextLine().equalsIgnoreCase("e")) {
@@ -143,7 +143,7 @@ public class NeatTest {
                 final double diff = Math.abs(expectedOutputs[i] - output);
                 score += diff * diff;
             }
-            return Math.max(MAX_SCORE - score - agent.getHiddenCount() * 0.25, 0);
+            return Math.max(MAX_SCORE - score - agent.getHiddenCount() * 0.2, 0);
         }
     }
 }

@@ -3,6 +3,9 @@ package NeuralNetwork.NEAT;
 import StandardClasses.Random;
 
 import java.util.Arrays;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class NeatTrainer {
     final int inputCount;
@@ -11,12 +14,16 @@ public class NeatTrainer {
     final NeatAgent[] agents;
     final AgentScore[] agentScores;
     private AgentScore best;
-    private final TrainThread[] threads;
+    private final ExecutorService threadPool;
+    private final NeatScenario scenario;
 
     public NeatTrainer(final int inputCount, final int outputCount, final int agentCount, final NeatScenario scenario, final int threadCount) {
         this.inputCount = inputCount;
         this.outputCount = outputCount;
         this.agentCount = agentCount;
+
+        this.scenario = scenario;
+        threadPool = Executors.newFixedThreadPool(threadCount);
 
         agents = new NeatAgent[agentCount];
         agentScores = new AgentScore[agentCount];
@@ -24,11 +31,6 @@ public class NeatTrainer {
             agents[i] = new NeatAgent(inputCount, outputCount);
         }
 
-        threads = new TrainThread[threadCount];
-        for (int i = 0; i < threads.length; i++) {
-            threads[i] = new TrainThread(scenario, this);
-            threads[i].start();
-        }
     }
 
     public AgentScore getBest() {
@@ -36,29 +38,43 @@ public class NeatTrainer {
     }
 
     public void train() {
-        startTraining();
-        waitForThreads();
+        CountDownLatch countDown = startTraining();
+        waitForThreads(countDown);
         double sum = prepareLists();
         prepareNextGeneration(sum);
     }
 
+    private void waitForThreads(final CountDownLatch countDown) {
+        try {
+            countDown.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void prepareNextGeneration(final double sum) {
         final int percentageKept = agentCount / Configuration.KEPT_AGENT_PERCENTAGE;
+        CountDownLatch countDownLatch = new CountDownLatch(agentCount);
         for (int i = 0; i < agentCount; i++) {
-            if (i < percentageKept) {
-                agents[i] = agentScores[i].agent;
-            } else {
-                double r = Random.randomDoubleInRange(0, sum);
-                for (int j = agentScores.length - 1; j >= 0; j--) {
-                    final AgentScore agentScore = agentScores[j];
-                    if (r >= agentScore.score) {
-                        agents[i] = agentScore.agent.clone();
-                        agents[i].mutate();
-                        break;
+            final int finalI = i;
+            threadPool.submit(() -> {
+                if (finalI < percentageKept) {
+                    agents[finalI] = agentScores[finalI].agent;
+                } else {
+                    double r = Random.randomDoubleInRange(0, sum);
+                    for (int j = agentScores.length - 1; j >= 0; j--) {
+                        final AgentScore agentScore = agentScores[j];
+                        if (r >= agentScore.score) {
+                            agents[finalI] = agentScore.agent.clone();
+                            agents[finalI].mutate();
+                            break;
+                        }
                     }
                 }
-            }
+                countDownLatch.countDown();
+            });
         }
+        waitForThreads(countDownLatch);
     }
 
     private double prepareLists() {
@@ -74,34 +90,17 @@ public class NeatTrainer {
         return sum;
     }
 
-    private void waitForThreads() {
-        boolean allFree = false;
-        outer:
-        while (!allFree) {
-            for (TrainThread thread : threads) {
-                if (!thread.isFree) {
-                    continue outer;
-                }
-            }
-            allFree = true;
-        }
-    }
-
-    private void startTraining() {
+    private CountDownLatch startTraining() {
+        CountDownLatch countDownLatch = new CountDownLatch(agentCount);
         for (int i = 0; i < agentCount; i++) {
-            boolean shouldContinue = false;
-            while (!shouldContinue) {
-                for (final TrainThread thread : threads) {
-                    if (thread.isFree) {
-                        thread.startTask(i);
-                        shouldContinue = true;
-                        break;
-                    }
-                }
-                //scores[i] = scenario.getScore(agents[i]);
-                //agentScores[i] = new AgentScore(agents[i], scores[i]);
-            }
+            final int finalI = i;
+            threadPool.submit(() -> {
+                final NeatAgent agent = agents[finalI];
+                agentScores[finalI] = new AgentScore(agent, scenario.getScore(agent));
+                countDownLatch.countDown();
+            });
         }
+        return countDownLatch;
     }
 
     public double getBestScore() {
@@ -113,9 +112,7 @@ public class NeatTrainer {
     }
 
     public void stop() {
-        for (TrainThread thread : threads) {
-            thread.shouldRun = false;
-        }
+        threadPool.shutdownNow();
     }
 
     static class AgentScore {
