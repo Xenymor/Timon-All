@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.time.Duration;
 import java.util.Scanner;
 
 public class NeatTest {
@@ -13,16 +12,10 @@ public class NeatTest {
     public static final int BLOCK_SIZE = 4;
     public static final int SAMPLE_SIZE = 200;
     public static final int MAX_SCORE = SAMPLE_SIZE * 2;
-    public static final int INPUT_COUNT = 1;
-    public static final int OUTPUT_COUNT = 1;
-    public static final int AGENT_COUNT = 100;
-    public static final int THREAD_COUNT = 8;
-    public static final int GRADIENT_DESCENT_ITERATIONS = 2;
-    private static long creationNanos = System.nanoTime();
 
     public static void main(String[] args) throws IOException {
         final EasyScenario scenario = new EasyScenario();
-        NeatTrainer trainer = new NeatTrainer(INPUT_COUNT, OUTPUT_COUNT, AGENT_COUNT, scenario, THREAD_COUNT, GRADIENT_DESCENT_ITERATIONS);
+        NeatTrainer trainer = new NeatTrainer(1, 1, 100, scenario, 8);
         double bestScore = Double.NEGATIVE_INFINITY;
         int iteration = 0;
 
@@ -36,7 +29,7 @@ public class NeatTest {
         Scanner scanner = new Scanner(System.in);
         while (!shouldBreak) {
             trainer.train();
-            if (iteration % 1 == 0) {
+            if (iteration % 300 == 0) {
                 bestScore = printResults(trainer, iteration, frame);
                 if (System.in.available() > 0) {
                     if (scanner.hasNextLine() && scanner.nextLine().equalsIgnoreCase("e")) {
@@ -55,7 +48,7 @@ public class NeatTest {
         frame.newAgent = bestAgentScore.agent;
         frame.repaint();
         final int hiddenCount = bestAgentScore.agent.getHiddenCount();
-        System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount + " / " + Duration.ofNanos(System.nanoTime() - creationNanos));
+        System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount);
         return bestAgentScore.score;
     }
 
@@ -138,7 +131,7 @@ public class NeatTest {
 
         @Override
         public double getExpectedOutput(final double x) {
-            return Math.cos(1 - 5 * x * x * x);
+            return Math.cos(1 - x * x * x);
         }
 
         @Override

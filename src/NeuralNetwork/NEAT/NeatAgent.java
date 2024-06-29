@@ -14,7 +14,7 @@ public class NeatAgent {
     private final int outputCount;
     private int hiddenCount = 0;
 
-    final List<Node> nodes;
+    private final List<Node> nodes;
     private final List<Connection> connections = new ArrayList<>();
     private final List<Integer> order = new ArrayList<>();
 
