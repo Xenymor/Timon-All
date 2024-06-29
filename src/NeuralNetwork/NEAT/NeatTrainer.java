@@ -32,7 +32,7 @@ public class NeatTrainer {
     }
 
     public AgentScore getBest() {
-        return new AgentScore(best.agent.clone(), best.score);
+        return new AgentScore(getBestAgent(), getBestScore());
     }
 
     public void train() {
@@ -63,7 +63,9 @@ public class NeatTrainer {
 
     private double prepareLists() {
         Arrays.sort(agentScores, (a, b) -> Double.compare(b.score, a.score));
-        best = agentScores[0];
+        final AgentScore agentScore1 = agentScores[0];
+
+        best = new AgentScore(agentScore1.agent.clone(), agentScore1.score);
         double sum = 0;
         for (final AgentScore agentScore : agentScores) {
             sum += agentScore.score;

@@ -3,15 +3,17 @@ package NeuralNetwork.NEAT;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.util.Scanner;
 
 public class NeatTest {
 
-    public static final double TEST_RANGE = Math.PI;
+    public static final double TEST_RANGE = 1;
     public static final int BLOCK_SIZE = 4;
     public static final int SAMPLE_SIZE = 200;
-    public static final int MAX_SCORE = SAMPLE_SIZE * 2 + 40;
+    public static final int MAX_SCORE = SAMPLE_SIZE * 2;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         final EasyScenario scenario = new EasyScenario();
         NeatTrainer trainer = new NeatTrainer(1, 1, 100, scenario, 8);
         double bestScore = Double.NEGATIVE_INFINITY;
@@ -23,10 +25,17 @@ public class NeatTest {
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setVisible(true);
 
-        while (bestScore < MAX_SCORE * 0.99) {
+        boolean shouldBreak = false;
+        Scanner scanner = new Scanner(System.in);
+        while (!shouldBreak) {
             trainer.train();
             if (iteration % 300 == 0) {
                 bestScore = printResults(trainer, iteration, frame);
+                if (System.in.available() > 0) {
+                    if (scanner.hasNextLine() && scanner.nextLine().equalsIgnoreCase("e")) {
+                        shouldBreak = true;
+                    }
+                }
             }
             iteration++;
         }
@@ -35,13 +44,12 @@ public class NeatTest {
     }
 
     private static double printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame) {
-        double bestScore = trainer.getBestScore();
-        final NeatAgent bestAgent = trainer.getBestAgent();
-        frame.newAgent = bestAgent;
+        NeatTrainer.AgentScore bestAgentScore = trainer.getBest();
+        frame.newAgent = bestAgentScore.agent;
         frame.repaint();
-        final int hiddenCount = bestAgent.getHiddenCount();
-        System.out.println(iteration + ":" + (bestScore / MAX_SCORE) + " \t" + hiddenCount);
-        return bestScore;
+        final int hiddenCount = bestAgentScore.agent.getHiddenCount();
+        System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount);
+        return bestAgentScore.score;
     }
 
     private static class MyFrame extends JFrame {
@@ -106,7 +114,7 @@ public class NeatTest {
         }
     }
 
-    private static class EasyScenario implements NeatScenario {
+    public static class EasyScenario implements NeatScenario {
         final double[] testNumbers;
         final double[] expectedOutputs;
 
@@ -123,7 +131,7 @@ public class NeatTest {
 
         @Override
         public double getExpectedOutput(final double x) {
-            return -0.5 * Math.sin(x);
+            return x*x*x;
         }
 
         @Override
@@ -132,9 +140,10 @@ public class NeatTest {
             for (int i = 0; i < testNumbers.length; i++) {
                 final double r = testNumbers[i];
                 double output = agent.getOutputs(r)[0];
-                score += Math.abs(expectedOutputs[i] - output);
+                final double diff = Math.abs(expectedOutputs[i] - output);
+                score += diff * diff;
             }
-            return MAX_SCORE - score - 2 * agent.getHiddenCount();
+            return Math.max(MAX_SCORE - score - agent.getHiddenCount() * 0.25, 0);
         }
     }
 }

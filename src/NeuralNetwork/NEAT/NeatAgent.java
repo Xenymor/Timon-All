@@ -332,6 +332,19 @@ public class NeatAgent {
         return neatAgent;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        final NeatAgent neatAgent = (NeatAgent) o;
+        return inputCount == neatAgent.inputCount && outputCount == neatAgent.outputCount && hiddenCount == neatAgent.hiddenCount && nodes.equals(neatAgent.nodes) && connections.equals(neatAgent.connections) && order.equals(neatAgent.order) && ancestors.equals(neatAgent.ancestors) && descendants.equals(neatAgent.descendants);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(inputCount, outputCount, hiddenCount, nodes, connections, order, ancestors, descendants);
+    }
+
     public int getNodeCount() {
         return hiddenCount;
     }
