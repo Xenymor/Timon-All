@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 public class NeatTest {
 
@@ -16,7 +17,6 @@ public class NeatTest {
     public static void main(String[] args) throws IOException {
         final EasyScenario scenario = new EasyScenario();
         NeatTrainer trainer = new NeatTrainer(1, 1, 100, scenario, 12);
-        double bestScore = Double.NEGATIVE_INFINITY;
         int iteration = 0;
 
         MyFrame frame = new MyFrame(TEST_RANGE, trainer.agents[0], BLOCK_SIZE, scenario);
@@ -27,10 +27,11 @@ public class NeatTest {
 
         boolean shouldBreak = false;
         Scanner scanner = new Scanner(System.in);
+        long startTime = System.nanoTime();
         while (!shouldBreak) {
             trainer.train();
             if (iteration % 500 == 0) {
-                bestScore = printResults(trainer, iteration, frame);
+                printResults(trainer, iteration, frame, startTime);
                 if (System.in.available() > 0) {
                     if (scanner.hasNextLine() && scanner.nextLine().equalsIgnoreCase("e")) {
                         shouldBreak = true;
@@ -40,24 +41,29 @@ public class NeatTest {
             iteration++;
         }
         trainer.stop();
-        printResults(trainer, iteration, frame);
+        printResults(trainer, iteration, frame, startTime);
     }
 
-    private static double printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame) {
+    private static double printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame, final long startTime) {
         NeatTrainer.AgentScore bestAgentScore = trainer.getBest();
         frame.newAgent = bestAgentScore.agent;
         frame.repaint();
         final int hiddenCount = bestAgentScore.agent.getHiddenCount();
-        System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount);
+        if (iteration == 0) {
+            System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount);
+        } else {
+            double millisPerIter = Math.round((TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) / (double) (iteration)) * 1_000) / 1_000d;
+            System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount + "\t" + millisPerIter + "ms/iter");
+        }
         return bestAgentScore.score;
     }
 
     private static class MyFrame extends JFrame {
-        double range;
+        final double range;
         NeatAgent newAgent;
         final int blockSize;
         BufferedImage image;
-        NeatScenario scenario;
+        final NeatScenario scenario;
 
         public MyFrame(final double range, NeatAgent agent, int blockSize, NeatScenario scenario) {
             this.range = range;
