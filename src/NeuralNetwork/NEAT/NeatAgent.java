@@ -14,12 +14,12 @@ public class NeatAgent {
 
     private final List<Node> nodes;
     private final List<Connection> connections = new ArrayList<>();
-    private final Map<Integer, List<Connection>> incomingConnections = new HashMap<>();
+    private final List<List<Connection>> incomingConnections = new ArrayList<>();
     private final List<Integer> order = new ArrayList<>();
 
-    private final Map<Integer, Set<Integer>> ancestors = new HashMap<>();
-    private final Map<Integer, Set<Integer>> descendants = new HashMap<>();
-    private final Map<Integer, Set<Integer>> tempAncestors = new HashMap<>();
+    private final List<Set<Integer>> ancestors = new ArrayList<>();
+    private final List<Set<Integer>> descendants = new ArrayList<>();
+    private final List<Set<Integer>> tempAncestors = new ArrayList<>();
 
     private NeatAgent(final int inputCount, final int outputCount, final List<Node> nodes) {
         this.nodes = nodes;
@@ -33,11 +33,11 @@ public class NeatAgent {
         this.outputCount = outputCount;
         for (int i = 0; i < inputCount; i++) {
             nodes.add(new InputNode());
-            incomingConnections.put(i, new ArrayList<>());
+            incomingConnections.add(new ArrayList<>());
         }
         for (int i = 0; i < outputCount; i++) {
             nodes.add(new OutputNode());
-            incomingConnections.put(i + inputCount, new ArrayList<>());
+            incomingConnections.add(new ArrayList<>());
         }
         for (int i = 0; i < inputCount; i++) {
             for (int j = inputCount; j < outputCount + inputCount; j++) {
@@ -62,7 +62,10 @@ public class NeatAgent {
     private void createOrder() {
         order.clear();
         tempAncestors.clear();
-        ancestors.keySet().forEach((a) -> tempAncestors.put(a, new HashSet<>(ancestors.get(a))));
+
+        for (Set<Integer> ancestor : ancestors) {
+            tempAncestors.add(new HashSet<>(ancestor));
+        }
 
         List<Integer> unfinishedNodes = new ArrayList<>();
         for (int i = 0; i < nodes.size(); i++) {
@@ -100,8 +103,8 @@ public class NeatAgent {
         ancestors.clear();
         descendants.clear();
         for (int i = 0; i < nodes.size(); i++) {
-            ancestors.put(i, new HashSet<>());
-            descendants.put(i, new HashSet<>());
+            ancestors.add(new HashSet<>());
+            descendants.add(new HashSet<>());
         }
 
         for (int i = 0; i < inputCount; i++) {
@@ -221,14 +224,14 @@ public class NeatAgent {
 
         final HashSet<Integer> newAncestors = new HashSet<>(ancestors.get(old.from));
         newAncestors.add(old.from);
-        ancestors.put(newNodeIndex, newAncestors);
+        ancestors.add(newAncestors);
         final Set<Integer> oldAncestors = ancestors.get(old.to);
         oldAncestors.addAll(newAncestors);
         oldAncestors.add(newNodeIndex);
 
         final HashSet<Integer> newDescendants = new HashSet<>(descendants.get(old.to));
         newDescendants.add(old.to);
-        descendants.put(newNodeIndex, newDescendants);
+        descendants.add(newDescendants);
         final Set<Integer> oldDescendants = descendants.get(old.from);
         oldDescendants.addAll(newDescendants);
         oldDescendants.add(newNodeIndex);
@@ -237,7 +240,7 @@ public class NeatAgent {
         oldIncoming.set(oldIncoming.indexOf(old), newConnection);
         final List<Connection> incoming = new ArrayList<>();
         incoming.add(newConnection1);
-        incomingConnections.put(newNodeIndex, incoming);
+        incomingConnections.add(incoming);
 
         updateAncestors(newNodeIndex, old.from);
         updateDescendants(newNodeIndex, old.to);
@@ -338,26 +341,25 @@ public class NeatAgent {
             connections.add(new Connection(from, connection.to, connection.nodeEntryIndex, neatAgent.nodes.get(from), connection.connectionIndex));
         }
 
-// Prepare the ancestor and descendant maps and the incoming connections list
-        Map<Integer, Set<Integer>> ancestorsMap = new HashMap<>(nodes.size());
-        Map<Integer, Set<Integer>> descendantsMap = new HashMap<>(nodes.size());
-        Map<Integer, List<Connection>> incomingMap = new HashMap<>(nodes.size());
+        List<Set<Integer>> newAncestors = new ArrayList<>(nodes.size());
+        List<Set<Integer>> newDescendants = new ArrayList<>(nodes.size());
+        List<List<Connection>> newIncomingConnections = new ArrayList<>(nodes.size());
 
         for (int i = 0; i < nodes.size(); i++) {
-            ancestorsMap.put(i, new HashSet<>(ancestors.get(i)));
-            descendantsMap.put(i, new HashSet<>(descendants.get(i)));
+            newAncestors.add(new HashSet<>(ancestors.get(i)));
+            newDescendants.add(new HashSet<>(descendants.get(i)));
 
             List<Connection> oldIncoming = incomingConnections.get(i);
             List<Connection> newIncoming = new ArrayList<>(oldIncoming.size());
             for (Connection connection : oldIncoming) {
                 newIncoming.add(connections.get(connection.connectionIndex));
             }
-            incomingMap.put(i, newIncoming);
+            newIncomingConnections.add(newIncoming);
         }
 
-        neatAgent.ancestors.putAll(ancestorsMap);
-        neatAgent.descendants.putAll(descendantsMap);
-        neatAgent.incomingConnections.putAll(incomingMap);
+        neatAgent.ancestors.addAll(newAncestors);
+        neatAgent.descendants.addAll(newDescendants);
+        neatAgent.incomingConnections.addAll(newIncomingConnections);
 
         neatAgent.order.addAll(order);
         return neatAgent;
