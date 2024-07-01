@@ -1,23 +1,24 @@
 package NeuralNetwork.NEAT;
 
-import NeuralNetwork.NEAT.ActivationType.ActivationTypeType;
 import StandardClasses.Random;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.BOTH;
-import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.ONLY_OUTPUTS;
+import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.*;
 
-public class OutputNode implements Node {
+@SuppressWarnings("MethodDoesntCallSuperMethod")
+public class NormalNode implements Node {
     private final List<Double> inputs = new ArrayList<>();
     private final List<Double> weights = new ArrayList<>();
     double bias = Random.randomDoubleInRange(-Configuration.WEIGHT_RANGE, Configuration.WEIGHT_RANGE);
+    ActivationType activationType;
     boolean recalculate = false;
     double lastOutput = 0;
-    ActivationType activationType;
+    final NodeType type;
 
-    public OutputNode() {
+    public NormalNode(NodeType nodeType) {
+        type = nodeType;
         chooseRandomActivation();
     }
 
@@ -25,9 +26,10 @@ public class OutputNode implements Node {
         ActivationType[] types = ActivationType.values();
         activationType = types[Random.randomIntInRange(types.length)];
         while (true) {
-            final ActivationTypeType type = activationType.getType();
+            final ActivationType.ActivationTypeType type = activationType.getType();
             if (type.equals(BOTH)
-                    || type.equals(ONLY_OUTPUTS))
+                    || (this.type == NodeType.HIDDEN && type == ONLY_HIDDEN)
+                    || (this.type == NodeType.OUTPUT && type == ONLY_OUTPUTS))
                 break;
             activationType = types[Random.randomIntInRange(types.length)];
         }
@@ -35,7 +37,7 @@ public class OutputNode implements Node {
 
     @Override
     public NodeType getType() {
-        return NodeType.OUTPUT;
+        return type;
     }
 
     @Override
@@ -80,7 +82,7 @@ public class OutputNode implements Node {
 
     @Override
     public Node clone() {
-        OutputNode result = new OutputNode();
+        NormalNode result = new NormalNode(type);
         result.recalculate = true;
         result.bias = bias;
         result.weights.addAll(weights);

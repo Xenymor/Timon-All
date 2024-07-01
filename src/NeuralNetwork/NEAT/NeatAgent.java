@@ -36,7 +36,7 @@ public class NeatAgent {
             incomingConnections.add(new ArrayList<>());
         }
         for (int i = 0; i < outputCount; i++) {
-            nodes.add(new OutputNode());
+            nodes.add(new NormalNode(NodeType.OUTPUT));
             incomingConnections.add(new ArrayList<>());
         }
         for (int i = 0; i < inputCount; i++) {
@@ -207,8 +207,8 @@ public class NeatAgent {
     private void createNode() {
         //Create Node
         hiddenCount++;
-        final HiddenNode hiddenNode = new HiddenNode();
-        nodes.add(hiddenNode);
+        final NormalNode normalNode = new NormalNode(NodeType.HIDDEN);
+        nodes.add(normalNode);
         final int newNodeIndex = nodes.size() - 1;
 
         //Pick random connection
@@ -218,9 +218,9 @@ public class NeatAgent {
         //Split the connection
         final Connection newConnection1 = new Connection(old.from, newNodeIndex, 0, old.fromNode, old.connectionIndex);
         connections.set(connectionIndex, newConnection1);
-        final Connection newConnection = new Connection(newNodeIndex, old.to, old.nodeEntryIndex, hiddenNode, connections.size());
+        final Connection newConnection = new Connection(newNodeIndex, old.to, old.nodeEntryIndex, normalNode, connections.size());
         connections.add(newConnection);
-        hiddenNode.addConnection();
+        normalNode.addConnection();
 
         final HashSet<Integer> newAncestors = new HashSet<>(ancestors.get(old.from));
         newAncestors.add(old.from);
@@ -317,7 +317,7 @@ public class NeatAgent {
         for (int i = inputCount; i < maxI; i++) {
             Node node = nodes.get(i);
             setInputs(node, i);
-            outputs[i-inputCount] = node.getOutput();
+            outputs[i - inputCount] = node.getOutput();
         }
         return outputs;
     }
