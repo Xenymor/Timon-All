@@ -9,7 +9,6 @@ import static NeuralNetwork.NEAT.NodeType.HIDDEN;
 import static NeuralNetwork.NEAT.NodeType.OUTPUT;
 import static StandardClasses.Random.*;
 
-@SuppressWarnings("ALL")
 public class NeatAgent {
     private final int inputCount;
     private final int outputCount;
@@ -342,6 +341,7 @@ public class NeatAgent {
         for (int i = 0; i < nodes.size(); i++) {
             neatAgent.ancestors.put(i, new HashSet<>(ancestors.get(i)));
             neatAgent.descendants.put(i, new HashSet<>(descendants.get(i)));
+            neatAgent.incomingConnections.put(i, new ArrayList<>(incomingConnections.get(i)));
         }
         neatAgent.order.addAll(order);
         return neatAgent;
