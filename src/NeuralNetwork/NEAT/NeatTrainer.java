@@ -55,6 +55,15 @@ public class NeatTrainer {
         }
     }
 
+    //TODO delete; only for profiling purposes
+    private void waitForThreadsMutate(final CountDownLatch countDown) {
+        try {
+            countDown.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void prepareNextGeneration(final double sum) {
         final int percentageKept = agentCount / Configuration.KEPT_AGENT_PERCENTAGE;
         CountDownLatch countDownLatch = new CountDownLatch(agentCount);
@@ -77,7 +86,7 @@ public class NeatTrainer {
                 countDownLatch.countDown();
             });
         }
-        waitForThreads(countDownLatch);
+        waitForThreadsMutate(countDownLatch);
     }
 
     private double prepareLists() {

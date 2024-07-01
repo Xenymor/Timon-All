@@ -5,8 +5,6 @@ import StandardClasses.Random;
 import java.util.*;
 
 import static NeuralNetwork.NEAT.Configuration.*;
-import static NeuralNetwork.NEAT.NodeType.HIDDEN;
-import static NeuralNetwork.NEAT.NodeType.OUTPUT;
 import static StandardClasses.Random.*;
 
 public class NeatAgent {
@@ -147,7 +145,7 @@ public class NeatAgent {
     }
 
     private void forceConnection(final int fromNodeIndex, final int toNodeIndex, final int toIndex) {
-        final Connection connection = new Connection(fromNodeIndex, toNodeIndex, toIndex);
+        final Connection connection = new Connection(fromNodeIndex, toNodeIndex, toIndex, nodes.get(fromNodeIndex), connections.size());
         connections.add(connection);
         nodes.get(toNodeIndex).addConnection();
         incomingConnections.get(toNodeIndex).add(connection);
@@ -215,9 +213,9 @@ public class NeatAgent {
         Connection old = connections.get(connectionIndex);
 
         //Split the connection
-        final Connection newConnection1 = new Connection(old.from, newNodeIndex, 0);
+        final Connection newConnection1 = new Connection(old.from, newNodeIndex, 0, old.fromNode, old.connectionIndex);
         connections.set(connectionIndex, newConnection1);
-        final Connection newConnection = new Connection(newNodeIndex, old.to, old.index);
+        final Connection newConnection = new Connection(newNodeIndex, old.to, old.nodeEntryIndex, hiddenNode, connections.size());
         connections.add(newConnection);
         hiddenNode.addConnection();
 
@@ -320,31 +318,50 @@ public class NeatAgent {
     }
 
     private void setInputs(Node node, int index) {
-        final NodeType type = node.getType();
-        if (type.equals(HIDDEN) || type.equals(OUTPUT)) {
-            for (Connection connection : connections) {
-                if (connection.to == index) {
-                    node.setInput(connection.index, nodes.get(connection.from).getOutput());
-                }
-            }
+        final List<Connection> connections = incomingConnections.get(index);
+        for (Connection connection : connections) {
+            node.setInput(connection.nodeEntryIndex, connection.fromNode.getOutput());
         }
     }
 
     public NeatAgent clone() {
-        List<Node> cloned = new ArrayList<>();
+        List<Node> cloned = new ArrayList<>(nodes.size());
         for (Node node : nodes) {
             cloned.add(node.clone());
         }
         final NeatAgent neatAgent = new NeatAgent(inputCount, outputCount, cloned);
         neatAgent.hiddenCount = hiddenCount;
-        neatAgent.connections.addAll(connections);
-        for (int i = 0; i < nodes.size(); i++) {
-            neatAgent.ancestors.put(i, new HashSet<>(ancestors.get(i)));
-            neatAgent.descendants.put(i, new HashSet<>(descendants.get(i)));
-            neatAgent.incomingConnections.put(i, new ArrayList<>(incomingConnections.get(i)));
+
+        final List<Connection> connections = neatAgent.connections;
+        for (Connection connection : this.connections) {
+            final int from = connection.from;
+            connections.add(new Connection(from, connection.to, connection.nodeEntryIndex, neatAgent.nodes.get(from), connection.connectionIndex));
         }
+
+// Prepare the ancestor and descendant maps and the incoming connections list
+        Map<Integer, Set<Integer>> ancestorsMap = new HashMap<>(nodes.size());
+        Map<Integer, Set<Integer>> descendantsMap = new HashMap<>(nodes.size());
+        Map<Integer, List<Connection>> incomingMap = new HashMap<>(nodes.size());
+
+        for (int i = 0; i < nodes.size(); i++) {
+            ancestorsMap.put(i, new HashSet<>(ancestors.get(i)));
+            descendantsMap.put(i, new HashSet<>(descendants.get(i)));
+
+            List<Connection> oldIncoming = incomingConnections.get(i);
+            List<Connection> newIncoming = new ArrayList<>(oldIncoming.size());
+            for (Connection connection : oldIncoming) {
+                newIncoming.add(connections.get(connection.connectionIndex));
+            }
+            incomingMap.put(i, newIncoming);
+        }
+
+        neatAgent.ancestors.putAll(ancestorsMap);
+        neatAgent.descendants.putAll(descendantsMap);
+        neatAgent.incomingConnections.putAll(incomingMap);
+
         neatAgent.order.addAll(order);
         return neatAgent;
+
     }
 
     @Override
