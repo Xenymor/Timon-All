@@ -46,14 +46,16 @@ public class NeatTest {
 
     private static double printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame, final long startTime) {
         NeatTrainer.AgentScore bestAgentScore = trainer.getBest();
-        frame.newAgent = bestAgentScore.agent;
+        final NeatAgent agent = bestAgentScore.agent;
+        frame.newAgent = agent;
         frame.repaint();
-        final int hiddenCount = bestAgentScore.agent.getHiddenCount();
+        final int hiddenCount = agent.getHiddenCount();
+        final int connectionCount = agent.getConnectionCount();
         if (iteration == 0) {
-            System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount);
+            System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount + "/" + connectionCount);
         } else {
             double millisPerIter = Math.round((TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) / (double) (iteration)) * 1_000) / 1_000d;
-            System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount + "\t" + millisPerIter + "ms/iter");
+            System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount + "/" + connectionCount + "\t" + millisPerIter + "ms/iter");
         }
         return bestAgentScore.score;
     }
@@ -149,7 +151,7 @@ public class NeatTest {
                 final double diff = Math.abs(expectedOutputs[i] - output);
                 score += diff * diff;
             }
-            return Math.max(MAX_SCORE - score - agent.getHiddenCount() * 0.2, 0);
+            return Math.max(MAX_SCORE - score - (agent.getHiddenCount() * 0.2), 0);
         }
     }
 }

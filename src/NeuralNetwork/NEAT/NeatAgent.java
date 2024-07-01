@@ -305,17 +305,19 @@ public class NeatAgent {
             nodes.get(i).setInput(0, inputs[i]);
         }
 
-        for (int i = 0; i < order.size() - outputCount; i++) {
-            final Integer index = order.get(i);
+        int maxI = order.size() - outputCount;
+        for (int i = 0; i < maxI; i++) {
+            final int index = order.get(i);
             Node node = nodes.get(index);
             setInputs(node, index);
         }
 
         double[] outputs = new double[outputCount];
-        for (int i = 0; i < outputCount; i++) {
-            Node node = nodes.get(i + inputCount);
-            setInputs(node, i + inputCount);
-            outputs[i] = node.getOutput();
+        maxI = outputCount + inputCount;
+        for (int i = inputCount; i < maxI; i++) {
+            Node node = nodes.get(i);
+            setInputs(node, i);
+            outputs[i-inputCount] = node.getOutput();
         }
         return outputs;
     }
@@ -381,5 +383,9 @@ public class NeatAgent {
 
     public int getNodeCount() {
         return hiddenCount;
+    }
+
+    public int getConnectionCount() {
+        return connections.size();
     }
 }
