@@ -41,7 +41,7 @@ public class NeatAgent {
         }
         for (int i = 0; i < inputCount; i++) {
             for (int j = inputCount; j < outputCount + inputCount; j++) {
-                forceConnection(i, j, nodes.get(j).getWeights().size());
+                forceConnection(i, j, i);
             }
         }
         initializePedigree();
