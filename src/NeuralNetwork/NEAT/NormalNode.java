@@ -71,8 +71,8 @@ public class NormalNode implements Node {
     public double getOutput() {
         if (recalculate) {
             double sum = bias;
-            for (Double input : inputs) {
-                sum += input;
+            for (int i = 0, len = inputs.size(); i < len; i++) {
+                sum += inputs.get(i) * weights.get(i);
             }
             lastOutput = Activation.get(sum, activationType);
             recalculate = false;
