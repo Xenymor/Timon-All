@@ -7,7 +7,7 @@ import java.awt.event.KeyEvent;
 
 public class Main {
     public static void main(String[] args) {
-        Pendulum pendulum = new Pendulum(new Vector2(600, 300), 100, Math.PI);
+        Pendulum pendulum = new Pendulum(new Vector2(600, 300), 100, 0.5 * Math.PI);
         MyFrame frame = new MyFrame(pendulum);
         frame.setSize(1200, 600);
         frame.setUndecorated(true);
