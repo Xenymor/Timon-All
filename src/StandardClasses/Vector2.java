@@ -57,14 +57,19 @@ public class Vector2 implements Serializable {
         this.y += o.y;
     }
 
+    public void add(int x, int y) {
+        this.x += x;
+        this.y += y;
+    }
+
     public void sub(Vector2 o) {
         this.x -= o.x;
         this.y -= o.y;
     }
 
     public void clamp(final double length) {
-        double currLength = Math.sqrt(x*x+y*y);
-        x = (x/(currLength/length));
-        y = (y/(currLength/length));
+        double currLength = Math.sqrt(x * x + y * y);
+        x = (x / (currLength / length));
+        y = (y / (currLength / length));
     }
 }
