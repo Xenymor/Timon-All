@@ -12,7 +12,7 @@ public class NeatAgent {
     private final int outputCount;
     private int hiddenCount = 0;
 
-    private final List<Node> nodes;
+    final List<Node> nodes;
     private final List<Connection> connections = new ArrayList<>();
     private final List<List<Connection>> incomingConnections = new ArrayList<>();
     private final List<Integer> order = new ArrayList<>();

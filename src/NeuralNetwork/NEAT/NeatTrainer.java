@@ -1,6 +1,7 @@
 package NeuralNetwork.NEAT;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -111,11 +112,51 @@ public class NeatTrainer {
             final int finalI = i;
             threadPool.submit(() -> {
                 final NeatAgent agent = agents[finalI];
+                gradientDescent(agent, scenario, 3, 0.1, 0.01);
                 agentScores[finalI] = new AgentScore(agent, scenario.getScore(agent));
                 countDownLatch.countDown();
             });
         }
         return countDownLatch;
+    }
+
+    private void gradientDescent(final NeatAgent agent, final NeatScenario scenario, final int iterations, final double learnRate, final double sampleSize) {
+        List<Node> nodes = agent.nodes;
+
+        double lastScore;
+
+        for (int i = 0; i < iterations; i++) {
+            for (int j = agent.getInputCount(); j < nodes.size(); j++) {
+                final Node node = nodes.get(j);
+                lastScore = scenario.getScore(agent);
+
+                List<Double> weights = node.getWeights();
+                for (int k = 0; k < weights.size(); k++) {
+                    final Double oldWeight = weights.get(k);
+                    weights.set(k, oldWeight + sampleSize);
+                    final double newScore = scenario.getScore(agent);
+                    if (newScore > lastScore) {
+                        weights.set(k, oldWeight + learnRate);
+                    } else if (newScore < lastScore) {
+                        weights.set(k, oldWeight - learnRate);
+                    } else {
+                        weights.set(k, oldWeight);
+                    }
+                    lastScore = scenario.getScore(agent);
+                }
+
+                double bias = node.getBias();
+                node.setBias(bias + sampleSize);
+                final double newScore = scenario.getScore(agent);
+                if (newScore > lastScore) {
+                    node.setBias(bias + learnRate);
+                } else if (newScore < lastScore) {
+                    node.setBias(bias - learnRate);
+                } else {
+                    node.setBias(bias);
+                }
+            }
+        }
     }
 
     public double getBestScore() {
