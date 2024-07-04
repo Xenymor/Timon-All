@@ -1,10 +1,11 @@
 package NeuralNetwork.NEAT;
 
+@SuppressWarnings("SpellCheckingInspection")
 public enum ActivationType {
     RELU(ActivationTypeType.ONLY_HIDDEN),
+    ULER(ActivationTypeType.ONLY_HIDDEN),
     TANH(ActivationTypeType.BOTH),
     SIGMOID(ActivationTypeType.ONLY_HIDDEN),
-    LINEAR(ActivationTypeType.ONLY_HIDDEN),
     SIN(ActivationTypeType.BOTH);
 
     final ActivationTypeType type;

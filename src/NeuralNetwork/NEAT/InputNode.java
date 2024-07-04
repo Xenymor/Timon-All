@@ -5,6 +5,7 @@ import java.util.List;
 public class InputNode implements Node {
     double input;
 
+    @SuppressWarnings("MethodDoesntCallSuperMethod")
     @Override
     public Node clone() {
         return new InputNode();

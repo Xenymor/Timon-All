@@ -15,6 +15,7 @@ public class Configuration {
                 constexpr uint32_t max_hidden_nodes = 30;
             }
         */
+    @SuppressWarnings("SpellCheckingInspection")
     public static final int MAX_HIDDEN_NODES = 30;
     public static final int KEPT_AGENT_PERCENTAGE = 3;
 

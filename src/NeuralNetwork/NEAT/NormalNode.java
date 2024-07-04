@@ -5,18 +5,20 @@ import StandardClasses.Random;
 import java.util.ArrayList;
 import java.util.List;
 
-import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.BOTH;
-import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.ONLY_HIDDEN;
+import static NeuralNetwork.NEAT.ActivationType.ActivationTypeType.*;
 
-public class HiddenNode implements Node {
+@SuppressWarnings("MethodDoesntCallSuperMethod")
+public class NormalNode implements Node {
     private final List<Double> inputs = new ArrayList<>();
     private final List<Double> weights = new ArrayList<>();
     double bias = Random.randomDoubleInRange(-Configuration.WEIGHT_RANGE, Configuration.WEIGHT_RANGE);
     ActivationType activationType;
     boolean recalculate = false;
     double lastOutput = 0;
+    final NodeType type;
 
-    public HiddenNode() {
+    public NormalNode(NodeType nodeType) {
+        type = nodeType;
         chooseRandomActivation();
     }
 
@@ -26,7 +28,8 @@ public class HiddenNode implements Node {
         while (true) {
             final ActivationType.ActivationTypeType type = activationType.getType();
             if (type.equals(BOTH)
-                    || type.equals(ONLY_HIDDEN))
+                    || (this.type == NodeType.HIDDEN && type == ONLY_HIDDEN)
+                    || (this.type == NodeType.OUTPUT && type == ONLY_OUTPUTS))
                 break;
             activationType = types[Random.randomIntInRange(types.length)];
         }
@@ -34,7 +37,7 @@ public class HiddenNode implements Node {
 
     @Override
     public NodeType getType() {
-        return NodeType.HIDDEN;
+        return type;
     }
 
     @Override
@@ -68,8 +71,8 @@ public class HiddenNode implements Node {
     public double getOutput() {
         if (recalculate) {
             double sum = bias;
-            for (Double input : inputs) {
-                sum += input;
+            for (int i = 0, len = inputs.size(); i < len; i++) {
+                sum += inputs.get(i) * weights.get(i);
             }
             lastOutput = Activation.get(sum, activationType);
             recalculate = false;
@@ -79,7 +82,7 @@ public class HiddenNode implements Node {
 
     @Override
     public Node clone() {
-        HiddenNode result = new HiddenNode();
+        NormalNode result = new NormalNode(type);
         result.recalculate = true;
         result.bias = bias;
         result.weights.addAll(weights);

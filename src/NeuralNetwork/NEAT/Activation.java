@@ -16,6 +16,9 @@ public class Activation {
             case SIN -> {
                 return Math.sin(value);
             }
+            case ULER -> {
+                return Math.min(0, value);
+            }
             default -> {
                 return value;
             }
