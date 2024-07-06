@@ -10,7 +10,7 @@ public class Pendulum {
     double angle;
     double angularVelocity;
     double angularAcceleration;
-    double gravity = 9.81 * 3085;
+    double gravity = 9.81 * 1000;
     double previousOriginX;
     private final double lengthSquared;
     private double speedX = 0;
@@ -33,8 +33,6 @@ public class Pendulum {
     }
 
     public void update(double deltaTimeS) {
-
-
         final double partOne = Math.cos(angle) * accelX / length;
         final double partTwo = frictionConst * angularVelocity / (mass * lengthSquared);
         final double partThree = gravity * Math.sin(angle) / length;

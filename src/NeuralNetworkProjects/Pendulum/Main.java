@@ -8,9 +8,10 @@ import java.awt.image.BufferedImage;
 
 public class Main {
     private static final double SECONDS_TO_NANOS = 1_000_000_000;
+    public static final int ORIGIN_SPEED = 5;
 
     public static void main(String[] args) {
-        Pendulum pendulum = new Pendulum(new Vector2(600, 300), 100, 0.25 * Math.PI, 100.701, 10);
+        Pendulum pendulum = new Pendulum(new Vector2(600, 300), 200, 0.25 * Math.PI, 100000, 10);
         MyFrame frame = new MyFrame(pendulum);
         frame.setSize(1200, 600);
         frame.setUndecorated(true);
@@ -22,9 +23,9 @@ public class Main {
             @Override
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyCode() == KeyEvent.VK_LEFT) {
-                    pendulum.moveOrigin(-1, lastFrameTime[0] / SECONDS_TO_NANOS);
+                    pendulum.moveOrigin(-ORIGIN_SPEED, lastFrameTime[0] / SECONDS_TO_NANOS);
                 } else if (e.getKeyCode() == KeyEvent.VK_RIGHT) {
-                    pendulum.moveOrigin(1, lastFrameTime[0] / SECONDS_TO_NANOS);
+                    pendulum.moveOrigin(ORIGIN_SPEED, lastFrameTime[0] / SECONDS_TO_NANOS);
                 }
             }
         });
