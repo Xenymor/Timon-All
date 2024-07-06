@@ -6,38 +6,54 @@ import java.awt.Graphics;
 public class Pendulum {
     Vector2 pos;
     Vector2 origin;
-    double length;
+    final double length;
     double angle;
     double angularVelocity;
-    double gravity = 9.81;
+    double angularAcceleration;
+    double gravity = 9.81 * 3085;
     double previousOriginX;
+    private final double lengthSquared;
+    private double speedX = 0;
+    private final double frictionConst;
+    private final double mass;
+    private double accelX = 0;
 
-    public Pendulum(Vector2 origin, double length, double angle) {
+    public Pendulum(Vector2 origin, double length, double angle, double frictionConst, double mass) {
+        this.pos = new Vector2(0, 0);
         this.origin = origin;
         this.length = length;
         this.angle = angle;
         this.angularVelocity = 0;
+        this.angularAcceleration = 0;
         this.previousOriginX = origin.x;
+        this.frictionConst = frictionConst;
+        this.mass = mass;
+        lengthSquared = length * length;
         updatePosition();
     }
 
-    public void update() {
-        double force = -gravity / length * Math.sin(angle);
-        angularVelocity += force;
+    public void update(double deltaTimeS) {
 
-        // Damping to simulate air resistance
-        angularVelocity *= 0.99;
 
-        angle += angularVelocity;
+        final double partOne = Math.cos(angle) * accelX / length;
+        final double partTwo = frictionConst * angularVelocity / (mass * lengthSquared);
+        final double partThree = gravity * Math.sin(angle) / length;
+        angularAcceleration = -partOne - partTwo - partThree;
+
+        angularVelocity += angularAcceleration * deltaTimeS;
+
+        angle += angularVelocity * deltaTimeS;
+        origin.x += speedX * deltaTimeS;
 
         updatePosition();
+
+        speedX = 0;
+        accelX = 0;
     }
 
     private void updatePosition() {
-        pos = new Vector2(
-                origin.x + length * Math.sin(angle),
-                origin.y + length * Math.cos(angle)
-        );
+        pos.x = origin.x + length * Math.sin(angle);
+        pos.y = origin.y + length * Math.cos(angle);
     }
 
     public Vector2 getPosition() {
@@ -52,22 +68,9 @@ public class Pendulum {
         g.fillOval((int) pos.x - 5, (int) pos.y - 5, 10, 10);
     }
 
-    public void moveOriginLeft() {
-        previousOriginX = origin.x;
-        origin.x -= 10;
-        applyHorizontalForce();
-    }
-
-    public void moveOriginRight() {
-        previousOriginX = origin.x;
-        origin.x += 10;
-        applyHorizontalForce();
-    }
-
-    private void applyHorizontalForce() {
-        double deltaX = origin.x - previousOriginX;
-        double force = deltaX * gravity / length;
-        angularVelocity += force;
-        previousOriginX = origin.x;
+    public void moveOrigin(double movement, double deltaS) {
+        final double newSpeed = movement / deltaS;
+        accelX = (newSpeed - speedX) / deltaS;
+        this.speedX = newSpeed;
     }
 }
