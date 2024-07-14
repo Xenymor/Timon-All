@@ -10,7 +10,7 @@ public class Pendulum {
     double angle;
     double angularVelocity;
     double angularAcceleration;
-    double gravity = 9.81 * 1000;
+    double gravity = 9.81 * 3000;
     double previousOriginX;
     private final double lengthSquared;
     private double speedX = 0;
@@ -18,9 +18,14 @@ public class Pendulum {
     private final double mass;
     private double accelX = 0;
 
+    private final Vector2 startPos;
+    private final double startAngle;
+
     public Pendulum(Vector2 origin, double length, double angle, double frictionConst, double mass) {
         this.pos = new Vector2(0, 0);
-        this.origin = origin;
+        startAngle = angle;
+        this.origin = new Vector2(origin.x, origin.y);
+        startPos = origin;
         this.length = length;
         this.angle = angle;
         this.angularVelocity = 0;
@@ -44,7 +49,6 @@ public class Pendulum {
         origin.x += speedX * deltaTimeS;
 
         updatePosition();
-
         speedX = 0;
         accelX = 0;
     }
@@ -66,9 +70,19 @@ public class Pendulum {
         g.fillOval((int) pos.x - 5, (int) pos.y - 5, 10, 10);
     }
 
-    public void moveOrigin(double movement, double deltaS) {
-        final double newSpeed = movement / deltaS;
-        accelX = (newSpeed - speedX) / deltaS;
+    public void moveOrigin(double movement, double deltaTimeS) {
+        final double newSpeed = movement / deltaTimeS;
+        accelX = (newSpeed - speedX) / deltaTimeS;
         this.speedX = newSpeed;
+    }
+
+    public void reset() {
+        origin = new Vector2(startPos.x, startPos.y);
+        speedX = 0;
+        accelX = 0;
+        angle = startAngle;
+        angularVelocity = 0;
+        angularAcceleration = 0;
+        updatePosition();
     }
 }
