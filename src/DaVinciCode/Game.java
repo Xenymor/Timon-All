@@ -5,8 +5,11 @@ import StandardClasses.Random;
 import java.util.*;
 
 public class Game {
-    Stack<Card> whiteCards;
-    Stack<Card> blackCards;
+    private final Stack<Card> whiteCards;
+    private final Stack<Card> blackCards;
+
+    int whiteCardCount;
+    int blackCardCount;
 
     List<Card> player1;
     Set<Integer> player1Set;
@@ -25,6 +28,8 @@ public class Game {
 
     public Game(final int numberCount) {
         this.numberCount = numberCount;
+        whiteCardCount = 0;
+        blackCardCount = 0;
 
         whiteCards = new Stack<>();
         blackCards = new Stack<>();
@@ -38,7 +43,9 @@ public class Game {
 
         for (int i = 0; i < numberCount; i++) {
             addRandomCard(allWhites, whiteCards);
+            whiteCardCount++;
             addRandomCard(allBlacks, blackCards);
+            blackCardCount++;
         }
 
         player1 = new ArrayList<>();
@@ -54,7 +61,14 @@ public class Game {
     }
 
     public Card draw(final boolean drawWhite) {
-        final Card card = drawWhite ? whiteCards.pop() : blackCards.pop();
+        final Card card;
+        if (drawWhite) {
+            card = whiteCards.pop();
+            whiteCardCount--;
+        } else {
+            card = blackCards.pop();
+            blackCardCount--;
+        }
 
         if (playerToMove) {
             addCard(card, player1);
@@ -75,6 +89,7 @@ public class Game {
         for (int i = 0; i < size; i++) {
             if (number < list.get(i).number) {
                 list.add(i, card);
+                card.startSortIndex = i;
                 return;
             }
         }
@@ -97,6 +112,11 @@ public class Game {
             return true;
         } else {
             lastDrawn.openToOther = true;
+            if (playerToMove) {
+                openCount1++;
+            } else {
+                openCount2++;
+            }
             return false;
         }
     }
@@ -180,5 +200,28 @@ public class Game {
             }
         }
         return -1;
+    }
+
+    public void undoMove(Move move) {
+        List<Card> currCards = playerToMove ? player1 : player2;
+        final Card card = currCards.get(move.index);
+        card.openToOther = false;
+        if (move.guess == card.number) {
+            if (playerToMove) {
+                openCount2--;
+            } else {
+                openCount1--;
+            }
+        }
+    }
+
+    public void removeCard(Card card) {
+        List<Card> currCards = playerToMove ? player1 : player2;
+        currCards.remove(card);
+    }
+
+    public void removeCard(int cardIndex) {
+        List<Card> currCards = playerToMove ? player1 : player2;
+        currCards.remove(cardIndex);
     }
 }

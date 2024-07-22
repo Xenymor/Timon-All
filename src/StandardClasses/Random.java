@@ -51,12 +51,14 @@ public class Random {
     }
 
     public static int randomIntInRange(final int max) {
-        return (int) (Math.random()*max);
+        return (int) (Math.random() * max);
     }
 
     /**
      * Returns the index of a random element, with a chance proportional to its value.
+     *
      * @param chances All values must be positive.
+     *
      * @return Index of the chosen element.
      */
     public static int pickElementProportionalToValue(final int[] chances) {
@@ -77,7 +79,9 @@ public class Random {
 
     /**
      * Returns the index of a random element, with a chance proportional to its value.
+     *
      * @param chances All values must be positive.
+     *
      * @return Index of the chosen element.
      */
     public static int pickElementProportionalToValue(final double[] chances) {

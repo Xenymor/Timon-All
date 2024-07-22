@@ -13,7 +13,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 public class Minesweeper {
-    private static final int BLOCK_SIZE = 40;
+    private static final int BLOCK_SIZE = 80;
     private static final Color BACKGROUND_COLOR = new Color(56, 56, 56);
     private static final Color TEXT_COLOR = new Color(0, 206, 210);
     private static final Color UNDISCOVERED_COLOR = new Color(176, 176, 176);
