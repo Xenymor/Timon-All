@@ -7,6 +7,7 @@ import java.util.*;
 public class Game {
     private final Stack<Card> whiteCards;
     private final Stack<Card> blackCards;
+    public boolean couldDraw = true;
 
     int whiteCardCount;
     int blackCardCount;
@@ -55,7 +56,8 @@ public class Game {
     }
 
     private void addRandomCard(final List<Card> allCards, final Stack<Card> result) {
-        final int random = Random.randomIntInRange(allCards.size());
+        final int random = allCards.size()-1;
+        //TODO final int random = Random.randomIntInRange(allCards.size());
         result.push(allCards.get(random));
         allCards.remove(random);
     }
@@ -94,13 +96,14 @@ public class Game {
             }
         }
 
+        card.startSortIndex = list.size();
         list.add(card);
     }
 
     public boolean guess(final Move move) {
         final Card card = playerToMove ? player2.get(move.index) : player1.get(move.index);
         if (card.openToOther) {
-            throw new UnsupportedOperationException("Can't guess a card, which is already open");
+            throw new UnsupportedOperationException("Can't guess a card, which is already open. MoveCode: " + move.getCodeString());
         }
         if (card.number == move.guess) {
             card.openToOther = true;
@@ -111,7 +114,9 @@ public class Game {
             }
             return true;
         } else {
-            lastDrawn.openToOther = true;
+            if (couldDraw) {
+                lastDrawn.openToOther = true;
+            }
             if (playerToMove) {
                 openCount1++;
             } else {
@@ -202,6 +207,12 @@ public class Game {
         return -1;
     }
 
+    /**
+     * TODO
+     * Not Working
+     *
+     * @param move
+     */
     public void undoMove(Move move) {
         List<Card> currCards = playerToMove ? player1 : player2;
         final Card card = currCards.get(move.index);
@@ -223,5 +234,9 @@ public class Game {
     public void removeCard(int cardIndex) {
         List<Card> currCards = playerToMove ? player1 : player2;
         currCards.remove(cardIndex);
+    }
+
+    public boolean canDraw() {
+        return whiteCardCount > 0 || blackCardCount > 0;
     }
 }

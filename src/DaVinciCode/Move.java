@@ -21,4 +21,18 @@ public class Move {
                 ", guess=" + guess +
                 '}';
     }
+
+    public int getCode() {
+        return index * 100 + guess;
+    }
+
+    public String getCodeString() {
+        return codeToString(getCode(), 4);
+    }
+
+    private String codeToString(final int code, final int targetLength) {
+        StringBuilder output = new StringBuilder(Integer.toString(code));
+        while (output.length() < targetLength) output.insert(0, "0");
+        return output.toString();
+    }
 }

@@ -3,6 +3,7 @@ package DaVinciCode;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Player {
@@ -20,7 +21,7 @@ public class Player {
 
     public boolean shouldPass() {
         writeMessage("Pass?");
-        String answer = processOutput.nextLine();
+        String answer = getAnswer();
         if (answer.equalsIgnoreCase("Continue")) {
             return false;
         } else if (answer.equalsIgnoreCase("Pass")) {
@@ -30,9 +31,23 @@ public class Player {
         }
     }
 
+    private String getAnswer() {
+        if (ChallengeController.guessCount == 16) {
+            System.out.println();
+        }
+        if (processOutput.hasNextLine()) {
+            final String s = processOutput.nextLine();
+            System.out.println(s);
+            return s;
+        } else {
+            throw new NoSuchElementException("No line found in process output");
+        }
+    }
+
     public Move guess() {
         writeMessage("Guess");
-        int answer = Integer.parseInt(processOutput.nextLine());
+        processOutput.hasNextLine();
+        int answer = Integer.parseInt(getAnswer());
         int guess = answer % 100;
         int index = answer / 100;
         return new Move(index, guess);
@@ -40,16 +55,17 @@ public class Player {
 
     private void writeMessage(final String s) {
         try {
-            processInput.write(s + "\n");
+            final String str = s + "\n";
+            System.out.print(str);
+            processInput.write(str);
+            processInput.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     public void enemyGuess(final Move guess) {
-        int guessCode = guess.index * 100 + guess.guess;
-        writeMessage("EnemyGuess " + guessCode);
-        checkForOK();
+        sendCode(guess.index, guess.guess, "EnemyGuess ");
     }
 
     public void guessResult(final boolean correct) {
@@ -61,14 +77,29 @@ public class Player {
     }
 
     public void revealCard(final Card card) {
-        int cardCode = card.startSortIndex * 100 + card.number;
-        writeMessage("EnemyCard " + (cardCode));
+        sendCode(card.startSortIndex, card.number, "EnemyCard ");
+    }
+
+    public void revealCard(final Game game, final int index) {
+        final Card card = (game.playerToMove ? game.player2 : game.player1).get(index);
+        sendCode(index, card.number, "EnemyCard ");
+    }
+
+    private void sendCode(final int higherDigits, final int lowerDigits, final String message) {
+        final int code = higherDigits * 100 + lowerDigits;
+        writeMessage(message + codeToString(code, 4));
         checkForOK();
+    }
+
+    private String codeToString(final int code, final int targetLength) {
+        StringBuilder output = new StringBuilder(Integer.toString(code));
+        while (output.length() < targetLength) output.insert(0, "0");
+        return output.toString();
     }
 
     public boolean shouldDrawWhite() {
         writeMessage("Draw");
-        String answer = processOutput.nextLine();
+        String answer = getAnswer();
         if (answer.equalsIgnoreCase("White")) {
             return true;
         } else if (answer.equalsIgnoreCase("Black")) {
@@ -83,12 +114,12 @@ public class Player {
     }
 
     public void enemyDrawn(final Card card) {
-        writeMessage("EnemyDraw " + (card.isWhite ? "White" : "Black") + card.startSortIndex);
+        writeMessage("EnemyDraw " + (card.isWhite ? "White " : "Black ") + card.startSortIndex);
         checkForOK();
     }
 
     private void checkForOK() {
-        String answer = processOutput.nextLine();
+        String answer = getAnswer();
         if (!answer.equalsIgnoreCase("OK")) {
             throw new IllegalArgumentException(answer + " was not expected");
         }
