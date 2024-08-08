@@ -1,6 +1,7 @@
 package DaVinciCode;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class ChallengeController {
@@ -10,9 +11,12 @@ public class ChallengeController {
     public static void main(String[] args) throws IOException {
         Game game = new Game(12);
 
-        Process process1 = Runtime.getRuntime().exec("java -classpath C:\\Users\\timon\\IdeaProjects\\Timon-All\\out\\production\\Timon-All;C:\\Users\\timon\\.m2\\repository\\junit\\junit\\4.13.1\\junit-4.13.1.jar;C:\\Users\\timon\\.m2\\repository\\org\\hamcrest\\hamcrest-core\\1.3\\hamcrest-core-1.3.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter\\5.7.0\\junit-jupiter-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter-api\\5.7.0\\junit-jupiter-api-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\apiguardian\\apiguardian-api\\1.1.0\\apiguardian-api-1.1.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\opentest4j\\opentest4j\\1.2.0\\opentest4j-1.2.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\platform\\junit-platform-commons\\1.7.0\\junit-platform-commons-1.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter-params\\5.7.0\\junit-jupiter-params-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter-engine\\5.7.0\\junit-jupiter-engine-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\platform\\junit-platform-engine\\1.7.0\\junit-platform-engine-1.7.0.jar DaVinciCode.Players.RandomBot");
+        if (args.length != 2) {
+            throw new IllegalArgumentException("Wrong number of parameters " + Arrays.toString(args));
+        }
+        Process process1 = Runtime.getRuntime().exec(args[0]);
         Player player1 = new Player(process1);
-        Process process2 = Runtime.getRuntime().exec("java -classpath C:\\Users\\timon\\IdeaProjects\\Timon-All\\out\\production\\Timon-All;C:\\Users\\timon\\.m2\\repository\\junit\\junit\\4.13.1\\junit-4.13.1.jar;C:\\Users\\timon\\.m2\\repository\\org\\hamcrest\\hamcrest-core\\1.3\\hamcrest-core-1.3.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter\\5.7.0\\junit-jupiter-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter-api\\5.7.0\\junit-jupiter-api-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\apiguardian\\apiguardian-api\\1.1.0\\apiguardian-api-1.1.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\opentest4j\\opentest4j\\1.2.0\\opentest4j-1.2.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\platform\\junit-platform-commons\\1.7.0\\junit-platform-commons-1.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter-params\\5.7.0\\junit-jupiter-params-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\jupiter\\junit-jupiter-engine\\5.7.0\\junit-jupiter-engine-5.7.0.jar;C:\\Users\\timon\\.m2\\repository\\org\\junit\\platform\\junit-platform-engine\\1.7.0\\junit-platform-engine-1.7.0.jar DaVinciCode.Players.RandomBot");
+        Process process2 = Runtime.getRuntime().exec(args[1]);
         Player player2 = new Player(process2);
 
         prepareGame(game, player1, player2);
