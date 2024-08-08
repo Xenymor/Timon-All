@@ -1,8 +1,11 @@
 package DaVinciCode;
 
 import java.io.IOException;
+import java.util.Scanner;
 
 public class ChallengeController {
+
+    static Scanner userInput = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
         Game game = new Game(12);
@@ -36,18 +39,14 @@ public class ChallengeController {
         System.out.println(game.getWinner());
     }
 
-    //TODO
-    static int guessCount = 0;
     private static boolean guess(final Game game, final Player current, final Player opponent) {
         final Move guess = current.guess();
         opponent.enemyGuess(guess);
-        System.out.println("GuessCount" + guessCount);
         boolean correct = game.guess(guess);
         current.guessResult(correct);
-        if (!correct) {
+        if (!correct && game.couldDraw) {
             opponent.revealCard(game.lastDrawn);
         }
-        guessCount++;
         return correct;
     }
 

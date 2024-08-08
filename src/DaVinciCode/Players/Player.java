@@ -11,9 +11,9 @@ public abstract class Player {
     MoveGenerator moveGenerator = new MoveGenerator(playerInformation);
     int whiteCount = 12;
     int blackCount = 12;
+    Scanner scanner = new Scanner(System.in);
 
     void run() {
-        Scanner scanner = new Scanner(System.in);
 
         while (true) {
             String input = scanner.nextLine();

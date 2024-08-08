@@ -1,90 +1,56 @@
 package DaVinciCode.Players;
 
-import DaVinciCode.Game;
 import DaVinciCode.Move;
 
-import java.util.List;
-import java.util.Scanner;
+public class User extends Player {
 
-public class User {
-    Scanner scanner = new Scanner(System.in);
-
-    public boolean drawStartCardWhite(final Game game) {
-        printState();
-        return getDrawWhite();
+    public static void main(String[] args) {
+        new User().run();
     }
 
-    public boolean drawWhite(final Game game) {
-        printState();
-        return getDrawWhite();
+    @Override
+    protected void enemyCardRevealed(final int index, final int number) {
+
     }
 
-    public Move getMove(final Game game) {
-        printState();
-        return getMove();
+    @Override
+    protected void resetPlayer() {
+
     }
 
-    public boolean shouldPass(final Game game) {
-        printState();
-        return getPass();
+    @Override
+    protected void considerEnemyDraw(final boolean isWhite, final int sortIndex) {
+
     }
 
+    @Override
+    protected void enemyGuessed(final int cardIndex, final int guess) {
 
-
-    private Move getMove() {
-        System.out.println("Enter your move (format:aabb, where aa is the index, bb is the guess)");
-        String answer = scanner.nextLine();
-        return new Move(answer);
     }
 
-    private boolean getPass() {
-        System.out.println("Do you want to pass or continue? (p/c)");
-        String answer = scanner.nextLine();
-        if (answer.equalsIgnoreCase("p")) {
-            return true;
-        } else if (answer.equalsIgnoreCase("c")) {
-            return false;
-        } else {
-            throw new IllegalArgumentException("Input couldn't be read");
-        }
+    @Override
+    protected boolean wantToPass() {
+        System.out.println("Debug Do you want to pass?(Y/N)");
+        System.out.println("Input");
+        scanner.hasNextLine();
+        String input = scanner.nextLine();
+        return input.equalsIgnoreCase("Y");
     }
 
-    private boolean getDrawWhite() {
-        System.out.println("Do you want to draw a white or black Card? (w/b)");
-        String answer = scanner.nextLine();
-        if (answer.equalsIgnoreCase("w")) {
-            return true;
-        } else if (answer.equalsIgnoreCase("b")) {
-            return false;
-        } else {
-            throw new IllegalArgumentException("Input couldn't be read");
-        }
+    @Override
+    protected boolean shouldDrawWhite() {
+        System.out.println("Debug Do you want to draw white?(W/B)");
+        System.out.println("Input");
+        scanner.hasNextLine();
+        String input = scanner.nextLine();
+        return input.equalsIgnoreCase("W");
     }
 
-    private void printState() {
- /*       List<Card> myCards;
-        List<Card> enemyCards;
-        if (game.playerToMove) {
-            myCards = game.player1;
-            enemyCards = game.player2;
-        } else {
-            myCards = game.player2;
-            enemyCards = game.player1;
-        }
-
-        StringBuilder msg = new StringBuilder();
-        msg.append("Your cards: ");
-        for (Card myCard : myCards) {
-            msg.append(myCard.toString());
-        }
-        msg.append("\nEnemy cards: ");
-        for (final Card card : enemyCards) {
-            if (card.openToOther) {
-                msg.append(card);
-            } else {
-                msg.append("{??").append(",").append(card.isWhite ? "White" : "Black").append("}, ");
-            }
-        }
-        System.out.println(msg);*/
+    @Override
+    protected Move chooseMove() {
+        System.out.println("Debug Choose a move(0000-9999)");
+        System.out.println("Input");
+        scanner.hasNextLine();
+        return new Move(scanner.nextLine());
     }
 }

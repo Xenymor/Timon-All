@@ -32,16 +32,28 @@ public class Player {
     }
 
     private String getAnswer() {
-        if (ChallengeController.guessCount == 16) {
-            System.out.println();
-        }
-        if (processOutput.hasNextLine()) {
-            final String s = processOutput.nextLine();
-            System.out.println(s);
-            return s;
-        } else {
-            throw new NoSuchElementException("No line found in process output");
-        }
+        do {
+            if (processOutput.hasNextLine()) {
+                String answer = processOutput.nextLine();
+                final String[] words = answer.split(" ");
+                final String command = words[0];
+                if (command.equalsIgnoreCase("Debug")) {
+                    if (words.length > 1) {
+                        for (int i = 1; i < words.length; i++) {
+                            System.out.print(words[i]);
+                        }
+                    }
+                    System.out.println();
+                } else if (command.equalsIgnoreCase("Input")) {
+                    writeMessage(ChallengeController.userInput.nextLine());
+                } else {
+                    System.out.println(answer);
+                    return answer;
+                }
+            } else {
+                throw new NoSuchElementException("No line found in process output");
+            }
+        } while (true);
     }
 
     public Move guess() {
@@ -87,13 +99,14 @@ public class Player {
 
     private void sendCode(final int higherDigits, final int lowerDigits, final String message) {
         final int code = higherDigits * 100 + lowerDigits;
-        writeMessage(message + codeToString(code, 4));
+        writeMessage(message + codeToString(code));
         checkForOK();
     }
 
-    private String codeToString(final int code, final int targetLength) {
+    String zeros = "0000";
+    private String codeToString(final int code) {
         StringBuilder output = new StringBuilder(Integer.toString(code));
-        while (output.length() < targetLength) output.insert(0, "0");
+        output.insert(0, zeros.substring(output.length()));
         return output.toString();
     }
 

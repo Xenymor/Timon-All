@@ -13,79 +13,63 @@ public class MoveGenerator {
     }
 
     public Move[] getPossibleMoves() {
-        List<Move> moves = new ArrayList<>();
+        List<Move> possibleMoves = new ArrayList<>();
         List<Card> enemyCards = playerInformation.enemyCards;
-        Card lastCard = null;
-        Card nextCard = enemyCards.get(0);
-        final int enemyCardsLength = enemyCards.size();
-        for (int i = 0; i < enemyCardsLength; i++) {
-            final Card card = nextCard;
-            if (i < enemyCardsLength - 1) {
-                nextCard = enemyCards.get(i + 1);
-            } else {
-                nextCard = null;
-            }
-            if (card.isOpen) {
-                lastCard = card;
-                continue;
-            }
-            List<Integer> possibilities = card.possibilities;
-            if (possibilities.size() == 1) {
-                moves.add(new Move(i, possibilities.get(0)));
-                lastCard = card;
-                continue;
-            }
-            int min;
-            if (lastCard != null) {
-                if (lastCard.isOpen) {
-                    if (card.isWhite && !lastCard.isWhite) {
-                        min = lastCard.number;
-                    } else {
-                        min = lastCard.number + 1;
-                    }
-                } else {
-                    final List<Integer> lastPossibilities = lastCard.possibilities;
-                    final Integer lastMin = lastPossibilities.get(0);
-                    if (card.isWhite && !lastCard.isWhite) {
-                        min = lastMin;
-                    } else {
-                        min = lastMin + 1;
-                    }
-                }
-            } else {
-                min = 0;
-            }
-            int max;
-            if (nextCard != null) {
-                if (nextCard.isOpen) {
-                    if (!card.isWhite && nextCard.isWhite) {
-                        max = nextCard.number;
-                    } else {
-                        max = nextCard.number - 1;
-                    }
-                } else {
-                    final List<Integer> nextPossibilities = nextCard.possibilities;
-                    final Integer nextMax = nextPossibilities.get(nextPossibilities.size() - 1);
-                    if (!card.isWhite && nextCard.isWhite) {
-                        max = nextMax;
-                    } else {
-                        max = nextMax - 1;
-                    }
-                }
-            } else {
-                max = 11;
-            }
-            for (int j = 0; j < possibilities.size(); j++) {
-                int possibility = possibilities.get(j);
-                if (possibility < min && possibility > max) {
-                    possibilities.remove(j);
-                    j--;
-                } else {
-                    moves.add(new Move(i, possibility));
-                }
-            }
-            lastCard = card;
+        final int enemyCardCount = enemyCards.size();
+
+        int min = 0;
+        int maxIndex;
+
+        maxIndex = findMaxIndex(enemyCardCount, enemyCards);
+        int max;
+
+        if (maxIndex == -1) {
+            max = 11;
+        } else {
+            max = enemyCards.get(maxIndex).number;
         }
-        return moves.toArray(Move[]::new);
+
+        for (int i = 0; i < enemyCardCount; i++) {
+            final Card card = enemyCards.get(i);
+            if (!card.isOpen) {
+                for (int j = 0; j <= 11; j++) {
+                    if (j >= min && j <= max) {
+                        possibleMoves.add(new Move(i, j));
+                    } else {
+                        playerInformation.removePossibility(i, j);
+                    }
+                }
+            } else {
+                min = card.number;
+                if (i >= maxIndex) {
+                    boolean broke = false;
+                    for (int j = i + 1; j < enemyCardCount; j++) {
+                        final Card currCard = enemyCards.get(j);
+                        if (currCard.isOpen) {
+                            max = currCard.number;
+                            maxIndex = j;
+                            broke = true;
+                            break;
+                        }
+                    }
+                    if (!broke) {
+                        max = 11;
+                        maxIndex = enemyCardCount;
+                    }
+                }
+            }
+        }
+
+        return possibleMoves.toArray(Move[]::new);
+    }
+
+    private int findMaxIndex(final int enemyCardCount, final List<Card> enemyCards) {
+        for (int i = enemyCardCount - 1; i >= 0; i--) {
+            final Card card = enemyCards.get(i);
+            if (card.isOpen) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

@@ -11,8 +11,7 @@ public class RandomBot extends Player {
 
     public Move chooseMove() {
         Move[] moves = moveGenerator.getPossibleMoves();
-        //TODO
-        return moves[0];
+        return moves[Random.randomIntInRange(moves.length)];
     }
 
     @Override
@@ -34,13 +33,11 @@ public class RandomBot extends Player {
 
     @Override
     protected boolean wantToPass() {
-        //TODO return Random.chanceOf(0.5);
-        return false;
+        return Random.chanceOf(0.5);
     }
 
     @Override
     protected boolean shouldDrawWhite() {
-        //TODO return Random.chanceOf(0.5) ? whiteCount > 0 : blackCount <= 0;
-        return (playerInformation.myCards.size() % 2 == 0) ? whiteCount > 0 : blackCount <= 0;
+        return Random.chanceOf(0.5) ? whiteCount > 0 : blackCount <= 0;
     }
 }

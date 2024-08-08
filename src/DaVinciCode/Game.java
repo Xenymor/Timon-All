@@ -56,8 +56,7 @@ public class Game {
     }
 
     private void addRandomCard(final List<Card> allCards, final Stack<Card> result) {
-        final int random = allCards.size()-1;
-        //TODO final int random = Random.randomIntInRange(allCards.size());
+        final int random = Random.randomIntInRange(allCards.size());
         result.push(allCards.get(random));
         allCards.remove(random);
     }
@@ -205,25 +204,6 @@ public class Game {
             }
         }
         return -1;
-    }
-
-    /**
-     * TODO
-     * Not Working
-     *
-     * @param move
-     */
-    public void undoMove(Move move) {
-        List<Card> currCards = playerToMove ? player1 : player2;
-        final Card card = currCards.get(move.index);
-        card.openToOther = false;
-        if (move.guess == card.number) {
-            if (playerToMove) {
-                openCount2--;
-            } else {
-                openCount1--;
-            }
-        }
     }
 
     public void removeCard(Card card) {
