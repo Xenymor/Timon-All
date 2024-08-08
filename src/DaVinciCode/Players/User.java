@@ -15,7 +15,7 @@ public class User extends Player {
 
     @Override
     protected void resetPlayer() {
-
+        System.out.println("Debug New game");
     }
 
     @Override

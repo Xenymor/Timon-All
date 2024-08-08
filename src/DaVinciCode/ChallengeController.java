@@ -14,6 +14,7 @@ public class ChallengeController {
         if (args.length != 2) {
             throw new IllegalArgumentException("Wrong number of parameters " + Arrays.toString(args));
         }
+
         Process process1 = Runtime.getRuntime().exec(args[0]);
         Player player1 = new Player(process1);
         Process process2 = Runtime.getRuntime().exec(args[1]);
@@ -40,7 +41,7 @@ public class ChallengeController {
             }
         }
 
-        System.out.println(game.getWinner());
+        System.out.println(game.getWinner() ? "Player 1 won" : "Player 2 won");
     }
 
     private static boolean guess(final Game game, final Player current, final Player opponent) {
