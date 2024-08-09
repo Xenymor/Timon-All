@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MoveGenerator {
+    public boolean includeOwnCardsInfo = false;
     PlayerInformation playerInformation;
 
     public MoveGenerator(final PlayerInformation playerInformation) {
@@ -16,6 +17,8 @@ public class MoveGenerator {
         List<Move> possibleMoves = new ArrayList<>();
         List<Card> enemyCards = playerInformation.enemyCards;
         final int enemyCardCount = enemyCards.size();
+
+        List<Card> myCards = playerInformation.myCards;
 
         int min = 0;
         int maxIndex;
@@ -32,9 +35,14 @@ public class MoveGenerator {
         for (int i = 0; i < enemyCardCount; i++) {
             final Card card = enemyCards.get(i);
             if (!card.isOpen) {
+                if (includeOwnCardsInfo) {
+                    playerInformation.removeAllPossibilities(i, myCards);
+                }
                 for (int j = 0; j <= 11; j++) {
                     if (j >= min && j <= max) {
-                        possibleMoves.add(new Move(i, j));
+                        if (!(includeOwnCardsInfo && contains(myCards, j))) {
+                            possibleMoves.add(new Move(i, j));
+                        }
                     } else {
                         playerInformation.removePossibility(i, j);
                     }
@@ -61,6 +69,15 @@ public class MoveGenerator {
         }
 
         return possibleMoves.toArray(Move[]::new);
+    }
+
+    private boolean contains(final List<Card> myCards, final int j) {
+        for (Card card : myCards) {
+            if (card.number == j) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private int findMaxIndex(final int enemyCardCount, final List<Card> enemyCards) {
