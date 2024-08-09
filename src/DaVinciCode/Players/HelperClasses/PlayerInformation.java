@@ -98,4 +98,11 @@ public class PlayerInformation {
                 ", enemyCards=" + enemyCards +
                 '}';
     }
+
+    public void removeAllPossibilities(final int index, final List<Card> cards) {
+        Card card = enemyCards.get(index);
+        for (Card myCard : cards) {
+            myCard.removePossibility(myCard.number);
+        }
+    }
 }
