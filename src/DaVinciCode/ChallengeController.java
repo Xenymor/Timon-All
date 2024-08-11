@@ -9,15 +9,20 @@ public class ChallengeController {
     static Scanner userInput = new Scanner(System.in);
 
     public static void main(String[] args) throws IOException {
-        Game game = new Game(12);
 
         if (args.length != 2) {
             throw new IllegalArgumentException("Wrong number of parameters " + Arrays.toString(args));
         }
+        
+        System.out.println(playGame(args[0], args[1]) ? "Player 1 won" : "Player 2 won");
+    }
 
-        Process process1 = Runtime.getRuntime().exec(args[0]);
+    private static boolean playGame(final String process1StartCommand, final String process2StartCommand) throws IOException {
+
+        Game game = new Game(12);
+        Process process1 = Runtime.getRuntime().exec(process1StartCommand);
         Player player1 = new Player(process1);
-        Process process2 = Runtime.getRuntime().exec(args[1]);
+        Process process2 = Runtime.getRuntime().exec(process2StartCommand);
         Player player2 = new Player(process2);
 
         prepareGame(game, player1, player2);
@@ -47,7 +52,7 @@ public class ChallengeController {
             }
         }
 
-        System.out.println(game.getWinner() ? "Player 1 won" : "Player 2 won");
+        return game.getWinner();
     }
 
     private static boolean guess(final Game game, final Player current, final Player opponent) {
