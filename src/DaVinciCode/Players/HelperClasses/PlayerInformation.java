@@ -102,7 +102,9 @@ public class PlayerInformation {
     public void removeAllPossibilities(final int index, final List<Card> cards) {
         Card card = enemyCards.get(index);
         for (Card myCard : cards) {
-            myCard.removePossibility(myCard.number);
+            if (myCard.isWhite == card.isWhite) {
+                card.removePossibility(myCard.number);
+            }
         }
     }
 }
