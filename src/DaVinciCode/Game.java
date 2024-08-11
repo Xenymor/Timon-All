@@ -115,11 +115,11 @@ public class Game {
         } else {
             if (couldDraw) {
                 lastDrawn.openToOther = true;
-            }
-            if (playerToMove) {
-                openCount1++;
-            } else {
-                openCount2++;
+                if (playerToMove) {
+                    openCount1++;
+                } else {
+                    openCount2++;
+                }
             }
             return false;
         }
