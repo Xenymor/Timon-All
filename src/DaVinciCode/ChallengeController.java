@@ -22,22 +22,28 @@ public class ChallengeController {
 
         prepareGame(game, player1, player2);
 
+        boolean switchedPlayer = true;
         while (!game.isFinished()) {
             Player current = getCurrentPlayer(game, player1, player2);
             Player opponent = getCurrentPlayer(game, player2, player1);
 
-            if (game.canDraw()) {
-                drawCard(game, current, opponent);
-            } else {
-                game.couldDraw = false;
+            if (switchedPlayer) {
+                switchedPlayer = false;
+                if (game.canDraw()) {
+                    drawCard(game, current, opponent);
+                } else {
+                    game.couldDraw = false;
+                }
             }
             boolean correct = guess(game, current, opponent);
             if (correct) {
                 if (current.shouldPass()) {
                     game.pass();
+                    switchedPlayer = true;
                 }
             } else {
                 game.pass();
+                switchedPlayer = true;
             }
         }
 
