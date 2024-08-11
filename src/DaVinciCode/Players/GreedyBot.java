@@ -37,7 +37,7 @@ public class GreedyBot extends Player {
 
     @Override
     protected boolean wantToPass() {
-        return Random.chanceOf(0.5);
+        return false;
     }
 
     @Override

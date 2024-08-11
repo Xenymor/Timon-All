@@ -1,9 +1,11 @@
 package DaVinciCode.Players;
 
 import DaVinciCode.Move;
-import StandardClasses.Random;
+
+import java.util.Random;
 
 public class RandomBot extends Player {
+    Random random = new Random();
 
     public static void main(String[] args) {
         new RandomBot().run();
@@ -11,7 +13,7 @@ public class RandomBot extends Player {
 
     public Move chooseMove() {
         Move[] moves = moveGenerator.getPossibleMoves();
-        return moves[Random.randomIntInRange(moves.length)];
+        return moves[random.nextInt(moves.length)];
     }
 
     @Override
@@ -33,11 +35,15 @@ public class RandomBot extends Player {
 
     @Override
     protected boolean wantToPass() {
-        return Random.chanceOf(0.5);
+        return chanceOf(0.5, random);
     }
 
     @Override
     protected boolean shouldDrawWhite() {
-        return Random.chanceOf(0.5) ? whiteCount > 0 : blackCount <= 0;
+        return chanceOf(0.5, random) ? whiteCount > 0 : blackCount <= 0;
+    }
+
+    boolean chanceOf(final double chance, final Random random) {
+        return random.nextDouble() < chance;
     }
 }
