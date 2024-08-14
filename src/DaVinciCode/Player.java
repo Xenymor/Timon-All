@@ -1,21 +1,22 @@
 package DaVinciCode;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
+import java.io.*;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 public class Player {
     final Process process;
     final Scanner processOutput;
-    final Scanner errorOutput;
+    final BufferedReader errorOutput;
     final BufferedWriter processInput;
+    boolean showOutputs;
 
-    public Player(final Process process) {
+    public Player(final Process process, boolean hideOutputs) {
         this.process = process;
+        this.showOutputs = !hideOutputs;
         processOutput = new Scanner(process.getInputStream());
-        errorOutput = new Scanner(process.getErrorStream());
+        errorOutput = new BufferedReader(new InputStreamReader(process.getErrorStream()));
         processInput = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()));
     }
 
@@ -47,10 +48,13 @@ public class Player {
                 } else if (command.equalsIgnoreCase("Input")) {
                     writeMessage(ChallengeController.userInput.nextLine());
                 } else {
-                    System.out.println(answer);
+                    if (showOutputs) {
+                        System.out.println(answer);
+                    }
                     return answer;
                 }
             } else {
+                errorOutput.lines().forEach(System.out::println);
                 throw new NoSuchElementException("No line found in process output");
             }
         } while (true);
@@ -68,7 +72,9 @@ public class Player {
     private void writeMessage(final String s) {
         try {
             final String str = s + "\n";
-            System.out.print(str);
+            if (showOutputs) {
+                System.out.print(str);
+            }
             processInput.write(str);
             processInput.flush();
         } catch (IOException e) {
@@ -104,6 +110,7 @@ public class Player {
     }
 
     String zeros = "0000";
+
     private String codeToString(final int code) {
         StringBuilder output = new StringBuilder(Integer.toString(code));
         output.insert(0, zeros.substring(output.length()));

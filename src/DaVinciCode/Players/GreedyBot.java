@@ -54,18 +54,17 @@ public class GreedyBot extends Player {
         List<Integer> bestPossibilities = null;
         for (int i = 0; i < enemyCards.size(); i++) {
             final Card card = enemyCards.get(i);
-            if (card.isOpen) {
-                continue;
-            }
-            final List<Integer> possibilities = card.possibilities;
-            final int currCount = possibilities.size();
-            if (currCount < possibilityCount) {
-                bestIndex = i;
-                possibilityCount = currCount;
-                bestPossibilities = possibilities;
+            if (!card.isOpen) {
+                final List<Integer> possibilities = card.possibilities;
+                final int currCount = possibilities.size();
+                if (currCount < possibilityCount) {
+                    bestIndex = i;
+                    possibilityCount = currCount;
+                    bestPossibilities = possibilities;
+                }
             }
         }
-        if (bestIndex == -1) {
+        if (bestIndex == -1 || possibilityCount == 0) {
             System.out.println("Debug Alaaaaaaaarm");
         }
         return new Move(bestIndex, bestPossibilities.get(Random.randomIntInRange(possibilityCount)));
