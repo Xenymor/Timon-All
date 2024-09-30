@@ -68,8 +68,13 @@ public class Vector2 implements Serializable {
     }
 
     public void clamp(final double length) {
-        double currLength = Math.sqrt(x * x + y * y);
-        x = (x / (currLength / length));
-        y = (y / (currLength / length));
+        double currLength = getLength();
+        final double factor = length / currLength;
+        x = (x * factor);
+        y = (y * factor);
+    }
+
+    private double getLength() {
+        return Math.sqrt(x * x + y * y);
     }
 }
