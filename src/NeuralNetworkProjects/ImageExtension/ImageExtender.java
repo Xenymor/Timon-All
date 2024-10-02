@@ -17,8 +17,8 @@ import java.util.List;
 
 public class ImageExtender {
     private static final String IMAGE_PATH = "C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\NeuralNetworkProjects\\ImageExtension\\camouflage.png";
-    public static final int INPUT_WIDTH = 17;
-    public static final int INPUT_HEIGHT = 9;
+    public static final int INPUT_WIDTH = 5;
+    public static final int INPUT_HEIGHT = 5;
     private static final int CHUNK_SIZE = 100;
     private static final int TO_EXTEND = 100;
     private static final double LEARN_RATE_DECAY = 0.000001;
@@ -130,9 +130,12 @@ public class ImageExtender {
     }
 
     private void train() {
+        long start = System.nanoTime();
         for (DataPoint[] batch : trainingData) {
             neuralNetwork.learn(batch, learnRate, regularization, momentum);
         }
+        long end = System.nanoTime();
+        System.out.println("Epoch time: " + (end-start)/1_000_000_000f);
     }
 
     private static class MyFrame extends JFrame {
