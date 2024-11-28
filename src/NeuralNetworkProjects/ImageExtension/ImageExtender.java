@@ -17,8 +17,8 @@ import java.util.List;
 
 public class ImageExtender {
     private static final String IMAGE_PATH = "C:\\Users\\timon\\IdeaProjects\\Timon-All\\src\\NeuralNetworkProjects\\ImageExtension\\camouflage.png";
-    public static final int INPUT_WIDTH = 17;
-    public static final int INPUT_HEIGHT = 9;
+    public static final int INPUT_WIDTH = 5;
+    public static final int INPUT_HEIGHT = 6;
     private static final int CHUNK_SIZE = 100;
     private static final int TO_EXTEND = 100;
     private static final double LEARN_RATE_DECAY = 0.000001;
@@ -34,7 +34,7 @@ public class ImageExtender {
 
     public ImageExtender(final BufferedImage image) {
         this.image = image;
-        neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, INPUT_HEIGHT * INPUT_WIDTH * 3, 200, 100, 50, 10, 3);
+        neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, INPUT_HEIGHT * INPUT_WIDTH * 3, 300, 50, 10, 3);
         ArrayList<PixelDataPoint> allTrainingData = new ArrayList<>();
         for (int x = 0; x < image.getWidth(); x++) {
             for (int y = 0; y < image.getHeight(); y++) {
@@ -94,6 +94,7 @@ public class ImageExtender {
         myFrame.setSize(image.getWidth()+TO_EXTEND, image.getHeight());
         myFrame.setVisible(true);
         new Thread(() -> {
+            long startTime = System.nanoTime();
             int epochCounter = 0;
             while (true) {
                 imageExtender.train();
@@ -104,7 +105,7 @@ public class ImageExtender {
                         total += imageExtender.neuralNetwork.getCost(imageExtender.trainingData.get(i));
                     }
                     total /= size;
-                    System.out.println("Cost: " + total + "\tAfter " + epochCounter + " epochs\tLearnrate: " + imageExtender.learnRate);
+                    System.out.println("Cost: " + total + "\tAfter " + epochCounter + " epochs\tLearnrate: " + imageExtender.learnRate + "; With: " + (((double)epochCounter)/(System.nanoTime()-startTime))*1_000_000_000*60 + "e/min");
                 }
                 epochCounter++;
                 myFrame.image = imageExtender.getExtendedImage();
