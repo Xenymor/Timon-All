@@ -1,4 +1,4 @@
-package WordCoding.WordleBot;/*
+package WordCoding.WordleBot.Wordle;/*
  * Tester.java 
  * 
  * A program that you can use to make test calls to the methods that you 

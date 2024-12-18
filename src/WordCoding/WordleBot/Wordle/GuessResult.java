@@ -1,4 +1,4 @@
-package WordCoding.WordleBot;
+package WordCoding.WordleBot.Wordle;
 
 public class GuessResult {
     Result[] results;

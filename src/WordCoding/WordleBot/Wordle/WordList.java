@@ -1,4 +1,4 @@
-package WordCoding.WordleBot;/*
+package WordCoding.WordleBot.Wordle;/*
  * WordList.java
  *
  * A WordList object represents a collection of 5-letter English words

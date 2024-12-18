@@ -1,4 +1,4 @@
-package WordCoding.WordleBot;/*
+package WordCoding.WordleBot.Wordle;/*
  * Wordle.java
  *
  * An console-based implementation of a popular word-guessing game
@@ -13,7 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-import static WordCoding.WordleBot.Result.*;
+import static WordCoding.WordleBot.Wordle.Result.*;
 
 public class Wordle {
     // the name of a file containing a collection of English words, one word per line
@@ -194,7 +194,7 @@ public class Wordle {
         console.close();
     }
 
-    private static Set<String> getPossibilities(final String path) throws IOException {
+    public static Set<String> getPossibilities(final String path) throws IOException {
         List<String> lines = Files.readAllLines(Path.of(path));
         return new HashSet<>(lines);
     }
