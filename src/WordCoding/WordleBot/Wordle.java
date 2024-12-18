@@ -8,14 +8,17 @@ package WordCoding.WordleBot;/*
  * completed by:
  */
 
-import java.util.HashMap;
-import java.util.Scanner;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.*;
 
 import static WordCoding.WordleBot.Result.*;
 
 public class Wordle {
     // the name of a file containing a collection of English words, one word per line
-    public static final String WORD_FILE = "src/WordCoding/WordleBot/words.txt";
+    public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/solutions.txt";
+    public static final String WORDS_PATH = "src/WordCoding/WordleBot/solutions.txt";
 
     /*
      * printWelcome - prints the message that greets the user at the beginning of the game
@@ -29,18 +32,18 @@ public class Wordle {
     }
 
     /*
-     * initWordList - creates the WordList object that will be used to select
+     * initSolutionList - creates the WordList object that will be used to select
      * the mystery work. Takes the array of strings passed into main(),
      * since that array may contain a random seed specified by the user
      * from the command line.
      */
-    public static WordList initWordList(String[] args) {
+    public static WordList initSolutionList(String[] args) {
         int seed = -1;
         if (args.length > 0) {
             seed = Integer.parseInt(args[0]);
         }
 
-        return new WordList(WORD_FILE, seed);
+        return new WordList(SOLUTIONS_PATH, seed);
     }
 
     /*
@@ -49,12 +52,12 @@ public class Wordle {
      *   guessNum - the number of the guess (1, 2, ..., 6) that is being read
      *   console - the Scanner object that will be used to get the user's inputs
      */
-    public static String readGuess(int guessNum, Scanner console) {
+    public static String readGuess(int guessNum, Scanner console, Set<String> words) {
         String guess;
         do {
             System.out.print("guess " + guessNum + ": ");
             guess = console.next();
-        } while (!isValidGuess(guess));
+        } while (!isValidGuess(guess, words));
 
         return guess.toLowerCase();
     }
@@ -106,16 +109,19 @@ public class Wordle {
      * isValidGuess -  takes an arbitrary string guess and returns true
      * if it is a valid guess for Wordle, and false otherwise
      */
-    public static boolean isValidGuess(String guess) {
-        boolean result = false;
+    public static boolean isValidGuess(String guess, Set<String> words) {
         if (guess.length() == 5 && isAlpha(guess)) {
-            result = true;
+            if (words.contains(guess)) {
+                return true;
+            } else {
+                System.out.println("Your guess must be a word. ");
+            }
         } else if (guess.length() != 5) {
             System.out.println("Your guess must be 5 letters long. ");
         } else if (!isAlpha(guess)) {
             System.out.println("Your guess must only contain letters of the alphabet. ");
         }
-        return result;
+        return false;
     }
 
     /**** ADD YOUR METHOD FOR TASKS 3 and 5 HERE. ****/
@@ -159,21 +165,22 @@ public class Wordle {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner console = new Scanner(System.in);
 
         printWelcome();
 
-        // Create the WordList object for the collection of possible words.
-        WordList words = initWordList(args);
+        // Create the WordList object for the collection of possible solutions.
+        WordList solutions = initSolutionList(args);
+        Set<String> possibleWords = getPossibilities(WORDS_PATH);
 
-        // Choose one of the words as the mystery word.
-        String mystery = words.getRandomWord();
+        // Choose one of the solutions as the mystery word.
+        String mystery = solutions.getRandomWord();
 
         int i;
         for (i = 0; i < 6; i++) {
-            final GuessResult result = processGuess(readGuess(i + 1, console), mystery);
-            System.out.println(result.toString());
+            final GuessResult result = processGuess(readGuess(i + 1, console, possibleWords), mystery);
+            System.out.println(result);
             if (result.isCorrect) {
                 System.out.println("Congrats! You guessed it!");
                 break;
@@ -185,5 +192,10 @@ public class Wordle {
         }
 
         console.close();
+    }
+
+    private static Set<String> getPossibilities(final String path) throws IOException {
+        List<String> lines = Files.readAllLines(Path.of(path));
+        return new HashSet<>(lines);
     }
 }

@@ -18,12 +18,9 @@ import java.util.Random;
 import java.util.Scanner;
 
 public class WordList {
-    // key = an integer
-    // value = a 5-letter word
-    private List<String> contents;
+    private final List<String> contents;
 
-    // random-number generator
-    private Random rand;
+    private final Random rand;
 
     /*
      * constructor for a WordList object that is built from a text file
@@ -60,7 +57,6 @@ public class WordList {
             throw new IllegalStateException("could not process file of words");
         }
     }
-
 
     /*
      * getRandomWord - randomly selects one of the 5-letter words stored in
