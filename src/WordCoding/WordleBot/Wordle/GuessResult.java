@@ -11,6 +11,18 @@ public class GuessResult {
         this.guess = guess;
     }
 
+    public Result[] getResults() {
+        return results;
+    }
+
+    public boolean isCorrect() {
+        return isCorrect;
+    }
+
+    public String getGuess() {
+        return guess;
+    }
+
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();

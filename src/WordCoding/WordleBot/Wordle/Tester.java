@@ -42,6 +42,6 @@ public class Tester {
         //System.out.println(guessUser + " is a valid guess: " + result5);
 
         // test for processGuest static method
-        System.out.println(Wordle.processGuess("daddy", "undid"));
+        System.out.println(Game.processGuess("daddy", "undid"));
     }
 }

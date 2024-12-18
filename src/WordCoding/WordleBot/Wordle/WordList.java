@@ -48,7 +48,7 @@ public class WordList {
             while (f.hasNextLine()) {
                 String word = f.nextLine();
                 if (word.length() == 5) {
-                    this.contents.add(word);
+                    contents.add(word);
                 }
             }
 
@@ -63,7 +63,15 @@ public class WordList {
      * the WordList and returns it
      */
     public String getRandomWord() {
-        int whichOne = Math.abs(this.rand.nextInt()) % this.contents.size();
-        return this.contents.get(whichOne);
+        int index = Math.abs(rand.nextInt()) % contents.size();
+        return contents.get(index);
+    }
+
+    public int getWordCount() {
+        return contents.size();
+    }
+
+    public List<String> getPossibleWords() {
+        return contents;
     }
 }
