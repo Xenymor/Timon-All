@@ -7,23 +7,19 @@ import java.util.*;
 //Average guesses: 5.735223
 public class Bot {
     final List<String> originalWords;
-    final List<String> originalSolutions;
     final List<String> possibleWords;
-    final List<String> possibleSolutions;
     final Map<Character, Integer> frequencies;
 
     final Set<Character>[] possibilities;
     final Map<Character, Integer> mustHave;
     final List<Character> charList = new ArrayList<>();
 
-    public Bot(final List<String> possibleWords, final List<String> possibleSolutions) {
+    public Bot(final List<String> possibleWords) {
         this.possibleWords = possibleWords;
-        this.possibleSolutions = possibleSolutions;
         originalWords = new ArrayList<>(possibleWords);
-        originalSolutions = new ArrayList<>(possibleSolutions);
         frequencies = new HashMap<>();
 
-        for (String word : possibleSolutions) {
+        for (String word : possibleWords) {
             for (char c : word.toCharArray()) {
                 frequencies.put(c, frequencies.getOrDefault(c, 0) + 1);
             }
@@ -45,15 +41,15 @@ public class Bot {
     public String guess() {
         int bestScore = Integer.MIN_VALUE;
         int bestIndex = -1;
-        for (int i = 0; i < possibleSolutions.size(); i++) {
-            final String word = possibleSolutions.get(i);
+        for (int i = 0; i < possibleWords.size(); i++) {
+            final String word = possibleWords.get(i);
             int score = getScore(word);
             if (score > bestScore) {
                 bestScore = score;
                 bestIndex = i;
             }
         }
-        return possibleSolutions.get(bestIndex);
+        return possibleWords.get(bestIndex);
     }
 
     private int getScore(final String word) {
@@ -73,8 +69,6 @@ public class Bot {
     public void reset() {
         possibleWords.clear();
         possibleWords.addAll(originalWords);
-        possibleSolutions.clear();
-        possibleSolutions.addAll(originalSolutions);
 
         for (final Set<Character> possibility : possibilities) {
             possibility.clear();
@@ -146,13 +140,13 @@ public class Bot {
         }
 
         outer:
-        for (int i = possibleSolutions.size() - 1; i >= 0; i--) {
-            final String word = possibleSolutions.get(i);
+        for (int i = possibleWords.size() - 1; i >= 0; i--) {
+            final String word = possibleWords.get(i);
             final char[] chars = word.toCharArray();
 
             for (char c : mustHave.keySet()) {
                 if (getCount(word, c) < mustHave.get(c)) {
-                    possibleSolutions.remove(i);
+                    possibleWords.remove(i);
                     continue outer;
                 }
             }
@@ -160,7 +154,7 @@ public class Bot {
             for (int j = 0; j < chars.length; j++) {
                 char c = chars[j];
                 if (!possibilities[j].contains(c)) {
-                    possibleSolutions.remove(i);
+                    possibleWords.remove(i);
                     continue outer;
                 }
             }

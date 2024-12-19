@@ -14,7 +14,7 @@ import java.util.*;
 public class Wordle {
     // the name of a file containing a collection of English words, one word per line
     public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/solutions.txt";
-    public static final String WORDS_PATH = "src/WordCoding/WordleBot/solutions.txt";
+    public static final String WORDS_PATH = "src/WordCoding/WordleBot/words.txt";
 
     /*
      * printWelcome - prints the message that greets the user at the beginning of the game

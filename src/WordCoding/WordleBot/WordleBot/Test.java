@@ -9,7 +9,7 @@ import java.util.Scanner;
 public class Test {
     public static void main(String[] args) throws IOException {
         Game game = new Game(6969, "src/WordCoding/WordleBot/Wordle/solutions.txt", "src/WordCoding/WordleBot/Wordle/words.txt");
-        Bot bot = new Bot(game.getPossibleWords(), game.getSolutions());
+        Bot bot = new Bot(game.getPossibleWords());
         Scanner scanner = new Scanner(System.in);
         int guessCount = 0;
         int wordCount = 0;
@@ -24,7 +24,7 @@ public class Test {
             guessCount++;
             if (guessResult.isCorrect()) {
                 wordCount++;
-                if (wordCount % 1061 == 0)
+                if (wordCount % 2314 == 0)
                     System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount / ((float) wordCount)) + ";\tWordCount: " + wordCount + "\n");
                 game.nextWord();
                 //System.out.println(game.getCurrWord());
