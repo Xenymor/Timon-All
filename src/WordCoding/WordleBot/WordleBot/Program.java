@@ -24,9 +24,10 @@ public class Program {
             guessCount++;
             if (guessResult.isCorrect()) {
                 wordCount++;
-                if (wordCount % 14 == 0)
+                if (wordCount % 1061 == 0)
                     System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount / ((float) wordCount)) + ";\tWordCount: " + wordCount + "\n");
                 game.nextWord();
+                //System.out.println(game.getCurrWord());
                 bot.reset();
                 //scanner.nextLine();
             } else {
