@@ -4,7 +4,7 @@ import WordCoding.WordleBot.Wordle.Result;
 
 import java.util.*;
 
-//Average guesses: 5.735223
+//Average guesses: 4.6940365
 public class Bot {
     final List<String> originalWords;
     final List<String> possibleWords;
