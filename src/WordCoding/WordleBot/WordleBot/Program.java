@@ -1,38 +1,62 @@
 package WordCoding.WordleBot.WordleBot;
 
-import WordCoding.WordleBot.Wordle.Game;
-import WordCoding.WordleBot.Wordle.GuessResult;
+import WordCoding.WordleBot.Wordle.Result;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Scanner;
+
+import static WordCoding.WordleBot.Wordle.Result.*;
 
 public class Program {
     public static void main(String[] args) throws IOException {
-        Game game = new Game(6969, "src/WordCoding/WordleBot/Wordle/solutions.txt", "src/WordCoding/WordleBot/Wordle/words.txt");
-        Bot bot = new Bot(game.getPossibleWords(), game.getSolutions());
+        //TODO remove non 5 letter words;
+        final List<String> possibleWords = Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/words.txt"));
+        final List<String> possibleSolutions = Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/solutions.txt"));
+        Bot bot = new Bot(possibleWords, possibleSolutions);
         Scanner scanner = new Scanner(System.in);
-        int guessCount = 0;
-        int wordCount = 0;
 
-        game.nextWord();
-        System.out.println(game.getCurrWord());
-        while (!game.hasFinished()) {
+        while (true) {
             String guess = bot.guess();
-            //System.out.println("Guess: " + guess);
-            GuessResult guessResult = game.guess(guess);
-            //System.out.println(guessResult.toString());
-            guessCount++;
-            if (guessResult.isCorrect()) {
-                wordCount++;
-                if (wordCount % 1061 == 0)
-                    System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount / ((float) wordCount)) + ";\tWordCount: " + wordCount + "\n");
-                game.nextWord();
-                //System.out.println(game.getCurrWord());
+            System.out.println("Guess: " + guess);
+            String answer = scanner.nextLine();
+            Result[] results = parseAnswer(answer);
+            if (isCorrect(results)) {
                 bot.reset();
-                //scanner.nextLine();
+                System.out.println("Congratulations!");
             } else {
-                bot.update(guess, guessResult.getResults());
+                bot.update(guess, results);
             }
         }
+    }
+
+    private static boolean isCorrect(final Result[] results) {
+        for (Result result : results) {
+            if (result != CORRECT) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static Result[] parseAnswer(final String answer) {
+        char[] chars = answer.toCharArray();
+        Result[] results = new Result[5];
+        for (int i = 0; i < results.length; i++) {
+            switch (chars[i]) {
+                case 'w' -> {
+                    results[i] = WRONG;
+                }
+                case 'p' -> {
+                    results[i] = WRONG_PLACE;
+                }
+                case 'c' -> {
+                    results[i] = CORRECT;
+                }
+            }
+        }
+        return results;
     }
 }
