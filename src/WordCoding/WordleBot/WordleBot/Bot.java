@@ -83,12 +83,12 @@ public class Bot {
     final Map<Character, Integer> currCounts = new HashMap<>();
 
     public void update(final String guess, final Result[] results) {
-        updateRequirements(guess, results);
+        updateRequirements(guess, results, possibilities, mustHave);
 
-        updatePossibilities();
+        updatePossibleWords(possibleWords);
     }
 
-    private void updatePossibilities() {
+    private void updatePossibleWords(List<String> possibleWords) {
         outer:
         for (int i = possibleWords.size() - 1; i >= 0; i--) {
             final String word = possibleWords.get(i);
@@ -111,7 +111,7 @@ public class Bot {
         }
     }
 
-    private void updateRequirements(final String guess, final Result[] results) {
+    private void updateRequirements(final String guess, final Result[] results, Set<Character>[] possibilities, Map<Character, Integer> mustHave) {
         currCounts.clear();
         char[] charArray = guess.toCharArray();
 
