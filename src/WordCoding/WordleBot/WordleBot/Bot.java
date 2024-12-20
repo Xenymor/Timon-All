@@ -58,7 +58,7 @@ public class Bot {
         Arrays.sort(chars);
         for (int i = 0; i < chars.length; i++) {
             final char c = chars[i];
-            if (i != 0 && c == chars[i-1]) {
+            if (i != 0 && c == chars[i - 1]) {
                 continue;
             }
             score += frequencies.get(c);

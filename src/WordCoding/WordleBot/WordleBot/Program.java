@@ -21,6 +21,11 @@ public class Program {
             String guess = bot.guess();
             System.out.println("Guess: " + guess);
             String answer = scanner.nextLine();
+            final String[] split = answer.split(" ");
+            if (split[0].equalsIgnoreCase("guess")) {
+                guess = split[1];
+                answer = scanner.nextLine();
+            }
             Result[] results = parseAnswer(answer);
             if (isCorrect(results)) {
                 bot.reset();
