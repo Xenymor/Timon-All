@@ -4,7 +4,9 @@ import WordCoding.WordleBot.Wordle.Result;
 
 import java.util.*;
 
-//Average guesses: 4.6940365
+import static WordCoding.WordleBot.Wordle.Result.WRONG;
+
+//Average guesses: 4.6728606
 public class Bot {
     final List<String> originalWords;
     final List<String> possibleWords;
@@ -81,64 +83,12 @@ public class Bot {
     final Map<Character, Integer> currCounts = new HashMap<>();
 
     public void update(final String guess, final Result[] results) {
-        currCounts.clear();
-        char[] charArray = guess.toCharArray();
+        updateRequirements(guess, results);
 
-        for (final char value : charArray) {
-            currCounts.put(value, currCounts.containsKey(value) ? currCounts.get(value) + 1 : 1);
-        }
+        updatePossibilities();
+    }
 
-        Map<Character, Integer> currMustHave = new HashMap<>();
-
-        for (int i = 0; i < charArray.length; i++) {
-            final char c = charArray[i];
-            switch (results[i]) {
-                case CORRECT -> {
-                    possibilities[i].clear();
-                    possibilities[i].add(c);
-
-                    currMustHave.put(c, currMustHave.containsKey(c) ? currMustHave.get(c) + 1 : 1);
-                }
-                case WRONG -> {
-                    //TODO if two wrong chars remove the char
-                    if (currCounts.get(c) == 1) {
-                        for (final Set<Character> possibility : possibilities) {
-                            possibility.remove(c);
-                        }
-                    } else {
-                        int foundCount = 0;
-                        boolean[] isFound = new boolean[5];
-                        for (int j = 0; j < possibilities.length; j++) {
-                            final Set<Character> possibility = possibilities[j];
-                            if (possibility.size() == 1 && possibility.contains(c)) {
-                                foundCount++;
-                                isFound[j] = true;
-                            } else {
-                                isFound[j] = false;
-                            }
-                        }
-                        if (foundCount == currCounts.get(c) - 1) {
-                            for (int j = 0; j < possibilities.length; j++) {
-                                if (!isFound[j]) {
-                                    possibilities[j].remove(c);
-                                }
-                            }
-                        } else {
-                            possibilities[i].remove(c);
-                        }
-                    }
-                }
-                case WRONG_PLACE -> {
-                    possibilities[i].remove(c);
-                    currMustHave.put(c, currMustHave.containsKey(c) ? currMustHave.get(c) + 1 : 1);
-                }
-            }
-        }
-
-        for (Character c : currMustHave.keySet()) {
-            mustHave.put(c, Math.max(currMustHave.get(c), mustHave.getOrDefault(c, 0)));
-        }
-
+    private void updatePossibilities() {
         outer:
         for (int i = possibleWords.size() - 1; i >= 0; i--) {
             final String word = possibleWords.get(i);
@@ -159,6 +109,90 @@ public class Bot {
                 }
             }
         }
+    }
+
+    private void updateRequirements(final String guess, final Result[] results) {
+        currCounts.clear();
+        char[] charArray = guess.toCharArray();
+
+        for (final char value : charArray) {
+            currCounts.put(value, currCounts.containsKey(value) ? currCounts.get(value) + 1 : 1);
+        }
+
+        Map<Character, Integer> currMustHave = new HashMap<>();
+
+        for (int i = 0; i < charArray.length; i++) {
+            final char c = charArray[i];
+            switch (results[i]) {
+                case CORRECT -> {
+                    possibilities[i].clear();
+                    possibilities[i].add(c);
+
+                    currMustHave.put(c, currMustHave.containsKey(c) ? currMustHave.get(c) + 1 : 1);
+                }
+                case WRONG -> {
+                    if (currCounts.get(c) == 1) {
+                        for (final Set<Character> possibility : possibilities) {
+                            possibility.remove(c);
+                        }
+                    } else {
+                        List<Integer> indices = getIndices(c, guess);
+                        boolean allWrong = true;
+                        for (Integer index : indices) {
+                            if (results[index] != WRONG) {
+                                allWrong = false;
+                                break;
+                            }
+                        }
+                        if (allWrong) {
+                            for (final Set<Character> possibility : possibilities) {
+                                possibility.remove(c);
+                            }
+                        } else {
+                            int foundCount = 0;
+                            boolean[] isFound = new boolean[5];
+                            for (int j = 0; j < possibilities.length; j++) {
+                                final Set<Character> possibility = possibilities[j];
+                                if (possibility.size() == 1 && possibility.contains(c)) {
+                                    foundCount++;
+                                    isFound[j] = true;
+                                } else {
+                                    isFound[j] = false;
+                                }
+                            }
+
+                            if (foundCount == currCounts.get(c) - 1) {
+                                for (int j = 0; j < possibilities.length; j++) {
+                                    if (!isFound[j]) {
+                                        possibilities[j].remove(c);
+                                    }
+                                }
+                            } else {
+                                possibilities[i].remove(c);
+                            }
+                        }
+                    }
+                }
+                case WRONG_PLACE -> {
+                    possibilities[i].remove(c);
+                    currMustHave.put(c, currMustHave.containsKey(c) ? currMustHave.get(c) + 1 : 1);
+                }
+            }
+        }
+
+        for (Character c : currMustHave.keySet()) {
+            mustHave.put(c, Math.max(currMustHave.get(c), mustHave.getOrDefault(c, 0)));
+        }
+    }
+
+    private List<Integer> getIndices(final char c, final String guess) {
+        List<Integer> result = new ArrayList<>();
+        for (int i = 0; i < guess.length(); i++) {
+            if (guess.charAt(i) == c) {
+                result.add(i);
+            }
+        }
+        return result;
     }
 
     private int getCount(final String word, final char c) {

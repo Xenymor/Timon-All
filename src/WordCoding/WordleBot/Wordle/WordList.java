@@ -21,6 +21,8 @@ public class WordList {
     private final List<String> contents;
 
     private final Random rand;
+    private final boolean isRandom;
+    private int index = 0;
 
     /*
      * constructor for a WordList object that is built from a text file
@@ -35,6 +37,8 @@ public class WordList {
      */
     public WordList(String fileName, int randomSeed) {
         this.contents = new ArrayList<>();
+
+        isRandom = randomSeed != 0;
 
         if (randomSeed != -1) {
             this.rand = new Random(randomSeed);
@@ -63,8 +67,15 @@ public class WordList {
      * the WordList and returns it
      */
     public String getRandomWord() {
-        int index = Math.abs(rand.nextInt()) % contents.size();
-        return contents.get(index);
+        int currIndex;
+        if (isRandom) {
+            currIndex = Math.abs(rand.nextInt()) % contents.size();
+        } else {
+            currIndex = index;
+            index++;
+            index = index % contents.size();
+        }
+        return contents.get(currIndex);
     }
 
     public int getWordCount() {

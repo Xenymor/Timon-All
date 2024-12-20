@@ -8,7 +8,7 @@ import java.util.Scanner;
 
 public class Test {
     public static void main(String[] args) throws IOException {
-        Game game = new Game(6969, "src/WordCoding/WordleBot/Wordle/solutions.txt", "src/WordCoding/WordleBot/Wordle/words.txt");
+        Game game = new Game(0, "src/WordCoding/WordleBot/Wordle/solutions.txt", "src/WordCoding/WordleBot/Wordle/words.txt");
         Bot bot = new Bot(game.getPossibleWords());
         Scanner scanner = new Scanner(System.in);
         int guessCount = 0;
