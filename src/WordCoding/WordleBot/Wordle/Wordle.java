@@ -13,8 +13,8 @@ import java.util.*;
 
 public class Wordle {
     // the name of a file containing a collection of English words, one word per line
-    public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/solutions.txt";
-    public static final String WORDS_PATH = "src/WordCoding/WordleBot/words.txt";
+    public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/Wordle/solutions.txt";
+    public static final String WORDS_PATH = "src/WordCoding/WordleBot/Wordle/words.txt";
 
     /*
      * printWelcome - prints the message that greets the user at the beginning of the game
@@ -53,24 +53,24 @@ public class Wordle {
         WordList solutions = Game.initSolutionList(args.length > 0 ? Integer.parseInt(args[0]) : -1);
         Set<String> possibleWords = Game.getPossibilities(WORDS_PATH);
 
-        // Choose one of the solutions as the mystery word.
-        String mystery = solutions.getRandomWord();
+        while (true) {
+            // Choose one of the solutions as the mystery word.
+            String mystery = solutions.getRandomWord();
 
-        int i;
-        for (i = 0; i < 6; i++) {
-            final GuessResult result = Game.processGuess(readGuess(i + 1, console, possibleWords), mystery);
-            System.out.println(result);
-            if (result.isCorrect) {
-                System.out.println("Congrats! You guessed it!");
-                break;
+            int i;
+            for (i = 0; i < 6; i++) {
+                final GuessResult result = Game.processGuess(readGuess(i + 1, console, possibleWords), mystery);
+                System.out.println(result);
+                if (result.isCorrect) {
+                    System.out.println("Congrats! You guessed it!");
+                    break;
+                }
+            }
+            if (i == 6) {
+                System.out.println("Sorry! Better luck next time!");
+                System.out.println("The word was " + mystery + ".");
             }
         }
-        if (i == 6) {
-            System.out.println("Sorry! Better luck next time!");
-            System.out.println("The word was " + mystery + ".");
-        }
-
-        console.close();
     }
 
 }
