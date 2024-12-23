@@ -14,8 +14,8 @@ public class Program {
     public static void main(String[] args) throws IOException {
         //TODO remove non 5 letter words;
         final List<String> possibleWords = Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/words.txt"));
-        Bot bot = new Bot(possibleWords);
         System.out.println("Setting up ...");
+        Bot bot = new Bot(possibleWords);
         Scanner scanner = new Scanner(System.in);
         System.out.println("Finished Setup");
 
