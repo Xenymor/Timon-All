@@ -12,7 +12,6 @@ import static WordCoding.WordleBot.Wordle.Result.*;
 
 public class Program {
     public static void main(String[] args) throws IOException {
-        //TODO remove non 5 letter words;
         final List<String> possibleWords = Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/words.txt"));
         System.out.println("Setting up ...");
         Bot bot = new Bot(possibleWords);
@@ -52,15 +51,9 @@ public class Program {
         Result[] results = new Result[5];
         for (int i = 0; i < results.length; i++) {
             switch (chars[i]) {
-                case 'w' -> {
-                    results[i] = WRONG;
-                }
-                case 'p' -> {
-                    results[i] = WRONG_PLACE;
-                }
-                case 'c' -> {
-                    results[i] = CORRECT;
-                }
+                case 'w' -> results[i] = WRONG;
+                case 'p' -> results[i] = WRONG_PLACE;
+                case 'c' -> results[i] = CORRECT;
             }
         }
         return results;
