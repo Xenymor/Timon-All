@@ -13,8 +13,11 @@ public class Test {
         Scanner scanner = new Scanner(System.in);
         int guessCount = 0;
         int wordCount = 0;
+        int failCount = 0;
+        int currGuessCount = 0;
 
         game.nextWord();
+        System.out.println("Finished setup");
         System.out.println(game.getCurrWord());
         while (!game.hasFinished()) {
             String guess = bot.guess();
@@ -22,14 +25,20 @@ public class Test {
             GuessResult guessResult = game.guess(guess);
             //System.out.println(guessResult.toString());
             guessCount++;
+            currGuessCount++;
             if (guessResult.isCorrect()) {
                 wordCount++;
-                if (wordCount % 10 == 0)
-                    System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount / ((float) wordCount)) + ";\tWordCount: " + wordCount + "\n");
+                if (wordCount % 3 == 0)
+                    System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount / ((float) wordCount)) + ";\tWordCount: " + wordCount + ";\tFailed: " + failCount + "\n");
                 game.nextWord();
                 //System.out.println(game.getCurrWord());
                 bot.reset();
+                currGuessCount = 0;
                 //scanner.nextLine();
+            } else if (currGuessCount > 6) {
+                bot.reset();
+                currGuessCount = 0;
+                failCount++;
             } else {
                 bot.update(guess, guessResult.getResults());
             }
