@@ -20,7 +20,9 @@ public class Test {
         System.out.println("Finished setup");
         System.out.println(game.getCurrWord());
         while (!game.hasFinished()) {
+            final long startTime = System.nanoTime();
             String guess = bot.guess();
+            System.out.println("Time: " + (System.nanoTime() - startTime) / 1_000_000F + "ms");
             //System.out.println("Guess " + guessCount + ": " + guess);
             GuessResult guessResult = game.guess(guess);
             //System.out.println(guessResult.toString());
