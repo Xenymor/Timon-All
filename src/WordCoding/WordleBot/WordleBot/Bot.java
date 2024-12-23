@@ -4,7 +4,7 @@ import WordCoding.WordleBot.Wordle.Result;
 
 import java.util.*;
 
-//Average guesses: 4.145614
+//Average guesses: 4.0482183
 public class Bot {
     public static final int COMBINATION_COUNT = 243;
     public static final double INFORMATION_FACTOR = (1 / Math.log(2));
@@ -95,7 +95,7 @@ public class Bot {
     }
 
     public String guess() {
-        if (possibleWords.size() == 1) {
+        if (possibleWords.size() <= 2) {
             return possibleWords.get(0);
         }
 
