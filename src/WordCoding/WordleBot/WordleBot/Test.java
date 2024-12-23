@@ -18,13 +18,13 @@ public class Test {
         System.out.println(game.getCurrWord());
         while (!game.hasFinished()) {
             String guess = bot.guess();
-            //System.out.println("Guess: " + guess);
+            //System.out.println("Guess " + guessCount + ": " + guess);
             GuessResult guessResult = game.guess(guess);
             //System.out.println(guessResult.toString());
             guessCount++;
             if (guessResult.isCorrect()) {
                 wordCount++;
-                if (wordCount % 2314 == 0)
+                if (wordCount % 10 == 0)
                     System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount / ((float) wordCount)) + ";\tWordCount: " + wordCount + "\n");
                 game.nextWord();
                 //System.out.println(game.getCurrWord());
