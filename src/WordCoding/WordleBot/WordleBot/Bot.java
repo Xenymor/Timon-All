@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-//Average guesses: 4.040943
+//Average guesses: 3.783848
 public class Bot {
     public static final int COMBINATION_COUNT = 243;
     public static final double INFORMATION_FACTOR = (1 / Math.log(2));
@@ -63,7 +63,7 @@ public class Bot {
         final double cutoff = wordProbabilities.size() * CUTOFF_PERCENTAGE;
 
         for (Map.Entry<String, Double> pair : wordProbabilities) {
-            final double value = sigmoid(pair.getValue(), FREQUENCY_WIDTH, count, cutoff);
+            final double value = pair.getValue();//sigmoid(pair.getValue(), FREQUENCY_WIDTH, count, cutoff);
             probabilities.put(pair.getKey(), value);
         }
     }
