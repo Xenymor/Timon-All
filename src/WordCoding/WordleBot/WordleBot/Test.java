@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Test {
+
+    public static final int LOG_PAUSE = 2;
+
     public static void main(String[] args) throws IOException {
         Game game = new Game(0, "src/WordCoding/WordleBot/Wordle/solutions.txt", "src/WordCoding/WordleBot/Wordle/words.txt");
         Bot bot = new Bot(game.getPossibleWords());
@@ -23,14 +26,14 @@ public class Test {
             //final long startTime = System.nanoTime();
             String guess = bot.guess();
             //System.out.println("Time: " + (System.nanoTime() - startTime) / 1_000_000F + "ms");
-            //System.out.println("Guess " + guessCount + ": " + guess);
+            //System.out.println("Guess " + currGuessCount + ": " + guess);
             GuessResult guessResult = game.guess(guess);
             //System.out.println(guessResult.toString());
             guessCount++;
             currGuessCount++;
             if (guessResult.isCorrect()) {
                 wordCount++;
-                if (wordCount % 3 == 0)
+                if (wordCount % LOG_PAUSE == 0)
                     System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount / ((float) wordCount)) + ";\tWordCount: " + wordCount + ";\tFailed: " + failCount + "\n");
                 game.nextWord();
                 //System.out.println(game.getCurrWord());
