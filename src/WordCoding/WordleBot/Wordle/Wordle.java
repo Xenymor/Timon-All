@@ -53,13 +53,16 @@ public class Wordle {
         WordList solutions = Game.initSolutionList(args.length > 0 ? Integer.parseInt(args[0]) : -1);
         Set<String> possibleWords = Game.getPossibilities(WORDS_PATH);
 
+        // TODO this might be a wrong initialization
+        final Game game = new Game(0, SOLUTIONS_PATH, WORDS_PATH);
+
         while (true) {
             // Choose one of the solutions as the mystery word.
             String mystery = solutions.getRandomWord();
 
             int i;
             for (i = 0; i < 6; i++) {
-                final GuessResult result = Game.processGuess(readGuess(i + 1, console, possibleWords), mystery);
+                final GuessResult result = game.processGuess(readGuess(i + 1, console, possibleWords), mystery);
                 System.out.println(result);
                 if (result.isCorrect) {
                     System.out.println("Congrats! You guessed it!");

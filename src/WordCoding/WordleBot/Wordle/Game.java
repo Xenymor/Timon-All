@@ -41,13 +41,8 @@ public class Game {
      * since that array may contain a random seed specified by the user
      * from the command line.
      */
-    public static WordList initSolutionList(int seed) {
-
-        return new WordList(Wordle.SOLUTIONS_PATH, seed);
-    }
-
     public static boolean includes(String s, char c) {
-        return s.contains(Character.toString(c));
+        return s.indexOf(c) >= 0;
     }
 
     public static boolean isAlpha(String s) {
@@ -57,6 +52,11 @@ public class Game {
             }
         }
         return true;
+    }
+
+    public static WordList initSolutionList(int seed) {
+
+        return new WordList(Wordle.SOLUTIONS_PATH, seed);
     }
 
     public static int numOccur(char c, String s) {
@@ -107,7 +107,7 @@ public class Game {
     }
 
     /**** ADD YOUR METHOD FOR TASKS 3 and 5 HERE. ****/
-    public static GuessResult processGuess(String guess, String mystery) {
+    public GuessResult processGuess(String guess, String mystery) {
         GuessResult returnValue = new GuessResult(guess);
         HashMap<Character, Integer> mysteryCharCounts = new HashMap<>();
 
