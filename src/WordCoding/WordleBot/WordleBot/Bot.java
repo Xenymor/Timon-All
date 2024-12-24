@@ -186,6 +186,7 @@ public class Bot {
         for (String word : possibleWords) {
             probabilitySum += probabilities.get(word);
         }
+        double currEntropy = getEntropy(possibleWords, probabilitySum);
 
         for (int i = 0; i < size; i++) {
             //System.out.println(i);
@@ -204,13 +205,29 @@ public class Bot {
                 }
                 combination = nextPossibility(combination);
             }
-            if (sum > bestScore) {
+            final double probability = possibleWordsSet.contains(guess) ? getProbability(guess, probabilitySum) : 0;
+            double score = probability * guessCount + (1 - probability) * (guessCount + estimatedGuesses(currEntropy - sum));
+            if (score > bestScore) {
                 bestScore = sum;
                 bestIndex = i;
             }
         }
 
         return originalWords.get(bestIndex);
+    }
+
+    private double getEntropy(final List<String> possibleWords, final double probabilitySum) {
+        double sum = 0;
+        for (String word : possibleWords) {
+            double probability = getProbability(word, probabilitySum);
+            sum += probability * getInformation(probability);
+        }
+        return sum;
+    }
+
+    private double estimatedGuesses(final double entropy) {
+        //y=−0.00781798508797881819x^2+0.30513580160862652235x+1.00957741161661118667
+        return -0.00781798508797881819 * entropy * entropy + 0.30513580160862652235 * entropy + 1.00957741161661118667;
     }
 
     private int nextPossibility(int combination) {
