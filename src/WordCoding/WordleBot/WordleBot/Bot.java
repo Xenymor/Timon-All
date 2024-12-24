@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-//Average guesses: 3.755981
+//Average guesses: 3.7067668
 public class Bot {
     public static final int COMBINATION_COUNT = 243;
     public static final double INFORMATION_FACTOR = (1 / Math.log(2));
