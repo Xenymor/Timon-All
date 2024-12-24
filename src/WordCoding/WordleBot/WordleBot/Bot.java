@@ -31,6 +31,8 @@ public class Bot {
 
     final Map<String, Double> probabilities = new HashMap<>();
 
+    int guessCount = 0;
+
     public Bot(final List<String> possibleWords) {
         this.possibleWords = possibleWords;
         possibleWordsSet = new HashSet<>(possibleWords);
@@ -160,6 +162,8 @@ public class Bot {
     }
 
     public String guess() {
+        guessCount++;
+
         if (possibleWords.size() <= 4) {
             String bestWord = null;
             double highestProbability = Double.NEGATIVE_INFINITY;
@@ -238,6 +242,8 @@ public class Bot {
     }
 
     public void reset() {
+        guessCount = 0;
+
         possibleWords.clear();
         possibleWords.addAll(originalWords);
         possibleWordsSet.addAll(possibleWords);
