@@ -59,6 +59,8 @@ public class Test {
             } else if (currGuessCount > 6) {
                 bot.reset();
                 currGuessCount = 0;
+                game.nextWord();
+                wordCount.incrementAndGet();
                 failCount.incrementAndGet();
             } else {
                 bot.update(guess, guessResult.getResults());
