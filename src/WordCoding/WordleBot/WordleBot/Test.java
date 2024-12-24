@@ -11,7 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Test {
 
     public static final int LOG_PAUSE = 2;
-    public static final int THREAD_COUNT = 5;
+    public static final int THREAD_COUNT = 8;
     static final ExecutorService pool = Executors.newFixedThreadPool(THREAD_COUNT);
 
     public static void main(String[] args) throws IOException {
