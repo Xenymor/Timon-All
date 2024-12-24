@@ -4,6 +4,9 @@ import WordCoding.WordleBot.Wordle.Game;
 import WordCoding.WordleBot.Wordle.GuessResult;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,6 +54,11 @@ public class Test {
             if (guessResult.isCorrect()) {
                 if (wordCount.incrementAndGet() % LOG_PAUSE == 0)
                     System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount.get() / ((float) wordCount.get())) + ";\tWordCount: " + wordCount + ";\tFailed: " + failCount + "\n");
+                if (wordCount.get() >= 5) {
+                    wordCount.set(0);
+                    String[] data = bot.dataToString();
+                    Files.write(Path.of("src/WordCoding/WordleBot/Wordle/data.txt"), List.of(data));
+                }
                 game.nextWord();
                 //System.out.println(game.getCurrWord());
                 bot.reset();

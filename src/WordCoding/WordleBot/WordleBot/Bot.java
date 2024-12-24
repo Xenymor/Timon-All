@@ -1,5 +1,6 @@
 package WordCoding.WordleBot.WordleBot;
 
+import StandardClasses.Vector2;
 import WordCoding.WordleBot.Wordle.Result;
 
 import java.io.IOException;
@@ -17,6 +18,10 @@ public class Bot {
     public static final String FREQUENCY_PATH = "src/WordCoding/WordleBot/WordleBot/wordFrequencies.csv";
     public static final double FREQUENCY_WIDTH = 30;
     private static final double CUTOFF_PERCENTAGE = 0.25;
+
+    public static final List<Vector2> data = Collections.synchronizedList(new ArrayList<>());
+
+    private final double[] currEntropies = new double[6];
 
     final List<String> originalWords;
     final List<String> possibleWords;
@@ -186,6 +191,8 @@ public class Bot {
         for (String word : possibleWords) {
             probabilitySum += probabilities.get(word);
         }
+        double entropy = getScore(possibleWords, probabilitySum);
+        currEntropies[guessCount - 1] = entropy;
 
         for (int i = 0; i < size; i++) {
             //System.out.println(i);
@@ -242,6 +249,11 @@ public class Bot {
     }
 
     public void reset() {
+        for (int i = 0; i < guessCount; i++) {
+            final double entropy = currEntropies[i];
+            data.add(new Vector2(entropy, guessCount - i));
+        }
+
         guessCount = 0;
 
         possibleWords.clear();
@@ -385,5 +397,16 @@ public class Bot {
             }
         }
         return appearances;
+    }
+
+    public String[] dataToString() {
+        StringBuilder entropies = new StringBuilder();
+        StringBuilder guessesLeft = new StringBuilder();
+
+        for (Vector2 dataPoint : data) {
+            entropies.append(dataPoint.getX()).append(" ");
+            guessesLeft.append(dataPoint.getY()).append(" ");
+        }
+        return new String[]{entropies.toString(), guessesLeft.toString()};
     }
 }
