@@ -169,6 +169,13 @@ public class Bot {
     public String guess() {
         guessCount++;
 
+        double probabilitySum = 0;
+        for (String word : possibleWords) {
+            probabilitySum += probabilities.get(word);
+        }
+        double entropy = getEntropy(possibleWords, probabilitySum);
+        currEntropies[guessCount - 1] = entropy;
+
         if (possibleWords.size() <= 4) {
             String bestWord = null;
             double highestProbability = Double.NEGATIVE_INFINITY;
@@ -186,13 +193,6 @@ public class Bot {
         double bestScore = Double.NEGATIVE_INFINITY;
         int bestIndex = -1;
         List<String> buff = new ArrayList<>();
-
-        double probabilitySum = 0;
-        for (String word : possibleWords) {
-            probabilitySum += probabilities.get(word);
-        }
-        double entropy = getScore(possibleWords, probabilitySum);
-        currEntropies[guessCount - 1] = entropy;
 
         for (int i = 0; i < size; i++) {
             //System.out.println(i);
@@ -220,6 +220,15 @@ public class Bot {
         return originalWords.get(bestIndex);
     }
 
+    private double getEntropy(final List<String> possibleWords, final double probabilitySum) {
+        double sum = 0;
+        for (String word : possibleWords) {
+            double value = getProbability(word, probabilitySum);
+            sum += value * getInformation(value);
+        }
+        return sum;
+    }
+
     private int nextPossibility(int combination) {
         for (int i = 0; i < 5; i++) {
             final int value = getValue(i, combination);
@@ -233,11 +242,11 @@ public class Bot {
     }
 
     private double getScore(final List<String> newPossibleWords, final double probabilitySum) {
-        double probability = 0;
+        double information = 0;
         for (String word : newPossibleWords) {
-            probability += getProbability(word, probabilitySum);
+            information += getProbability(word, probabilitySum);
         }
-        return probability * getInformation(probability);
+        return information * getInformation(information);
     }
 
     private double getInformation(final double probability) {
