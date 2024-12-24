@@ -54,7 +54,7 @@ public class Test {
             if (guessResult.isCorrect()) {
                 if (wordCount.incrementAndGet() % LOG_PAUSE == 0)
                     System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount.get() / ((float) wordCount.get())) + ";\tWordCount: " + wordCount + ";\tFailed: " + failCount + "\n");
-                if (wordCount.get() >= 100) {
+                if (wordCount.get() >= 200) {
                     wordCount.set(0);
                     String[] data = bot.dataToString();
                     Files.write(Path.of("src/WordCoding/WordleBot/Wordle/data.txt"), List.of(data));
