@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-//Average guesses: 3.783848
+//Average guesses: 3.7790697
 public class Bot {
     public static final int COMBINATION_COUNT = 243;
     public static final double INFORMATION_FACTOR = (1 / Math.log(2));
@@ -15,7 +15,7 @@ public class Bot {
     public static final int WRONG_PLACE = 1;
     public static final int CORRECT = 2;
     public static final String FREQUENCY_PATH = "src/WordCoding/WordleBot/WordleBot/wordFrequencies.csv";
-    public static final double FREQUENCY_WIDTH = 10;
+    public static final double FREQUENCY_WIDTH = 30;
     private static final double CUTOFF_PERCENTAGE = 0.23153507756425098402407964806668;
 
     final List<String> originalWords;
@@ -63,7 +63,7 @@ public class Bot {
         final double cutoff = wordProbabilities.size() * CUTOFF_PERCENTAGE;
 
         for (Map.Entry<String, Double> pair : wordProbabilities) {
-            final double value = pair.getValue();//sigmoid(pair.getValue(), FREQUENCY_WIDTH, count, cutoff);
+            final double value = sigmoid(pair.getValue(), FREQUENCY_WIDTH, count, cutoff);
             probabilities.put(pair.getKey(), value);
         }
     }
