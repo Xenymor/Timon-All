@@ -178,7 +178,7 @@ public class Bot {
         }
 
         final int size = originalWords.size();
-        double bestScore = Double.NEGATIVE_INFINITY;
+        double bestScore = Double.POSITIVE_INFINITY;
         int bestIndex = -1;
         List<String> buff = new ArrayList<>();
 
@@ -207,8 +207,8 @@ public class Bot {
             }
             final double probability = possibleWordsSet.contains(guess) ? getProbability(guess, probabilitySum) : 0;
             double score = probability * guessCount + (1 - probability) * (guessCount + estimatedGuesses(currEntropy - sum));
-            if (score > bestScore) {
-                bestScore = sum;
+            if (score < bestScore) {
+                bestScore = score;
                 bestIndex = i;
             }
         }
