@@ -2,7 +2,7 @@ package WordCoding.WordleBot.WordleBot;
 
 import WordCoding.WordleBot.Wordle.Result;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -17,33 +17,57 @@ public class Bot {
     public static final String FREQUENCY_PATH = "src/WordCoding/WordleBot/WordleBot/wordFrequencies.csv";
     public static final double FREQUENCY_WIDTH = 30;
     private static final double CUTOFF_PERCENTAGE = 0.25;
+    private static final String SAVE_PATH = "src/WordCoding/WordleBot/WordleBot/saveData.sav";
 
     final List<String> originalWords;
-    final List<String> possibleWords;
-    final Set<String> possibleWordsSet;
+    final List<Integer> possibleWords;
+    final Set<Integer> possibleWordsSet;
 
     final Set<Character>[] possibilities;
     final Map<Character, Integer> mustHave;
     final List<Character> charList = new ArrayList<>();
 
-    final Map<String, Map<Character, Integer>> counts = new HashMap<>();
-    final Map<String, Map<Integer, List<String>>> results = new HashMap<>();
+    final List<Map<Character, Integer>> counts = new ArrayList<>();
+    final List<Map<Integer, List<Integer>>> results;
 
-    final Map<String, Double> probabilities = new HashMap<>();
+    final Map<Integer, Double> probabilities = new HashMap<>();
 
     int guessCount = 0;
 
     public Bot(final List<String> possibleWords) {
-        this.possibleWords = possibleWords;
-        possibleWordsSet = new HashSet<>(possibleWords);
-        originalWords = new ArrayList<>(possibleWords);
+        this.originalWords = possibleWords;
+        this.possibleWordsSet = new HashSet<>();
+        this.possibleWords = new ArrayList<>();
+
+        for (int i = 0; i < originalWords.size(); i++) {
+            this.possibleWords.add(i);
+            this.possibleWordsSet.add(i);
+        }
+
         char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
         for (char c : chars) {
             charList.add(c);
         }
 
         setupCounts(possibleWords, chars);
-        setupResults(possibleWords);
+        results = new ArrayList<>();
+
+        try {
+            ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(SAVE_PATH)));
+            if (originalWords.hashCode() != inputStream.readInt()) {
+                throw new IOException("File changed");
+            }
+            System.out.println("Loading save file ...");
+            results.addAll((List<Map<Integer, List<Integer>>>) inputStream.readObject());
+
+            inputStream.close();
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("Recalculating save file ...");
+            setupResults(this.possibleWords);
+            System.out.println("Saving data ...");
+            saveResults();
+        }
+
 
         mustHave = new HashMap<>();
 
@@ -52,29 +76,44 @@ public class Bot {
         setupProbabilities();
     }
 
+    private void saveResults() {
+        try {
+            ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(SAVE_PATH)));
+            outputStream.writeInt(originalWords.hashCode());
+            outputStream.writeObject(results);
+            outputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void setupProbabilities() {
         List<String> lines = loadFrequencies();
 
-        List<Map.Entry<String, Double>> wordProbabilities = generateProbabilities(lines);
+        List<Map.Entry<Integer, Double>> wordProbabilities = generateProbabilities(lines);
 
         rescaleProbabilities(wordProbabilities);
     }
 
-    private void rescaleProbabilities(final List<Map.Entry<String, Double>> wordProbabilities) {
+    private void rescaleProbabilities(final List<Map.Entry<Integer, Double>> wordProbabilities) {
         final double count = wordProbabilities.size();
         final double cutoff = wordProbabilities.size() * CUTOFF_PERCENTAGE;
 
-        for (Map.Entry<String, Double> pair : wordProbabilities) {
+        for (Map.Entry<Integer, Double> pair : wordProbabilities) {
             final double value = sigmoid(pair.getValue(), FREQUENCY_WIDTH, count, cutoff);
             probabilities.put(pair.getKey(), value);
         }
     }
 
-    private List<Map.Entry<String, Double>> generateProbabilities(final List<String> lines) {
-        List<Map.Entry<String, Double>> wordProbabilities = new ArrayList<>(lines.size());
+    private List<Map.Entry<Integer, Double>> generateProbabilities(final List<String> lines) {
+        List<Map.Entry<Integer, Double>> wordProbabilities = new ArrayList<>(lines.size());
         for (String line : lines) {
             String[] parts = line.split(", ");
-            wordProbabilities.add(Map.entry(parts[0], Double.parseDouble(parts[1])));
+            final String word = parts[0];
+            final int index = originalWords.indexOf(word);
+            if (index >= 0) {
+                wordProbabilities.add(Map.entry(index, Double.parseDouble(parts[1])));
+            }
         }
         wordProbabilities.sort(Comparator.comparingDouble(Map.Entry::getValue));
         return wordProbabilities;
@@ -103,24 +142,26 @@ public class Bot {
         return possibilities;
     }
 
-    private void setupResults(final List<String> possibleWords) {
-        for (String word : possibleWords) {
-            final HashMap<Integer, List<String>> value = new HashMap<>();
-            results.put(word, value);
-            for (String other : possibleWords) {
-                int result = getResult(word, other, counts.get(other));
+    private void setupResults(final List<Integer> possibleWords) {
+        for (Integer wordIndex : possibleWords) {
+            final HashMap<Integer, List<Integer>> value = new HashMap<>();
+            results.add(wordIndex, value);
+            for (int i = 0; i < possibleWords.size(); i++) {
+                final int otherIndex = possibleWords.get(i);
+                int result = getResult(originalWords.get(wordIndex), originalWords.get(otherIndex), counts.get(otherIndex));
                 if (!value.containsKey(result)) {
                     value.put(result, new ArrayList<>());
                 }
-                value.get(result).add(other);
+                value.get(result).add(i);
             }
         }
     }
 
     private void setupCounts(final List<String> possibleWords, final char[] chars) {
-        for (String word : possibleWords) {
+        for (int i = 0; i < possibleWords.size(); i++) {
+            final String word = possibleWords.get(i);
             final HashMap<Character, Integer> curr = new HashMap<>();
-            counts.put(word, curr);
+            counts.add(i, curr);
             for (char c : chars) {
                 curr.put(c, getCount(c, word));
             }
@@ -166,37 +207,36 @@ public class Bot {
         guessCount++;
 
         if (possibleWords.size() <= 4) {
-            String bestWord = null;
+            Integer bestWord = -1;
             double highestProbability = Double.NEGATIVE_INFINITY;
-            for (String word : possibleWords) {
-                final Double probability = probabilities.get(word);
+            for (Integer wordIndex : possibleWords) {
+                final Double probability = probabilities.get(wordIndex);
                 if (probability > highestProbability) {
                     highestProbability = probability;
-                    bestWord = word;
+                    bestWord = wordIndex;
                 }
             }
-            return bestWord;
+            return originalWords.get(bestWord);
         }
 
         final int size = originalWords.size();
         double bestScore = Double.POSITIVE_INFINITY;
         int bestIndex = -1;
-        List<String> buff = new ArrayList<>();
+        List<Integer> buff = new ArrayList<>();
 
         double probabilitySum = 0;
-        for (String word : possibleWords) {
-            probabilitySum += probabilities.get(word);
+        for (Integer wordIndex : possibleWords) {
+            probabilitySum += probabilities.get(wordIndex);
         }
         double currEntropy = getEntropy(possibleWords, probabilitySum);
 
         for (int i = 0; i < size; i++) {
             //System.out.println(i);
-            String guess = originalWords.get(i);
             double sum = 0;
             int combination = 0;
-            final Map<Integer, List<String>> combinationMap = results.get(guess);
+            final Map<Integer, List<Integer>> combinationMap = results.get(i);
             for (int j = 0; j < COMBINATION_COUNT; j++) {
-                final List<String> currPossibleWords = combinationMap.get(combination);
+                final List<Integer> currPossibleWords = combinationMap.get(combination);
                 if (currPossibleWords != null) {
                     buff.clear();
                     buff.addAll(currPossibleWords);
@@ -207,7 +247,7 @@ public class Bot {
                 }
                 combination = nextPossibility(combination);
             }
-            final double probability = possibleWordsSet.contains(guess) ? getProbability(guess, probabilitySum) : 0;
+            final double probability = possibleWordsSet.contains(i) ? getProbability(i, probabilitySum) : 0;
             double score = probability * guessCount + (1 - probability) * (guessCount + estimatedGuesses(currEntropy - sum));
             if (score < bestScore) {
                 bestScore = score;
@@ -219,10 +259,10 @@ public class Bot {
         return originalWords.get(bestIndex);
     }
 
-    private double getEntropy(final List<String> possibleWords, final double probabilitySum) {
+    private double getEntropy(final List<Integer> possibleWords, final double probabilitySum) {
         double sum = 0;
-        for (String word : possibleWords) {
-            double probability = getProbability(word, probabilitySum);
+        for (Integer wordIndex : possibleWords) {
+            double probability = getProbability(wordIndex, probabilitySum);
             sum += probability * getInformation(probability);
         }
         return sum;
@@ -245,10 +285,10 @@ public class Bot {
         return combination;
     }
 
-    private double getScore(final List<String> newPossibleWords, final double probabilitySum) {
+    private double getScore(final List<Integer> newPossibleWords, final double probabilitySum) {
         double probability = 0;
-        for (String word : newPossibleWords) {
-            probability += getProbability(word, probabilitySum);
+        for (int wordIndex : newPossibleWords) {
+            probability += getProbability(wordIndex, probabilitySum);
         }
         return probability * getInformation(probability);
     }
@@ -257,16 +297,19 @@ public class Bot {
         return -Math.log(probability) * INFORMATION_FACTOR;
     }
 
-    private double getProbability(final String word, final double probabilitySum) {
-        return probabilities.get(word) / probabilitySum;
+    private double getProbability(final Integer wordIndex, final double probabilitySum) {
+        return probabilities.get(wordIndex) / probabilitySum;
     }
 
     public void reset() {
         guessCount = 0;
 
         possibleWords.clear();
-        possibleWords.addAll(originalWords);
-        possibleWordsSet.addAll(possibleWords);
+
+        for (int i = 0; i < originalWords.size(); i++) {
+            possibleWords.add(i);
+            possibleWordsSet.add(i);
+        }
 
         for (final Set<Character> possibility : possibilities) {
             possibility.clear();
@@ -289,22 +332,23 @@ public class Bot {
 
         outer:
         for (int i = possibleWords.size() - 1; i >= 0; i--) {
-            final String word = possibleWords.get(i);
+            final Integer wordIndex = possibleWords.get(i);
+            final String word = originalWords.get(wordIndex);
             final char[] chars = word.toCharArray();
 
-            final Map<Character, Integer> countMap = counts.get(word);
+            final Map<Character, Integer> countMap = counts.get(wordIndex);
             for (char c : characterSet) {
                 if (countMap.get(c) < mustHave.get(c)) {
-                    possibleWords.remove(i);
-                    possibleWordsSet.remove(word);
+                    possibleWords.remove(wordIndex);
+                    possibleWordsSet.remove(wordIndex);
                     continue outer;
                 }
             }
 
             for (int j = 0; j < chars.length; j++) {
                 if (!possibilities[j].contains(chars[j])) {
-                    possibleWords.remove(i);
-                    possibleWordsSet.remove(word);
+                    possibleWords.remove(wordIndex);
+                    possibleWordsSet.remove(wordIndex);
                     continue outer;
                 }
             }
