@@ -22,11 +22,13 @@ public class Test {
         AtomicInteger guessCount = new AtomicInteger(0);
         AtomicInteger wordCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
+        AtomicInteger readingIndex = new AtomicInteger(0);
         for (int i = 0; i < THREAD_COUNT; i++) {
+            final int finalI = i;
             pool.submit(() ->
                     {
                         try {
-                            simulateGame(guessCount, wordCount, failCount);
+                            simulateGame(guessCount, wordCount, failCount, readingIndex, finalI);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -35,11 +37,18 @@ public class Test {
         }
     }
 
-    private static void simulateGame(final AtomicInteger guessCount, final AtomicInteger wordCount, final AtomicInteger failCount) throws IOException {
+    private static void simulateGame(final AtomicInteger guessCount, final AtomicInteger wordCount, final AtomicInteger failCount, final AtomicInteger readingIndex, final int myIndex) throws IOException {
         int currGuessCount = 0;
 
         Game game = new Game(-1, SOLUTIONS_PATH, WORDS_PATH);
-        Bot bot = new Bot(Files.readAllLines(Path.of(WORDS_PATH)));
+        Bot bot;
+        while (true) {
+            if (readingIndex.get() == myIndex) {
+                bot = new Bot(Files.readAllLines(Path.of(WORDS_PATH)));
+                readingIndex.incrementAndGet();
+                break;
+            }
+        }
         game.nextWord();
         System.out.println("Finished setup");
         System.out.println(game.getCurrWord());
