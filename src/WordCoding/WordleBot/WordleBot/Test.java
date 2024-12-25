@@ -13,6 +13,8 @@ public class Test {
     public static final int LOG_PAUSE = 2;
     public static final int THREAD_COUNT = 8;
     static final ExecutorService pool = Executors.newFixedThreadPool(THREAD_COUNT);
+    public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/Wordle/solutions.txt";
+    public static final String WORDS_PATH = "src/WordCoding/WordleBot/Wordle/words.txt";
 
     public static void main(String[] args) throws IOException {
         AtomicInteger guessCount = new AtomicInteger(0);
@@ -34,7 +36,7 @@ public class Test {
     private static void simulateGame(final AtomicInteger guessCount, final AtomicInteger wordCount, final AtomicInteger failCount) throws IOException {
         int currGuessCount = 0;
 
-        Game game = new Game(-1, "src/WordCoding/WordleBot/Wordle/solutions.txt", "src/WordCoding/WordleBot/Wordle/words.txt");
+        Game game = new Game(-1, SOLUTIONS_PATH, WORDS_PATH);
         Bot bot = new Bot(game.getPossibleWords());
         game.nextWord();
         System.out.println("Finished setup");
