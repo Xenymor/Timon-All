@@ -6,6 +6,7 @@ import WordCoding.WordleBot.Wordle.GuessResult;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -22,13 +23,12 @@ public class Test {
         AtomicInteger guessCount = new AtomicInteger(0);
         AtomicInteger wordCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
-        AtomicInteger readingIndex = new AtomicInteger(0);
+        final List<String> possibleWords = Files.readAllLines(Path.of(WORDS_PATH));
         for (int i = 0; i < THREAD_COUNT; i++) {
-            final int finalI = i;
             pool.submit(() ->
                     {
                         try {
-                            simulateGame(guessCount, wordCount, failCount, readingIndex, finalI);
+                            simulateGame(guessCount, wordCount, failCount, possibleWords);
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -37,18 +37,11 @@ public class Test {
         }
     }
 
-    private static void simulateGame(final AtomicInteger guessCount, final AtomicInteger wordCount, final AtomicInteger failCount, final AtomicInteger readingIndex, final int myIndex) throws IOException {
+    private static void simulateGame(final AtomicInteger guessCount, final AtomicInteger wordCount, final AtomicInteger failCount, final List<String> possibleWords) throws IOException {
         int currGuessCount = 0;
 
         Game game = new Game(-1, SOLUTIONS_PATH, WORDS_PATH);
-        Bot bot;
-        while (true) {
-            if (readingIndex.get() == myIndex) {
-                bot = new Bot(Files.readAllLines(Path.of(WORDS_PATH)));
-                readingIndex.incrementAndGet();
-                break;
-            }
-        }
+        Bot bot = new Bot(possibleWords);
         game.nextWord();
         System.out.println("Finished setup");
         System.out.println(game.getCurrWord());

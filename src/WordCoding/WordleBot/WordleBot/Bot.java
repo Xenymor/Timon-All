@@ -59,7 +59,7 @@ public class Bot {
             }
             System.out.println("Loading save file ...");
 
-            loadResults(inputStream);
+            loadResults(inputStream, results, originalWords.size());
 
             inputStream.close();
         } catch (IOException e) {
@@ -77,9 +77,9 @@ public class Bot {
         setupProbabilities();
     }
 
-    private void loadResults(ObjectInputStream inputStream) {
+    private static synchronized void loadResults(ObjectInputStream inputStream, List<Map<Integer, List<Integer>>> results, int wordCount) {
         try {
-            for (int i = 0; i < originalWords.size(); i++) {
+            for (int i = 0; i < wordCount; i++) {
                 final Map<Integer, List<Integer>> map = new HashMap<>();
                 int buff = inputStream.readInt();
                 while (buff != -1) {
@@ -95,7 +95,6 @@ public class Bot {
                 }
                 results.add(map);
             }
-            inputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
