@@ -4,6 +4,8 @@ import WordCoding.WordleBot.Wordle.Game;
 import WordCoding.WordleBot.Wordle.GuessResult;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,7 +39,7 @@ public class Test {
         int currGuessCount = 0;
 
         Game game = new Game(-1, SOLUTIONS_PATH, WORDS_PATH);
-        Bot bot = new Bot(game.getPossibleWords());
+        Bot bot = new Bot(Files.readAllLines(Path.of(WORDS_PATH)));
         game.nextWord();
         System.out.println("Finished setup");
         System.out.println(game.getCurrWord());

@@ -58,10 +58,11 @@ public class Bot {
                 throw new IOException("File changed");
             }
             System.out.println("Loading save file ...");
-            results.addAll((List<Map<Integer, List<Integer>>>) inputStream.readObject());
+
+            loadResults(inputStream);
 
             inputStream.close();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             System.out.println("Recalculating save file ...");
             setupResults(this.possibleWords);
             System.out.println("Saving data ...");
@@ -76,11 +77,45 @@ public class Bot {
         setupProbabilities();
     }
 
+    private void loadResults(ObjectInputStream inputStream) {
+        try {
+            for (int i = 0; i < originalWords.size(); i++) {
+                final Map<Integer, List<Integer>> map = new HashMap<>();
+                int buff = inputStream.readInt();
+                while (buff != -1) {
+                    final int key = buff;
+                    final List<Integer> value = new ArrayList<>();
+                    buff = inputStream.readInt();
+                    while (buff != -1) {
+                        value.add(buff);
+                        buff = inputStream.readInt();
+                    }
+                    map.put(key, value);
+                    buff = inputStream.readInt();
+                }
+                results.add(map);
+            }
+            inputStream.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     private void saveResults() {
         try {
             ObjectOutputStream outputStream = new ObjectOutputStream(new BufferedOutputStream(new FileOutputStream(SAVE_PATH)));
             outputStream.writeInt(originalWords.hashCode());
-            outputStream.writeObject(results);
+            for (int i = 0; i < originalWords.size(); i++) {
+                final Map<Integer, List<Integer>> map = results.get(i);
+                for (Integer key : map.keySet()) {
+                    outputStream.writeInt(key);
+                    for (Integer content : map.get(key)) {
+                        outputStream.writeInt(content);
+                    }
+                    outputStream.writeInt(-1);
+                }
+                outputStream.writeInt(-1);
+            }
             outputStream.close();
         } catch (IOException e) {
             e.printStackTrace();

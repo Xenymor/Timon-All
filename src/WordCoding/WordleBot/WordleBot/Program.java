@@ -5,16 +5,14 @@ import WordCoding.WordleBot.Wordle.Result;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.Scanner;
 
 import static WordCoding.WordleBot.Wordle.Result.*;
 
 public class Program {
     public static void main(String[] args) throws IOException {
-        final List<String> possibleWords = Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/words.txt"));
         System.out.println("Setting up ...");
-        Bot bot = new Bot(possibleWords);
+        Bot bot = new Bot(Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/words.txt")));
         Scanner scanner = new Scanner(System.in);
         System.out.println("Finished Setup");
 
