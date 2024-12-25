@@ -134,7 +134,7 @@ public class Bot {
         for (int i = 0; i < guess.length(); i++) {
             char guessChar = guess.charAt(i);
             if (guessChar == answer.charAt(i)) {
-                result = setValue(2, i, result);
+                result = setValue(CORRECT, i, result);
             }
         }
 
@@ -143,9 +143,9 @@ public class Bot {
             if (getValue(i, result) != CORRECT) {
                 char guessChar = guess.charAt(i);
                 if (counts.getOrDefault(guessChar, 0) > 0) {
-                    result = setValue(1, i, result);
+                    result = setValue(WRONG_PLACE, i, result);
                 } else {
-                    result = setValue(0, i, result);
+                    result = setValue(WRONG, i, result);
                 }
             }
         }
@@ -162,6 +162,7 @@ public class Bot {
     }
 
     public String guess() {
+        //long start = System.nanoTime();
         guessCount++;
 
         if (possibleWords.size() <= 4) {
@@ -193,8 +194,9 @@ public class Bot {
             String guess = originalWords.get(i);
             double sum = 0;
             int combination = 0;
+            final Map<Integer, List<String>> combinationMap = results.get(guess);
             for (int j = 0; j < COMBINATION_COUNT; j++) {
-                final List<String> currPossibleWords = results.get(guess).get(combination);
+                final List<String> currPossibleWords = combinationMap.get(combination);
                 if (currPossibleWords != null) {
                     buff.clear();
                     buff.addAll(currPossibleWords);
@@ -212,6 +214,7 @@ public class Bot {
                 bestIndex = i;
             }
         }
+        //System.out.println("Time: " + ((System.nanoTime() - start) / 1_000_000) + "ms");
 
         return originalWords.get(bestIndex);
     }
