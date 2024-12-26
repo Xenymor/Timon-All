@@ -23,6 +23,7 @@ public class HuffmanCompression {
         String input = new String(inputByteArray, StandardCharsets.UTF_8);
         long startingTime = System.nanoTime();
         CompressionResult compressed = compress(input);
+        System.out.println(compressed.bitCount);
         long decompressStart = System.nanoTime();
         String output = decompress(compressed);
         long finish = System.nanoTime();
