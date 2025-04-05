@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-//Average guesses: 3.7067668
+//Average guesses: 3.6551723;	WordCount: 116;	Failed: 0
 public class Bot {
     public static final int COMBINATION_COUNT = 243;
     public static final double INFORMATION_FACTOR = (1 / Math.log(2));
@@ -16,7 +16,7 @@ public class Bot {
     public static final int CORRECT = 2;
     public static final String FREQUENCY_PATH = "src/WordCoding/WordleBot/WordleBot/wordFrequencies.csv";
     public static final double FREQUENCY_WIDTH = 30;
-    private static final double CUTOFF_PERCENTAGE = 0.25;
+    private static final double CUTOFF_PERCENTAGE = 0.3;
     private static final String SAVE_PATH = "src/WordCoding/WordleBot/WordleBot/saveData.sav";
 
     final List<String> originalWords;
@@ -285,10 +285,10 @@ public class Bot {
     }
 
     public String guess() {
-        long start = System.nanoTime();
+        //long start = System.nanoTime();
         guessCount++;
 
-        /* TODO uncomment for better performance
+        // TODO uncomment for better performance
             if (possibleWords.size() <= 4) {
             Integer bestWord = -1;
             double highestProbability = Double.NEGATIVE_INFINITY;
@@ -300,14 +300,14 @@ public class Bot {
                 }
             }
             return originalWords.get(bestWord);
-        }*/
+        }
 
         final int size = originalWords.size();
         double bestScore = Double.POSITIVE_INFINITY;
         int bestIndex = -1;
         List<Integer> buff = new ArrayList<>();
 
-        double expectedEntropy = 0;
+        //double expectedEntropy = 0;
 
         double probabilitySum = 0;
         for (Integer wordIndex : possibleWords) {
@@ -338,12 +338,12 @@ public class Bot {
             if (score < bestScore) {
                 bestScore = score;
                 bestIndex = i;
-                expectedEntropy = currExpectedEntropy;
+                //expectedEntropy = currExpectedEntropy;
             }
         }
         //System.out.println("Calculation time: " + ((System.nanoTime() - start) / 1_000_000) + "ms");
-        System.out.println("Expected guesses: " + bestScore + ", \tCurrent entropy: " + currEntropy + ", \tExpected entropy: " + expectedEntropy
-                + ", \tWord count: " + possibleWords.size() + ", \tGuess count: " + guessCount);
+        //System.out.println("Expected guesses: " + bestScore + ", \tCurrent entropy: " + currEntropy + ", \tExpected entropy: " + expectedEntropy
+        //        + ", \tWord count: " + possibleWords.size() + ", \tGuess count: " + guessCount);
 
         return originalWords.get(bestIndex);
     }
