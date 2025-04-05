@@ -77,6 +77,54 @@ public class Bot {
         setupProbabilities();
     }
 
+    public Bot(final List<String> possibleWords, boolean allowLoading) {
+        this.originalWords = possibleWords;
+        this.possibleWordsSet = new HashSet<>();
+        this.possibleWords = new ArrayList<>();
+
+        for (int i = 0; i < originalWords.size(); i++) {
+            this.possibleWords.add(i);
+            this.possibleWordsSet.add(i);
+        }
+
+        char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
+        for (char c : chars) {
+            charList.add(c);
+        }
+
+        setupCounts(possibleWords, chars);
+        results = new ArrayList<>();
+
+        try {
+            if (!allowLoading) {
+                throw new IOException("Loading not allowed");
+            }
+            ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(SAVE_PATH)));
+            if (originalWords.hashCode() != inputStream.readInt()) {
+                throw new IOException("File changed");
+            }
+            System.out.println("Loading save file ...");
+
+            loadResults(inputStream, results, originalWords.size());
+
+            inputStream.close();
+        } catch (IOException e) {
+            System.out.println("Recalculating save file ...");
+            setupResults(this.possibleWords);
+            if (allowLoading) {
+                System.out.println("Saving data ...");
+                saveResults();
+            }
+        }
+
+
+        mustHave = new HashMap<>();
+
+        possibilities = setupPossibilities();
+
+        setupProbabilities();
+    }
+
     private static synchronized void loadResults(ObjectInputStream inputStream, List<Map<Integer, List<Integer>>> results, int wordCount) {
         try {
             for (int i = 0; i < wordCount; i++) {
@@ -237,10 +285,11 @@ public class Bot {
     }
 
     public String guess() {
-        //long start = System.nanoTime();
+        long start = System.nanoTime();
         guessCount++;
 
-        if (possibleWords.size() <= 4) {
+        /* TODO uncomment for better performance
+            if (possibleWords.size() <= 4) {
             Integer bestWord = -1;
             double highestProbability = Double.NEGATIVE_INFINITY;
             for (Integer wordIndex : possibleWords) {
@@ -251,12 +300,14 @@ public class Bot {
                 }
             }
             return originalWords.get(bestWord);
-        }
+        }*/
 
         final int size = originalWords.size();
         double bestScore = Double.POSITIVE_INFINITY;
         int bestIndex = -1;
         List<Integer> buff = new ArrayList<>();
+
+        double expectedEntropy = 0;
 
         double probabilitySum = 0;
         for (Integer wordIndex : possibleWords) {
@@ -282,13 +333,17 @@ public class Bot {
                 combination = nextPossibility(combination);
             }
             final double probability = possibleWordsSet.contains(i) ? getProbability(i, probabilitySum) : 0;
-            double score = probability * guessCount + (1 - probability) * (guessCount + estimatedGuesses(currEntropy - sum));
+            final double currExpectedEntropy = currEntropy - sum;
+            double score = probability * guessCount + (1 - probability) * (guessCount + estimatedGuesses(currExpectedEntropy));
             if (score < bestScore) {
                 bestScore = score;
                 bestIndex = i;
+                expectedEntropy = currExpectedEntropy;
             }
         }
-        //System.out.println("Time: " + ((System.nanoTime() - start) / 1_000_000) + "ms");
+        //System.out.println("Calculation time: " + ((System.nanoTime() - start) / 1_000_000) + "ms");
+        System.out.println("Expected guesses: " + bestScore + ", \tCurrent entropy: " + currEntropy + ", \tExpected entropy: " + expectedEntropy
+                + ", \tWord count: " + possibleWords.size() + ", \tGuess count: " + guessCount);
 
         return originalWords.get(bestIndex);
     }
