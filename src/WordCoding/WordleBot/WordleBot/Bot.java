@@ -288,7 +288,7 @@ public class Bot {
         //long start = System.nanoTime();
         guessCount++;
 
-        // TODO uncomment for better performance
+        /* TODO uncomment for better performance
             if (possibleWords.size() <= 4) {
             Integer bestWord = -1;
             double highestProbability = Double.NEGATIVE_INFINITY;
@@ -300,14 +300,14 @@ public class Bot {
                 }
             }
             return originalWords.get(bestWord);
-        }
+        }*/
 
         final int size = originalWords.size();
         double bestScore = Double.POSITIVE_INFINITY;
         int bestIndex = -1;
         List<Integer> buff = new ArrayList<>();
 
-        //double expectedEntropy = 0;
+        double expectedEntropy = 0;
 
         double probabilitySum = 0;
         for (Integer wordIndex : possibleWords) {
@@ -338,12 +338,12 @@ public class Bot {
             if (score < bestScore) {
                 bestScore = score;
                 bestIndex = i;
-                //expectedEntropy = currExpectedEntropy;
+                expectedEntropy = currExpectedEntropy;
             }
         }
         //System.out.println("Calculation time: " + ((System.nanoTime() - start) / 1_000_000) + "ms");
-        //System.out.println("Expected guesses: " + bestScore + ", \tCurrent entropy: " + currEntropy + ", \tExpected entropy: " + expectedEntropy
-        //        + ", \tWord count: " + possibleWords.size() + ", \tGuess count: " + guessCount);
+        System.out.println("Expected guesses: " + bestScore + ", \tCurrent entropy: " + currEntropy + ", \tExpected entropy: " + expectedEntropy
+                + ", \tWord count: " + possibleWords.size() + ", \tGuess count: " + guessCount);
 
         return originalWords.get(bestIndex);
     }
