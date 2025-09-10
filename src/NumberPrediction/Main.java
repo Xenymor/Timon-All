@@ -27,7 +27,7 @@ public class Main {
                     } else {
                         System.out.println("Incorrect prediction.");
                     }
-                    System.out.println("Predicted number: " + (prediction ? 1 : 0) + " | " + ((float)correctCount / guessCount) * 100 + "% correct (" + correctCount + "/" + guessCount + ")");
+                    System.out.println("Predicted number: " + (prediction ? 1 : 0) + " | " + ((float) correctCount / guessCount) * 100 + "% correct (" + correctCount + "/" + guessCount + ")");
                     predictor.update(number);
                 } catch (NumberFormatException e) {
                     System.out.println("Please enter a valid integer or type 'q' to quit.");
