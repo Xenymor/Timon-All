@@ -19,6 +19,7 @@ public class Test {
 
     private static class MyFrame extends JFrame {
         public int std;
+
         @Override
         public void paint(final Graphics g) {
             final int width = getWidth();
@@ -50,7 +51,7 @@ public class Test {
             double[][] result = new double[width][height];
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
-                    result[x][y] = method(x/(double)width, y/(double)height);
+                    result[x][y] = method(x / (double) width, y / (double) height);
                 }
             }
             return result;
