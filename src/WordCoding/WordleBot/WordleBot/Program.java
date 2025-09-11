@@ -21,7 +21,7 @@ public class Program {
         System.out.println("Finished Setup");
 
         while (true) {
-            String guess = bot.guess();
+            String guess = bot.guess(true);
             System.out.println("Guess: " + guess);
             String answer = scanner.nextLine();
             final String[] split = answer.split(" ");

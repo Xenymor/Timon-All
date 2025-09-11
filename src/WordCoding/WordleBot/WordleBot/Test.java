@@ -18,7 +18,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Test {
 
     public static final int LOG_PAUSE = 2;
-    public static final int THREAD_COUNT = 2;
+    public static final int THREAD_COUNT = 5;
     static final ExecutorService pool = Executors.newFixedThreadPool(THREAD_COUNT);
     public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/Wordle/solutions.txt";
     public static final String WORDS_PATH = "src/WordCoding/WordleBot/Wordle/words.txt";
@@ -87,7 +87,7 @@ public class Test {
         StringBuilder guessBuilder = new StringBuilder();
         while (!game.hasFinished()) {
             //final long startTime = System.nanoTime();
-            String guess = bot.guess();
+            String guess = bot.guess(false);
             //System.out.println("Time: " + (System.nanoTime() - startTime) / 1_000_000F + "ms");
             //System.out.println("Guess " + currGuessCount + ": " + guess);
             GuessResult guessResult = game.guess(guess);
@@ -108,11 +108,11 @@ public class Test {
             currGuessCount++;
             if (guessResult.isCorrect()) {
                 if (wordCount.get() % LOG_PAUSE == 0) {
-                    System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount.get() / ((float) wordCount.get())) + ";\tWordCount: " + wordCount + ";\tFailed: " + failCount + "\n");
+                    System.out.println("Word was " + guessResult.getGuess() + ";\tAverage guesses: " + (guessCount.get() / ((float) wordCount.get())) + ";\tWordCount: " + wordCount + ";\tFailed: " + failCount);
                 }
                 bot.reset();
                 currGuessCount = 0;
-                if (wordCount.get() % 5 == 0) {
+                if (wordCount.get() % 100 == 0) {
                     System.out.println("Saving data ...");
                     String[] data = bot.dataToString();
                     Files.write(Path.of("src/WordCoding/WordleBot/Wordle/data.txt"), List.of(data));

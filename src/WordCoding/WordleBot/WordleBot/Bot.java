@@ -31,6 +31,9 @@ public class Bot {
     final List<Map<Character, Integer>> counts = new ArrayList<>();
     final List<Map<Integer, List<Integer>>> results;
 
+    static List<Map<Integer, List<Integer>>> resultsCache;
+    static long staticOriginalWordsHash;
+
     final Map<Integer, Double> probabilities = new HashMap<>();
 
     public static final List<Vector2> data = Collections.synchronizedList(new ArrayList<>());
@@ -61,21 +64,33 @@ public class Bot {
         setupCounts(possibleWords, chars);
         results = new ArrayList<>();
 
-        try {
-            ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(SAVE_PATH)));
-            if (originalWords.hashCode() != inputStream.readInt()) {
-                throw new IOException("File changed");
+        if (staticOriginalWordsHash == originalWords.size()) {
+            System.out.println("Using static cache ...");
+            for (int i = 0; i < originalWords.size(); i++) {
+                final Map<Integer, List<Integer>> map = new HashMap<>();
+                final Map<Integer, List<Integer>> cached = resultsCache.get(i);
+                for (Integer key : cached.keySet()) {
+                    map.put(key, new ArrayList<>(cached.get(key)));
+                }
+                results.add(map);
             }
-            System.out.println("Loading save file ...");
+        } else {
+            try {
+                ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(SAVE_PATH)));
+                if (originalWords.hashCode() != inputStream.readInt()) {
+                    throw new IOException("File changed");
+                }
+                System.out.println("Loading save file ...");
 
-            loadResults(inputStream, results, originalWords.size());
+                loadResults(inputStream, results, originalWords.size());
 
-            inputStream.close();
-        } catch (IOException e) {
-            System.out.println("Recalculating save file ...");
-            setupResults(this.possibleWords);
-            System.out.println("Saving data ...");
-            saveResults();
+                inputStream.close();
+            } catch (IOException e) {
+                System.out.println("Recalculating save file ...");
+                setupResults(this.possibleWords);
+                System.out.println("Saving data ...");
+                saveResults();
+            }
         }
 
 
@@ -104,28 +119,39 @@ public class Bot {
         setupCounts(possibleWords, chars);
         results = new ArrayList<>();
 
-        try {
-            if (!allowLoading) {
-                throw new IOException("Loading not allowed");
+        if (staticOriginalWordsHash == originalWords.size()) {
+            System.out.println("Using static cache ...");
+            for (int i = 0; i < originalWords.size(); i++) {
+                final Map<Integer, List<Integer>> map = new HashMap<>();
+                final Map<Integer, List<Integer>> cached = resultsCache.get(i);
+                for (Integer key : cached.keySet()) {
+                    map.put(key, new ArrayList<>(cached.get(key)));
+                }
+                results.add(map);
             }
-            ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(SAVE_PATH)));
-            if (originalWords.hashCode() != inputStream.readInt()) {
-                throw new IOException("File changed");
-            }
-            System.out.println("Loading save file ...");
+        } else {
+            try {
+                if (!allowLoading) {
+                    throw new IOException("Loading not allowed");
+                }
+                ObjectInputStream inputStream = new ObjectInputStream(new BufferedInputStream(new FileInputStream(SAVE_PATH)));
+                if (originalWords.hashCode() != inputStream.readInt()) {
+                    throw new IOException("File changed");
+                }
+                System.out.println("Loading save file ...");
 
-            loadResults(inputStream, results, originalWords.size());
+                loadResults(inputStream, results, originalWords.size());
 
-            inputStream.close();
-        } catch (IOException e) {
-            System.out.println("Recalculating save file ...");
-            setupResults(this.possibleWords);
-            if (allowLoading) {
-                System.out.println("Saving data ...");
-                saveResults();
+                inputStream.close();
+            } catch (IOException e) {
+                System.out.println("Recalculating save file ...");
+                setupResults(this.possibleWords);
+                if (allowLoading) {
+                    System.out.println("Saving data ...");
+                    saveResults();
+                }
             }
         }
-
 
         mustHave = new HashMap<>();
 
@@ -135,22 +161,28 @@ public class Bot {
     }
 
     private static synchronized void loadResults(ObjectInputStream inputStream, List<Map<Integer, List<Integer>>> results, int wordCount) {
+        resultsCache = new ArrayList<>();
+        //TODO Improve hashcode
+        staticOriginalWordsHash = wordCount;
         try {
             for (int i = 0; i < wordCount; i++) {
                 final Map<Integer, List<Integer>> map = new HashMap<>();
+                final Map<Integer, List<Integer>> cached = new HashMap<>();
                 int buff = inputStream.readInt();
                 while (buff != -1) {
                     final int key = buff;
-                    final List<Integer> value = new ArrayList<>();
+                    final List<Integer> list = new ArrayList<>();
                     buff = inputStream.readInt();
                     while (buff != -1) {
-                        value.add(buff);
+                        list.add(buff);
                         buff = inputStream.readInt();
                     }
-                    map.put(key, value);
+                    map.put(key, list);
+                    cached.put(key, new ArrayList<>(list));
                     buff = inputStream.readInt();
                 }
                 results.add(map);
+                resultsCache.add(cached);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -293,7 +325,7 @@ public class Bot {
         return (result >> (i * 2)) & 3;
     }
 
-    public String guess() {
+    public String guess(final boolean verbose) {
         long time = System.nanoTime();
 
         guessCount++;
@@ -371,10 +403,11 @@ public class Bot {
                 expectedEntropy = currExpectedEntropy;
             }
         }
-        //System.out.println("Calculation time: " + ((System.nanoTime() - start) / 1_000_000) + "ms");
-        System.out.println("Expected guesses: " + bestScore + ", \tCurrent entropy: " + currEntropy + ", \tExpected entropy: " + expectedEntropy
-                + ", \tWord count: " + possibleWords.size() + ", \tGuess count: " + guessCount + ", \tTime: " + (System.nanoTime() - time) / 1_000_000_000F + "s");
-
+        if (verbose) {
+            //System.out.println("Calculation time: " + ((System.nanoTime() - start) / 1_000_000) + "ms");
+            System.out.println("Expected guesses: " + bestScore + ", \tCurrent entropy: " + currEntropy + ", \tExpected entropy: " + expectedEntropy
+                    + ", \tWord count: " + possibleWords.size() + ", \tGuess count: " + guessCount + ", \tTime: " + (System.nanoTime() - time) / 1_000_000_000F + "s");
+        }
         return originalWords.get(bestIndex);
     }
 
