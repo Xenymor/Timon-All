@@ -43,6 +43,7 @@ public class Test {
                     }
             );
         }
+        writer.flush();
         //finished.await();
 		/*Files.writeString(Path.of("src/WordCoding/WordleBot/WordleBot/guesses.txt"), guesses.stream()
 				.sorted(Entry.comparingByKey())
@@ -97,7 +98,7 @@ public class Test {
                 guessBuilder.append(guess).append("\n");
                 synchronized (writer) {
                     writer.write(guessBuilder.toString().getBytes(StandardCharsets.UTF_8));
-                    if (wordCount.get() % 13 == 0) {
+                    if (wordCount.get() % 100 == 0) {
                         writer.flush();
                     }
                 }
