@@ -90,8 +90,7 @@ public class Main {
         double lum = 0.2126 * rr + 0.7152 * gg + 0.0722 * bb;
 
         // Gamma compand and rescale to byte range:
-        int grayLevel = (int) (255.0 * Math.pow(lum, 1.0 / 2.2));
-        return grayLevel;
+        return (int) (255.0 * Math.pow(lum, 1.0 / 2.2));
     }
 
     private void run() throws IOException {

@@ -120,8 +120,9 @@ public class Main {
 
     private void save() {
         try {
-            if (!Files.exists(Path.of(SAVE_PATH))) {
-                Files.createFile(Path.of(SAVE_PATH));
+            final Path path = Path.of(SAVE_PATH);
+            if (!Files.exists(path)) {
+                Files.createFile(path);
             }
             ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(SAVE_PATH));
             objectOutputStream.writeObject(best);

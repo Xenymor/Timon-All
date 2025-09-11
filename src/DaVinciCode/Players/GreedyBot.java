@@ -67,6 +67,7 @@ public class GreedyBot extends Player {
         if (bestIndex == -1 || possibilityCount == 0) {
             System.out.println("Debug Alaaaaaaaarm");
         }
+        assert bestPossibilities != null;
         return new Move(bestIndex, bestPossibilities.get(Random.randomIntInRange(possibilityCount)));
     }
 }

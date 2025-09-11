@@ -115,9 +115,7 @@ class ChessBoard {
                 this.capturedPiece = capturedPiece;
                 this.board = new Piece[8][8];
                 for (int row = 0; row < 8; row++) {
-                    for (int col = 0; col < 8; col++) {
-                        this.board[row][col] = board[row][col];
-                    }
+                    System.arraycopy(board[row], 0, this.board[row], 0, 8);
                 }
             }
         }
@@ -508,8 +506,7 @@ class ChessBoard {
                 if (piece == null) continue;
                 int pieceValue = switch (piece.type) {
                     case PAWN -> 1;
-                    case KNIGHT -> 3;
-                    case BISHOP -> 3;
+                    case KNIGHT, BISHOP -> 3;
                     case ROOK -> 5;
                     case QUEEN -> 9;
                     case KING -> 900;

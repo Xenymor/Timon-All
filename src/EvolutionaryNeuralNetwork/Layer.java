@@ -1,5 +1,6 @@
 package EvolutionaryNeuralNetwork;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public final class Layer {
@@ -39,19 +40,19 @@ public final class Layer {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (Layer) obj;
-        return Objects.equals(this.nodes, that.nodes) &&
+        return Arrays.equals(this.nodes, that.nodes) &&
                 this.INPUT_COUNT == that.INPUT_COUNT;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(nodes, INPUT_COUNT);
+        return Objects.hash(Arrays.hashCode(nodes), INPUT_COUNT);
     }
 
     @Override
     public String toString() {
         return "Layer[" +
-                "nodes=" + nodes + ", " +
+                "nodes=" + Arrays.toString(nodes) + ", " +
                 "INPUT_COUNT=" + INPUT_COUNT + ']';
     }
 

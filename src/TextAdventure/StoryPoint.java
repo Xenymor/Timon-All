@@ -1,5 +1,6 @@
 package TextAdventure;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 public class StoryPoint implements Serializable {
@@ -7,7 +8,8 @@ public class StoryPoint implements Serializable {
     final String message;
     final String[] options;
     final String[] keys;
-    static final long serialVersionUID = 1;
+    @Serial
+    private static final long serialVersionUID = 1;
 
     public StoryPoint(final String message, final boolean isEnd, final String[] options, final String[] keys) {
         this.message = message;

@@ -10,13 +10,13 @@ public class CoinThrowing {
     private static final long TRIES = 20;
 
     public static void main(String[] args) {
-        getMedian(THROW_COUNT);
+        getMedian();
         for (int stake = 0; stake <= STAKE; stake++) {
             int loseCount = 0;
             int winCount = 0;
             long sum = 0;
             for (int i = 0; i < TRIES; i++) {
-                long result = playGameWithBudget(BUDGET, stake, GOAL);
+                long result = playGameWithBudget(stake);
                 sum += result;
                 if (result >= GOAL) {
                     winCount++;
@@ -28,10 +28,10 @@ public class CoinThrowing {
         }
     }
 
-    private static long playGameWithBudget(final long budget, final long stake, final long goal) {
-        long money = budget;
+    private static long playGameWithBudget(final long stake) {
+        long money = CoinThrowing.BUDGET;
         long gamesPlayed = 0;
-        while (money > 0 && money < goal) {
+        while (money > 0 && money < CoinThrowing.GOAL) {
             money -= stake;
             money += playGame();
             gamesPlayed++;
@@ -43,13 +43,13 @@ public class CoinThrowing {
         return money;
     }
 
-    private static void getMedian(int throwCount) {
-        long[] results = new long[throwCount];
-        for (int i = 0; i < throwCount; i++) {
+    private static void getMedian() {
+        long[] results = new long[CoinThrowing.THROW_COUNT];
+        for (int i = 0; i < CoinThrowing.THROW_COUNT; i++) {
             results[i] = playGame();
         }
         Arrays.sort(results);
-        System.out.println("Median: " + results[throwCount / 2]);
+        System.out.println("Median: " + results[CoinThrowing.THROW_COUNT / 2]);
     }
 
     private static long playGame() {

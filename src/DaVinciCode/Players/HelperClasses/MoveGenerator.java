@@ -23,7 +23,7 @@ public class MoveGenerator {
         int min = 0;
         int maxIndex;
 
-        maxIndex = findMaxIndex(1, enemyCards);
+        maxIndex = findMaxIndex(enemyCards);
         int max;
 
         if (maxIndex == -1) {
@@ -80,8 +80,8 @@ public class MoveGenerator {
         return false;
     }
 
-    private int findMaxIndex(final int startIndex, final List<Card> enemyCards) {
-        for (int i = startIndex; i < enemyCards.size(); i++) {
+    private int findMaxIndex(final List<Card> enemyCards) {
+        for (int i = 1; i < enemyCards.size(); i++) {
             final Card card = enemyCards.get(i);
             if (card.isOpen) {
                 return i;

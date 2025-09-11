@@ -125,7 +125,7 @@ public class TicTacToe {
 
     final Map<FieldPosition, MinMaxResult> checkedPositions = new HashMap<>();
 
-    private MinMaxResult minMax(FieldPosition fieldAfterMove, int player) throws CloneNotSupportedException {
+    private MinMaxResult minMax(FieldPosition fieldAfterMove, int player) {
         if (checkedPositions.containsKey(fieldAfterMove)) {
             return checkedPositions.get(fieldAfterMove);
         }

@@ -27,12 +27,12 @@ public class Move {
     }
 
     public String getCodeString() {
-        return codeToString(getCode(), 4);
+        return codeToString(getCode());
     }
 
-    private String codeToString(final int code, final int targetLength) {
+    private String codeToString(final int code) {
         StringBuilder output = new StringBuilder(Integer.toString(code));
-        while (output.length() < targetLength) output.insert(0, "0");
+        while (output.length() < 4) output.insert(0, "0");
         return output.toString();
     }
 }

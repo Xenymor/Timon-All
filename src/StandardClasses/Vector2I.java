@@ -25,7 +25,7 @@ public class Vector2I {
     }
 
     public Vector2I rounded() {
-        return new Vector2I(Math.round(x), Math.round(y));
+        return new Vector2I(x, y);
     }
 
     public int getX() {

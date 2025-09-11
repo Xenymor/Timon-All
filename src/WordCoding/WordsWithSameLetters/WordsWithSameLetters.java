@@ -75,15 +75,15 @@ public class WordsWithSameLetters {
 
     private static void fix() throws IOException {
         List<String> germanWords = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/german.txt"), StandardCharsets.ISO_8859_1);
-        List<String> pairs = Files.readAllLines(Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt"), StandardCharsets.ISO_8859_1);
+        final Path pairsPath = Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt");
+        List<String> pairs = Files.readAllLines(pairsPath, StandardCharsets.ISO_8859_1);
         StringBuilder stringBuilder = new StringBuilder();
         for (String curr : pairs) {
             final String[] split = curr.split(",");
             final String append = germanWords.get(Integer.parseInt(split[1]));
             stringBuilder.append(split[0]).append(",").append(append).append("\n");
         }
-        final Path path = Path.of("src/WordCoding/WordsWithSameLetters/pairs.txt");
-        Files.writeString(path, stringBuilder.toString(), StandardCharsets.ISO_8859_1);
+        Files.writeString(pairsPath, stringBuilder.toString(), StandardCharsets.ISO_8859_1);
     }
 
     private static void createPairFile() throws IOException {

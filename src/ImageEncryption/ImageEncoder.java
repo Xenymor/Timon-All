@@ -66,7 +66,7 @@ public class ImageEncoder {
                         }
                     }
                     curr = curr & 3;
-                    bytes[i] += curr << j;
+                    bytes[i] += (byte) (curr << j);
                 }
             }
         }
