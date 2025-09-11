@@ -3,9 +3,9 @@ package Minesweeper;
 import StandardClasses.Random;
 
 public class Board {
-    Field[][] board;
-    int width;
-    int height;
+    final Field[][] board;
+    final int width;
+    final int height;
     int mineCount;
 
     public Board(final int width, final int height, final int mineCount) {
@@ -155,6 +155,6 @@ public class Board {
         field.setMarked(!field.isMarked());
     }
 
-    public class CouldNotCreateBoardException extends Throwable {
+    public static class CouldNotCreateBoardException extends Throwable {
     }
 }

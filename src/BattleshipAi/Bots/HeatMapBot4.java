@@ -41,7 +41,7 @@ public class HeatMapBot4 implements BattleshipBot {
 
     private int[][] getHeatMap() {
         int[][] heatMap = new int[WIDTH][HEIGHT];
-        final Integer biggestShipLength = remainingShipLengths.get(remainingShipLengths.size() - 1);
+        final Integer biggestShipLength = remainingShipLengths.getLast();
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[x].length; y++) {
                 Vector2I[] adjacentPositions = getAdjacentPositions(x, y);

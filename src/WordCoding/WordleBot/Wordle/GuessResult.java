@@ -1,9 +1,9 @@
 package WordCoding.WordleBot.Wordle;
 
 public class GuessResult {
-    Result[] results;
+    final Result[] results;
     boolean isCorrect;
-    String guess;
+    final String guess;
 
     public GuessResult(String guess) {
         results = new Result[5];

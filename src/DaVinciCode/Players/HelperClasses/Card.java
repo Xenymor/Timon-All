@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Card {
-    public List<Integer> possibilities;
+    public final List<Integer> possibilities;
     public int number;
     public final boolean isWhite;
     public boolean isOpen = false;

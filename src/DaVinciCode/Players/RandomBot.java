@@ -5,7 +5,7 @@ import DaVinciCode.Move;
 import java.util.Random;
 
 public class RandomBot extends Player {
-    Random random = new Random();
+    final Random random = new Random();
 
     public static void main(String[] args) {
         new RandomBot().run();

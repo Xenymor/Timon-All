@@ -155,23 +155,6 @@ public class ImageExtender {
         }
     }
 
-    private static class PixelDataPoint implements DataPoint {
-        final double[] inputs;
-        final double[] expectedOutputs;
-
-        public PixelDataPoint(final double[] inputs, final double[] expectedOutputs) {
-            this.inputs = inputs;
-            this.expectedOutputs = expectedOutputs;
-        }
-
-        @Override
-        public double[] getInputs() {
-            return inputs;
-        }
-
-        @Override
-        public double[] getExpectedOutputs() {
-            return expectedOutputs;
-        }
+    private record PixelDataPoint(double[] inputs, double[] expectedOutputs) implements DataPoint {
     }
 }

@@ -36,18 +36,18 @@ public class EvolutionaryNeuralNetwork {
         if (fitnesses.length != parents.length) {
             return null;
         }
-        long fitnessSum = 0;
+        double fitnessSum = 0;
         for (final double fitness : fitnesses) {
             fitnessSum += fitness;
         }
         double[] percentages = new double[fitnesses.length];
         for (int i = 0; i < fitnesses.length; i++) {
-            percentages[i] = fitnesses[i] / (double) fitnessSum;
+            percentages[i] = fitnesses[i] / fitnessSum;
         }
         EvolutionaryNeuralNetwork result = new EvolutionaryNeuralNetwork(parents[0].inputCount, parents[0].layerSizes);
         Layer[] layers = result.layers;
         for (int i = 0; i < layers.length; i++) {
-            Node[] nodes = layers[i].nodes;
+            Node[] nodes = layers[i].nodes();
             for (int j = 0; j < nodes.length; j++) {
                 setNodeRandom(nodes[j], percentages, parents, i, j);
                 mutateNode(nodes[j], mutationStep, mutationRate);
@@ -70,9 +70,9 @@ public class EvolutionaryNeuralNetwork {
     private static void setNodeRandom(Node node, double[] percentages, EvolutionaryNeuralNetwork[] parents, int layerIndex, int nodeIndex) {
         double[] weights = node.weights;
         for (int i = 0; i < weights.length; i++) {
-            weights[i] = parents[getRandomIndex(percentages)].layers[layerIndex].nodes[nodeIndex].weights[i];
+            weights[i] = parents[getRandomIndex(percentages)].layers[layerIndex].nodes()[nodeIndex].weights[i];
         }
-        node.bias = parents[getRandomIndex(percentages)].layers[layerIndex].nodes[nodeIndex].bias;
+        node.bias = parents[getRandomIndex(percentages)].layers[layerIndex].nodes()[nodeIndex].bias;
     }
 
     private static int getRandomIndex(double[] percentages) {

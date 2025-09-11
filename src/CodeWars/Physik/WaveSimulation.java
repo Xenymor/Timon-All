@@ -47,7 +47,7 @@ public class WaveSimulation {
 
     private static class MyFrame extends JFrame {
         public int time;
-        public double velocity;
+        public final double velocity;
         public int exciterX;
         public int exciterY;
         public double exciterVelocityX;

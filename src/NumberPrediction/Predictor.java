@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Predictor {
-    Node root;
-    List<Boolean> choices;
+    final Node root;
+    final List<Boolean> choices;
 
     public Predictor() {
         root = new Node();

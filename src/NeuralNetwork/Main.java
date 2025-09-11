@@ -129,12 +129,12 @@ public class Main {
         }
 
         @Override
-        public double[] getInputs() {
+        public double[] inputs() {
             return inputs.clone();
         }
 
         @Override
-        public double[] getExpectedOutputs() {
+        public double[] expectedOutputs() {
             return expectedOutputs.clone();
         }
     }
@@ -174,7 +174,7 @@ public class Main {
             g.clearRect(0, 0, getWidth(), getHeight());
             g.drawImage(image, 0, 0, null);
             for (final Fruit testDatum : trainingData) {
-                double[] inputs = testDatum.getInputs();
+                double[] inputs = testDatum.inputs();
                 if (testDatum.isPoisonous()) {
                     g.setColor(Color.RED);
                 } else {

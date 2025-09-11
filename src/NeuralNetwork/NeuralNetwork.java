@@ -36,7 +36,7 @@ public class NeuralNetwork implements Serializable {
     }
 
     public double[] getOutputs(DataPoint input) {
-        double[] inputs = input.getInputs();
+        double[] inputs = input.inputs();
         return getOutputs(inputs);
     }
 
@@ -45,8 +45,8 @@ public class NeuralNetwork implements Serializable {
      * @param data
      */
     public double getCost(DataPoint data) {
-        double[] inputs = data.getInputs();
-        double[] expectedOutputs = data.getExpectedOutputs();
+        double[] inputs = data.inputs();
+        double[] expectedOutputs = data.expectedOutputs();
         double[] outputs = getOutputs(inputs);
         return Cost.costFunction(outputs, expectedOutputs);
     }
@@ -73,7 +73,7 @@ public class NeuralNetwork implements Serializable {
     void updateAllGradients(DataPoint data, NetworkLearnData learnData) {
         // Feed data through the network to calculate outputs.
         // Save all inputs/weightedinputs/activations along the way to use for backpropagation.
-        double[] inputsToNextLayer = data.getInputs();
+        double[] inputsToNextLayer = data.inputs();
 
         for (int i = 0; i < layers.length; i++) {
             inputsToNextLayer = layers[i].calculateOutputs(inputsToNextLayer, learnData.layerData[i]);
@@ -85,7 +85,7 @@ public class NeuralNetwork implements Serializable {
         LayerLearnData outputLearnData = learnData.layerData[outputLayerIndex];
 
         // Update output layer gradients
-        outputLayer.calculateOutputLayerNodeValues(outputLearnData, data.getExpectedOutputs());
+        outputLayer.calculateOutputLayerNodeValues(outputLearnData, data.expectedOutputs());
         outputLayer.updateGradients(outputLearnData);
 
         // Update all hidden layer gradients

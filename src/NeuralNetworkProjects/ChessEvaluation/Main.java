@@ -29,10 +29,10 @@ public class Main {
         DataPoint[] trainingData = loadData();
         List<DataPoint[]> trainingChunks = MyArrays.getChunks(DataPoint[].class, trainingData, 128);
         int validationDataCount = trainingChunks.size() / 10 * 2;
-        DataPoint[] validationData = trainingChunks.get(0);
+        DataPoint[] validationData = trainingChunks.getFirst();
         for (int i = 0; i < validationDataCount; i++) {
-            validationData = MyArrays.concatenate(validationData, trainingChunks.get(0));
-            trainingChunks.remove(0);
+            validationData = MyArrays.concatenate(validationData, trainingChunks.getFirst());
+            trainingChunks.removeFirst();
         }
         Collections.shuffle(trainingChunks);
         NeuralNetwork neuralNetwork = new NeuralNetwork(NeuralNetworkType.GRADIENT_DESCENT, 64, 1048, 500, 50, 1);
@@ -86,7 +86,7 @@ public class Main {
         return new EvaluationData(arguments, output);
     }
 
-    private class EvaluationData implements DataPoint {
+    private static class EvaluationData implements DataPoint {
 
         private final double[] inputs;
         private final double[] outputs;
@@ -97,12 +97,12 @@ public class Main {
         }
 
         @Override
-        public double[] getInputs() {
+        public double[] inputs() {
             return inputs;
         }
 
         @Override
-        public double[] getExpectedOutputs() {
+        public double[] expectedOutputs() {
             return outputs;
         }
     }

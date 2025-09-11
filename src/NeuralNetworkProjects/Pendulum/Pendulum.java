@@ -4,14 +4,14 @@ import java.awt.Color;
 import java.awt.Graphics;
 
 public class Pendulum {
-    Vector2 pos;
+    final Vector2 pos;
     Vector2 origin;
     final double length;
     double angle;
     double angularVelocity;
     double angularAcceleration;
-    double gravity = 9.81 * 3000;
-    double previousOriginX;
+    final double gravity = 9.81 * 3000;
+    final double previousOriginX;
     private final double lengthSquared;
     private double speedX = 0;
     private final double frictionConst;

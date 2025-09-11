@@ -291,12 +291,12 @@ public class LanguageClassificationMain {
 
     private double getPerformance(List<DataPoint[]> trainingBatches, NeuralNetwork neuralNetwork) {
         int corrects = 0;
-        int[] langCorrects = new int[trainingBatches.get(0)[0].getExpectedOutputs().length];
+        int[] langCorrects = new int[trainingBatches.getFirst()[0].expectedOutputs().length];
         int whole = 0;
         for (DataPoint[] dataPoints : trainingBatches) {
             for (DataPoint dataPoint : dataPoints) {
                 double[] outputs = neuralNetwork.getOutputs(dataPoint);
-                double[] expectedOutputs = dataPoint.getExpectedOutputs();
+                double[] expectedOutputs = dataPoint.expectedOutputs();
                 if (hasSameHighestIndex(outputs, expectedOutputs)) {
                     corrects++;
                     langCorrects[getHighestIndex(expectedOutputs)]++;
@@ -412,12 +412,12 @@ public class LanguageClassificationMain {
         }
 
         @Override
-        public double[] getInputs() {
+        public double[] inputs() {
             return inputs;
         }
 
         @Override
-        public double[] getExpectedOutputs() {
+        public double[] expectedOutputs() {
             return expectedOutputs;
         }
     }

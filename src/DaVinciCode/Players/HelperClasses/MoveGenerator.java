@@ -7,7 +7,7 @@ import java.util.List;
 
 public class MoveGenerator {
     public boolean includeOwnCardsInfo = false;
-    PlayerInformation playerInformation;
+    final PlayerInformation playerInformation;
 
     public MoveGenerator(final PlayerInformation playerInformation) {
         this.playerInformation = playerInformation;

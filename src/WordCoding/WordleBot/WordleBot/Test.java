@@ -23,7 +23,7 @@ public class Test {
     public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/Wordle/solutions.txt";
     public static final String WORDS_PATH = "src/WordCoding/WordleBot/Wordle/words.txt";
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         AtomicInteger guessCount = new AtomicInteger(0);
         AtomicInteger wordCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);

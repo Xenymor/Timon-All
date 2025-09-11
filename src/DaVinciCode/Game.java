@@ -12,11 +12,11 @@ public class Game {
     int whiteCardCount;
     int blackCardCount;
 
-    List<Card> player1;
-    Set<Integer> player1Set;
+    final List<Card> player1;
+    final Set<Integer> player1Set;
 
-    List<Card> player2;
-    Set<Integer> player2Set;
+    final List<Card> player2;
+    final Set<Integer> player2Set;
 
     int openCount1 = 0;
     int openCount2 = 0;

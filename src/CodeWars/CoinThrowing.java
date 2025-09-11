@@ -39,7 +39,7 @@ public class CoinThrowing {
                 System.out.println("Games played: " + gamesPlayed + ", Money left: " + money);
             }*/
         }
-        ///System.out.println("Games played: " + gamesPlayed + ", Money left: " + money);
+        //System.out.println("Games played: " + gamesPlayed + ", Money left: " + money);
         return money;
     }
 

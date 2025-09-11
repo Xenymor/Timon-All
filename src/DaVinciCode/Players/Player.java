@@ -11,37 +11,48 @@ public abstract class Player {
     MoveGenerator moveGenerator = new MoveGenerator(playerInformation);
     int whiteCount = 12;
     int blackCount = 12;
-    Scanner scanner = new Scanner(System.in);
+    final Scanner scanner = new Scanner(System.in);
 
     void run() {
 
+        label:
         while (true) {
             String input = scanner.nextLine();
             String[] words = input.split(" ");
-            if ("Draw".equals(words[0])) {
-                draw(scanner);
-            } else if ("Guess".equals(words[0])) {
-                //System.out.println("Debug " + playerInformation.toString());
-                guess(scanner);
-            } else if ("Pass?".equals(words[0])) {
-                shouldPass();
-            } else if ("EnemyGuess".equals(words[0])) {
-                enemyGuess(words);
-            } else if ("EnemyDraw".equals(words[0])) {
-                enemyDraw(words);
-            } else if ("Reset".equals(words[0])) {
-                reset();
-            } else if ("EnemyCard".equals(words[0])) {
-                try {
-                    enemyCard(words);
-                } catch (Exception e) {
-                    System.out.println(e.getMessage());
-                }
-            } else if ("Exit".equals(words[0])) {
-                exit();
-                break;
-            } else {
-                System.out.println(input + " could not be parsed");
+            switch (words[0]) {
+                case "Draw":
+                    draw(scanner);
+                    break;
+                case "Guess":
+                    //System.out.println("Debug " + playerInformation.toString());
+                    guess(scanner);
+                    break;
+                case "Pass?":
+                    shouldPass();
+                    break;
+                case "EnemyGuess":
+                    enemyGuess(words);
+                    break;
+                case "EnemyDraw":
+                    enemyDraw(words);
+                    break;
+                case "Reset":
+                    reset();
+                    break;
+                case "EnemyCard":
+                    try {
+                        enemyCard(words);
+                    } catch (Exception e) {
+                        System.out.println(e.getMessage());
+                    }
+                    break;
+                case "Exit":
+                    exit();
+                    break label;
+                case null:
+                default:
+                    System.out.println(input + " could not be parsed");
+                    break;
             }
         }
     }

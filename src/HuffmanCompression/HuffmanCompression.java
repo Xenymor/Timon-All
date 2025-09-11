@@ -23,7 +23,7 @@ public class HuffmanCompression {
         String input = new String(inputByteArray, StandardCharsets.UTF_8);
         long startingTime = System.nanoTime();
         CompressionResult compressed = compress(input);
-        System.out.println(compressed.bitCount);
+        System.out.println(compressed.bitCount());
         long decompressStart = System.nanoTime();
         String output = decompress(compressed);
         long finish = System.nanoTime();
@@ -33,15 +33,15 @@ public class HuffmanCompression {
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream(path + ".hfmcpr"));
         objectOutputStream.writeObject(compressed);
         objectOutputStream.close();
-        System.out.println(compressed.result.length + "/" + input.length());
+        System.out.println(compressed.result().length + "/" + input.length());
         //System.out.println(Arrays.toString(compressed.result));
     }
 
     private static String decompress(CompressionResult compressed) {
-        BitSet bits = BitSet.valueOf(compressed.result);
+        BitSet bits = BitSet.valueOf(compressed.result());
         StringBuilder stringBuilder = new StringBuilder();
-        TreeNode current = compressed.codeTree;
-        for (int i = 0; i < compressed.bitCount; i++) {
+        TreeNode current = compressed.codeTree();
+        for (int i = 0; i < compressed.bitCount(); i++) {
             if (bits.get(i)) {
                 current = current.getRight();
             } else {
@@ -49,7 +49,7 @@ public class HuffmanCompression {
             }
             if (current.isLast()) {
                 stringBuilder.append(current.uncompressedChar);
-                current = compressed.codeTree;
+                current = compressed.codeTree();
             }
         }
         return stringBuilder.toString();
@@ -95,8 +95,8 @@ public class HuffmanCompression {
             BitSet clone = (BitSet) left.letter.clone();
             clone.or(right.letter);
             current.add(new TreeNode(clone, left.frequency + right.frequency, left, right));
-            current.remove(0);
-            current.remove(0);
+            current.removeFirst();
+            current.removeFirst();
             Collections.sort(current);
         }
         return current.get(0);

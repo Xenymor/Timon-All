@@ -175,12 +175,12 @@ public class MainDigitIdentification {
         }
 
         @Override
-        public double[] getInputs() {
+        public double[] inputs() {
             return inputs;
         }
 
         @Override
-        public double[] getExpectedOutputs() {
+        public double[] expectedOutputs() {
             return expectedOutputs;
         }
     }

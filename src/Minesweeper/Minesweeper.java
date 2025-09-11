@@ -24,7 +24,7 @@ public class Minesweeper {
     final int width;
     final int height;
     int mineCount;
-    volatile Vector2I clickPos = new Vector2I(0,0);
+    final Vector2I clickPos = new Vector2I(0,0);
     volatile ClickType clickType = ClickType.NONE;
 
     public Minesweeper(final int width, final int height, final int mineCount) {
@@ -37,21 +37,6 @@ public class Minesweeper {
     public static void main(String[] args) {
         Minesweeper minesweeper = new Minesweeper(SIZE, SIZE, 8);
         minesweeper.play();
-        /*Scanner scanner = new Scanner(System.in);
-        while (!minesweeper.isFinished()) {
-            minesweeper.printBoard();
-            System.out.println("What do you want to play?");
-            int[] coords = Arrays.stream(scanner.nextLine().split(",")).mapToInt(((Integer::parseInt))).toArray();
-            if (coords.length >= 2)
-                minesweeper.makeMove(coords[0], coords[1]);
-            else
-                System.out.println("Not a valid move");
-        }
-        if (minesweeper.isWon()) {
-            System.out.println("You won");
-        } else {
-            System.out.println("You lost");
-        }*/
     }
 
     private void play() {
@@ -201,8 +186,8 @@ public class Minesweeper {
     }
 
     private class MyFrame extends JFrame {
-        Board board;
-        BufferedImage buffer;
+        final Board board;
+        final BufferedImage buffer;
 
         public MyFrame(final Board board) {
             this.board = board;

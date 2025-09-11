@@ -164,23 +164,23 @@ public record PrisonersDilemma(int[]... rewards) {
                 case "boolean" -> {
                     currentParameters.add(true);
                     getAllParameterCombinations(parameterTypes, i + MATCH_COUNT, currentParameters, result);
-                    currentParameters.remove(currentParameters.size() - MATCH_COUNT); // backtrack
+                    currentParameters.removeLast(); // backtrack
                     currentParameters.add(false);
                     getAllParameterCombinations(parameterTypes, i + MATCH_COUNT, currentParameters, result);
-                    currentParameters.remove(currentParameters.size() - MATCH_COUNT); // backtrack
+                    currentParameters.removeLast(); // backtrack
                 }
                 case "int" -> {
                     for (int j = 0; j < 100; j += 1) {
                         currentParameters.add(j);
                         getAllParameterCombinations(parameterTypes, i + MATCH_COUNT, currentParameters, result);
-                        currentParameters.remove(currentParameters.size() - MATCH_COUNT); // backtrack
+                        currentParameters.removeLast(); // backtrack
                     }
                 }
                 case "double" -> {
                     for (double j = 0.01; j < MATCH_COUNT; j *= 1.5) {
                         currentParameters.add(j);
                         getAllParameterCombinations(parameterTypes, i + MATCH_COUNT, currentParameters, result);
-                        currentParameters.remove(currentParameters.size() - MATCH_COUNT); // backtrack
+                        currentParameters.removeLast(); // backtrack
                     }
                 }
                 default -> System.out.println("Couldn't get parameter " + parameterTypes[i]);

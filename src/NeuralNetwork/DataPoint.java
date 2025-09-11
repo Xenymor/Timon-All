@@ -1,7 +1,7 @@
 package NeuralNetwork;
 
 public interface DataPoint {
-    double[] getInputs();
+    double[] inputs();
 
-    double[] getExpectedOutputs();
+    double[] expectedOutputs();
 }

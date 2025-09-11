@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PlayerInformation {
-    public List<Card> myCards = new ArrayList<>();
-    public List<Card> enemyCards = new ArrayList<>();
+    public final List<Card> myCards = new ArrayList<>();
+    public final List<Card> enemyCards = new ArrayList<>();
 
     public void revealCard(final int index, final int number) {
         final Card card = enemyCards.get(index);
@@ -20,27 +20,7 @@ public class PlayerInformation {
     }
 
     private void updatePossibilities(final int sortIndex, final Card card) {
-        int min;
-        final Card lastCard = sortIndex > 0 ? enemyCards.get(sortIndex - 1) : null;
-        if (lastCard != null) {
-            if (lastCard.isOpen) {
-                if (card.isWhite && !lastCard.isWhite) {
-                    min = lastCard.number;
-                } else {
-                    min = lastCard.number + 1;
-                }
-            } else {
-                final List<Integer> lastPossibilities = lastCard.possibilities;
-                final Integer lastMin = lastPossibilities.get(0);
-                if (card.isWhite && !lastCard.isWhite) {
-                    min = lastMin;
-                } else {
-                    min = lastMin + 1;
-                }
-            }
-        } else {
-            min = 0;
-        }
+        final int min = getMin(sortIndex, card);
         int max;
         final Card nextCard = sortIndex < enemyCards.size() - 1 ? enemyCards.get(sortIndex + 1) : null;
         if (nextCard != null) {
@@ -52,7 +32,7 @@ public class PlayerInformation {
                 }
             } else {
                 final List<Integer> nextPossibilities = nextCard.possibilities;
-                final Integer nextMax = nextPossibilities.get(nextPossibilities.size() - 1);
+                final Integer nextMax = nextPossibilities.getLast();
                 if (!card.isWhite && nextCard.isWhite) {
                     max = nextMax;
                 } else {
@@ -66,6 +46,31 @@ public class PlayerInformation {
         for (int i = min; i < max + 1; i++) {
             card.possibilities.add(i);
         }
+    }
+
+    private int getMin(final int sortIndex, final Card card) {
+        int min;
+        final Card lastCard = sortIndex > 0 ? enemyCards.get(sortIndex - 1) : null;
+        if (lastCard != null) {
+            if (lastCard.isOpen) {
+                if (card.isWhite && !lastCard.isWhite) {
+                    min = lastCard.number;
+                } else {
+                    min = lastCard.number + 1;
+                }
+            } else {
+                final List<Integer> lastPossibilities = lastCard.possibilities;
+                final Integer lastMin = lastPossibilities.getFirst();
+                if (card.isWhite && !lastCard.isWhite) {
+                    min = lastMin;
+                } else {
+                    min = lastMin + 1;
+                }
+            }
+        } else {
+            min = 0;
+        }
+        return min;
     }
 
     public void addDrawnCard(final boolean isWhite, final int number) {

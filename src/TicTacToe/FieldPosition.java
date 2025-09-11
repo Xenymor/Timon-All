@@ -39,7 +39,7 @@ public class FieldPosition {
     }
 
     @Override
-    protected FieldPosition clone() throws CloneNotSupportedException {
+    protected FieldPosition clone() {
         FieldPosition result = new FieldPosition();
         result.field = Sudoku.deepClone(field);
         result.player = player;

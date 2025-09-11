@@ -57,7 +57,7 @@ public class WordsWithSameLetters {
     }
 
     private static List<String> prepareCommons(final List<String> strings) {
-        strings.remove(0);
+        strings.removeFirst();
         strings.removeIf(entry -> Double.parseDouble(entry.split(",")[1]) < 3.840009830425166E-6);
         return strings;
     }

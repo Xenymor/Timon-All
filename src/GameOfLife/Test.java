@@ -1,7 +1,6 @@
 package GameOfLife;
 
 import Music.MusicPlayer;
-import StandardClasses.MyArrays;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;

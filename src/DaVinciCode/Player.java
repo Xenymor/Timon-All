@@ -9,7 +9,7 @@ public class Player {
     final Scanner processOutput;
     final BufferedReader errorOutput;
     final BufferedWriter processInput;
-    boolean showOutputs;
+    final boolean showOutputs;
 
     public Player(final Process process, boolean hideOutputs) {
         this.process = process;
@@ -108,7 +108,7 @@ public class Player {
         checkForOK();
     }
 
-    String zeros = "0000";
+    final String zeros = "0000";
 
     private String codeToString(final int code) {
         StringBuilder output = new StringBuilder(Integer.toString(code));

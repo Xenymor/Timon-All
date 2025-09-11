@@ -19,7 +19,7 @@ public class ChessGame {
             if (board.whiteOnTurn) {
                 System.out.print("White's move: ");
                 Move move = board.parseMove(sc.nextLine());
-                if (!board.isValidMove(move.fromRow, move.fromCol, move.toRow, move.toCol)) {
+                if (!board.isValidMove(move.fromRow(), move.fromCol(), move.toRow(), move.toCol())) {
                     System.out.println("Invalid move, try again.");
                     continue;
                 }
@@ -94,40 +94,33 @@ class ChessBoard {
         return legalMoves;
     }
 
-    static class Move {
-        final int fromRow;
-        final int fromCol;
-        final int toRow;
-        final int toCol;
-        final Piece capturedPiece;
-        final Piece[][] board;
+    record Move(int fromRow, int fromCol, int toRow, int toCol, Piece capturedPiece, Piece[][] board) {
+            @Override
+            public String toString() {
+                return "Move{" +
+                        "fromRow=" + fromRow +
+                        ", fromCol=" + fromCol +
+                        ", toRow=" + toRow +
+                        ", toCol=" + toCol +
+                        ", capturedPiece=" + capturedPiece +
+                        ", board=" + Arrays.toString(board) +
+                        '}';
+            }
 
-        @Override
-        public String toString() {
-            return "Move{" +
-                    "fromRow=" + fromRow +
-                    ", fromCol=" + fromCol +
-                    ", toRow=" + toRow +
-                    ", toCol=" + toCol +
-                    ", capturedPiece=" + capturedPiece +
-                    ", board=" + Arrays.toString(board) +
-                    '}';
-        }
-
-        public Move(int fromRow, int fromCol, int toRow, int toCol, Piece capturedPiece, Piece[][] board) {
-            this.fromRow = fromRow;
-            this.fromCol = fromCol;
-            this.toRow = toRow;
-            this.toCol = toCol;
-            this.capturedPiece = capturedPiece;
-            this.board = new Piece[8][8];
-            for (int row = 0; row < 8; row++) {
-                for (int col = 0; col < 8; col++) {
-                    this.board[row][col] = board[row][col];
+            Move(int fromRow, int fromCol, int toRow, int toCol, Piece capturedPiece, Piece[][] board) {
+                this.fromRow = fromRow;
+                this.fromCol = fromCol;
+                this.toRow = toRow;
+                this.toCol = toCol;
+                this.capturedPiece = capturedPiece;
+                this.board = new Piece[8][8];
+                for (int row = 0; row < 8; row++) {
+                    for (int col = 0; col < 8; col++) {
+                        this.board[row][col] = board[row][col];
+                    }
                 }
             }
         }
-    }
 
     public Move parseMove(String moveString) {
         int fromRow, fromCol, toRow, toCol;
@@ -165,8 +158,8 @@ class ChessBoard {
 
 
     void undoMove(Move move) {
-        if (moveHistory.size() != 0) {
-            Move lastMove = moveHistory.get(moveHistory.size() - 1);
+        if (!moveHistory.isEmpty()) {
+            Move lastMove = moveHistory.getLast();
             if (lastMove.equals(move)) {
                 moveHistory.remove(lastMove);
             }
@@ -390,7 +383,7 @@ class ChessBoard {
         return validMoves;
     }
 
-    class ScoreAndMove {
+    static class ScoreAndMove {
         final int score;
         final Move move;
 

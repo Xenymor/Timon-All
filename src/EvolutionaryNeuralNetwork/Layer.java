@@ -1,14 +1,21 @@
 package EvolutionaryNeuralNetwork;
 
-public class Layer {
-    final Node[] nodes;
-    final int INPUT_COUNT;
+import java.util.Objects;
 
-    public Layer(int layerSize, int inputCount) {
-        this.INPUT_COUNT = inputCount;
-        nodes = new Node[layerSize];
-        for (int i = 0; i < layerSize; i++) {
-            nodes[i] = new Node(inputCount);
+public final class Layer {
+    private final Node[] nodes;
+    private final int INPUT_COUNT;
+
+    public Layer(Node[] nodes, int INPUT_COUNT) {
+        this.nodes = nodes;
+        this.INPUT_COUNT = INPUT_COUNT;
+    }
+
+    public Layer(int nodes, int INPUT_COUNT) {
+        this.INPUT_COUNT = INPUT_COUNT;
+        this.nodes = new Node[nodes];
+        for (int i = 0; i < nodes; i++) {
+            this.nodes[i] = new Node(INPUT_COUNT);
         }
     }
 
@@ -18,4 +25,34 @@ public class Layer {
         }
         return inputs;
     }
+
+    public Node[] nodes() {
+        return nodes;
+    }
+
+    public int INPUT_COUNT() {
+        return INPUT_COUNT;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null || obj.getClass() != this.getClass()) return false;
+        var that = (Layer) obj;
+        return Objects.equals(this.nodes, that.nodes) &&
+                this.INPUT_COUNT == that.INPUT_COUNT;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(nodes, INPUT_COUNT);
+    }
+
+    @Override
+    public String toString() {
+        return "Layer[" +
+                "nodes=" + nodes + ", " +
+                "INPUT_COUNT=" + INPUT_COUNT + ']';
+    }
+
 }

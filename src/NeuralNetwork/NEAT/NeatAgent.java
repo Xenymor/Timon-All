@@ -74,9 +74,9 @@ public class NeatAgent {
 
         int i = 0;
         int iterationCount = 0;
-        while (unfinishedNodes.size() > 0) {
+        while (!unfinishedNodes.isEmpty()) {
             int index = unfinishedNodes.get(i);
-            if (tempAncestors.get(index).size() == 0) {
+            if (tempAncestors.get(index).isEmpty()) {
                 order.add(index);
                 unfinishedNodes.remove(i);
                 removeTempConnectionsFrom(index);
@@ -140,7 +140,7 @@ public class NeatAgent {
     private boolean isParent(final int fromNodeIndex, final int toNodeIndex) {
         final List<Connection> connections = incomingConnections.get(toNodeIndex);
         for (Connection connection : connections) {
-            if (connection.from == fromNodeIndex && connection.to == toNodeIndex) {
+            if (connection.from() == fromNodeIndex && connection.to() == toNodeIndex) {
                 return true;
             }
         }
@@ -216,34 +216,34 @@ public class NeatAgent {
         Connection old = connections.get(connectionIndex);
 
         //Split the connection
-        final Connection newConnection1 = new Connection(old.from, newNodeIndex, 0, old.fromNode, old.connectionIndex);
+        final Connection newConnection1 = new Connection(old.from(), newNodeIndex, 0, old.fromNode(), old.connectionIndex());
         connections.set(connectionIndex, newConnection1);
-        final Connection newConnection = new Connection(newNodeIndex, old.to, old.nodeEntryIndex, normalNode, connections.size());
+        final Connection newConnection = new Connection(newNodeIndex, old.to(), old.nodeEntryIndex(), normalNode, connections.size());
         connections.add(newConnection);
         normalNode.addConnection();
 
-        final HashSet<Integer> newAncestors = new HashSet<>(ancestors.get(old.from));
-        newAncestors.add(old.from);
+        final HashSet<Integer> newAncestors = new HashSet<>(ancestors.get(old.from()));
+        newAncestors.add(old.from());
         ancestors.add(newAncestors);
-        final Set<Integer> oldAncestors = ancestors.get(old.to);
+        final Set<Integer> oldAncestors = ancestors.get(old.to());
         oldAncestors.addAll(newAncestors);
         oldAncestors.add(newNodeIndex);
 
-        final HashSet<Integer> newDescendants = new HashSet<>(descendants.get(old.to));
-        newDescendants.add(old.to);
+        final HashSet<Integer> newDescendants = new HashSet<>(descendants.get(old.to()));
+        newDescendants.add(old.to());
         descendants.add(newDescendants);
-        final Set<Integer> oldDescendants = descendants.get(old.from);
+        final Set<Integer> oldDescendants = descendants.get(old.from());
         oldDescendants.addAll(newDescendants);
         oldDescendants.add(newNodeIndex);
 
-        final List<Connection> oldIncoming = incomingConnections.get(old.to);
+        final List<Connection> oldIncoming = incomingConnections.get(old.to());
         oldIncoming.set(oldIncoming.indexOf(old), newConnection);
         final List<Connection> incoming = new ArrayList<>();
         incoming.add(newConnection1);
         incomingConnections.add(incoming);
 
-        updateAncestors(newNodeIndex, old.from);
-        updateDescendants(newNodeIndex, old.to);
+        updateAncestors(newNodeIndex, old.from());
+        updateDescendants(newNodeIndex, old.to());
     }
 
     private void updateDescendants(final int toUpdate, final int updatedChild) {
@@ -274,7 +274,7 @@ public class NeatAgent {
         int weightIndex = Random.randomIntInRange(chances[nodeIndex]);
 
         final List<Double> weights = node.getWeights();
-        if (weights.size() > 0) {
+        if (!weights.isEmpty()) {
             if (chanceOf(NEW_VALUE_PROBABILITY)) {
                 weights.set(weightIndex, randomDoubleInRange(-WEIGHT_RANGE, WEIGHT_RANGE));
             } else {
@@ -325,7 +325,7 @@ public class NeatAgent {
     private void setInputs(Node node, int index) {
         final List<Connection> connections = incomingConnections.get(index);
         for (Connection connection : connections) {
-            node.setInput(connection.nodeEntryIndex, connection.fromNode.getOutput());
+            node.setInput(connection.nodeEntryIndex(), connection.fromNode().getOutput());
         }
     }
 
@@ -339,8 +339,8 @@ public class NeatAgent {
 
         final List<Connection> connections = neatAgent.connections;
         for (Connection connection : this.connections) {
-            final int from = connection.from;
-            connections.add(new Connection(from, connection.to, connection.nodeEntryIndex, neatAgent.nodes.get(from), connection.connectionIndex));
+            final int from = connection.from();
+            connections.add(new Connection(from, connection.to(), connection.nodeEntryIndex(), neatAgent.nodes.get(from), connection.connectionIndex()));
         }
 
         List<Set<Integer>> newAncestors = new ArrayList<>(nodes.size());
@@ -354,7 +354,7 @@ public class NeatAgent {
             List<Connection> oldIncoming = incomingConnections.get(i);
             List<Connection> newIncoming = new ArrayList<>(oldIncoming.size());
             for (Connection connection : oldIncoming) {
-                newIncoming.add(connections.get(connection.connectionIndex));
+                newIncoming.add(connections.get(connection.connectionIndex()));
             }
             newIncomingConnections.add(newIncoming);
         }

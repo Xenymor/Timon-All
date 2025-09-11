@@ -1,8 +1,7 @@
 package NeuralNetworkProjects.Pendulum;
 
-import NeuralNetwork.NEAT.NeatTrainer;
-
 public class Main {
+    @SuppressWarnings("EmptyMethod")
     public static void main(String[] args) {
         //NeatTrainer trainer = new NeatTrainer();
     }
