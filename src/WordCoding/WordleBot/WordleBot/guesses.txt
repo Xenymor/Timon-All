@@ -1,0 +1,12 @@
+salet,brond,aback
+salet,arise,abuse,abase
+salet,anger,abbey
+salet,grate,abate
+salet,courd,abbot
+salet,brond,cobra,abhor
+salet,alley,abled
+salet,beard,abide
+salet,courd,abort
+salet,beard,abide,abode
+salet,courd,about
+salet,beard,above

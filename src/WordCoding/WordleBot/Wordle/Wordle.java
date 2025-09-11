@@ -1,11 +1,11 @@
 package WordCoding.WordleBot.Wordle;/*
  * Wordle.java
  *
- * An console-based implementation of a popular word-guessing game
+ * A console-based implementation of a popular word-guessing game
  *
  * starter code: Computer Science 112 staff (cs112-staff@cs.bu.edu)
  *
- * completed by:
+ * completed by: Xenymor
  */
 
 import java.io.IOException;
