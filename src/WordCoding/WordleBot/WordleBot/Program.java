@@ -13,7 +13,10 @@ public class Program {
     public static void main(String[] args) throws IOException {
         System.out.println("Setting up ...");
         Bot bot = new Bot(Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/words.txt")));
+
+        //Remove line to use full dictionary as possible solutions
         bot.setSolutions(Files.readAllLines(Path.of("src/WordCoding/WordleBot/Wordle/solutions.txt")));
+
         Scanner scanner = new Scanner(System.in);
         System.out.println("Finished Setup");
 
