@@ -22,7 +22,7 @@ public class Bot {
 
     final List<String> originalWords;
     final List<Integer> possibleWords;
-    final Set<Integer> possibleWordsSet;
+    final BitSet possibleWordsSet;
 
     final Set<Character>[] possibilities;
     final Map<Character, Integer> mustHave;
@@ -48,12 +48,12 @@ public class Bot {
 
     public Bot(final List<String> possibleWords) {
         this.originalWords = possibleWords;
-        this.possibleWordsSet = new HashSet<>();
+        this.possibleWordsSet = new BitSet();
         this.possibleWords = new ArrayList<>();
 
         for (int i = 0; i < originalWords.size(); i++) {
             this.possibleWords.add(i);
-            this.possibleWordsSet.add(i);
+            this.possibleWordsSet.set(i);
         }
 
         char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
@@ -103,12 +103,12 @@ public class Bot {
 
     public Bot(final List<String> possibleWords, boolean allowLoading) {
         this.originalWords = possibleWords;
-        this.possibleWordsSet = new HashSet<>();
+        this.possibleWordsSet = new BitSet();
         this.possibleWords = new ArrayList<>();
 
         for (int i = 0; i < originalWords.size(); i++) {
             this.possibleWords.add(i);
-            this.possibleWordsSet.add(i);
+            this.possibleWordsSet.set(i);
         }
 
         char[] chars = "abcdefghijklmnopqrstuvwxyz".toCharArray();
@@ -374,7 +374,7 @@ public class Bot {
                     if (!setSolutions) {
                         buff.clear();
                         for (final var p : currPossibleWords) {
-                            if (possibleWordsSet.contains(p)) {
+                            if (possibleWordsSet.get(p)) {
                                 buff.add(p);
                             }
                         }
@@ -384,7 +384,7 @@ public class Bot {
                     } else {
                         int count = 0;
                         for (final var p : currPossibleWords) {
-                            if (possibleWordsSet.contains(p)) {
+                            if (possibleWordsSet.get(p)) {
                                 count++;
                             }
                         }
@@ -394,7 +394,7 @@ public class Bot {
                 }
                 combination = nextPossibility(combination);
             }
-            final double probability = possibleWordsSet.contains(i) ? getProbability(i, probabilitySum) : 0;
+            final double probability = possibleWordsSet.get(i) ? getProbability(i, probabilitySum) : 0;
             final double currExpectedEntropy = currEntropy - sum;
             double score = probability * guessCount + (1 - probability) * (guessCount + estimatedGuesses(currExpectedEntropy));
             if (score < bestScore) {
@@ -476,7 +476,7 @@ public class Bot {
         if (solutions == null || solutions.isEmpty()) {
             for (int i = 0; i < originalWords.size(); i++) {
                 possibleWords.add(i);
-                possibleWordsSet.add(i);
+                possibleWordsSet.set(i);
             }
         } else {
             setSolutions(solutions);
@@ -495,7 +495,7 @@ public class Bot {
         update(guess, results, possibleWords, possibleWordsSet, possibilities, mustHave);
     }
 
-    private void update(final String guess, final Result[] results, final List<Integer> possibleWords, final Set<Integer> possibleWordsSet, final Set<Character>[] possibilities, final Map<Character, Integer> mustHave) {
+    private void update(final String guess, final Result[] results, final List<Integer> possibleWords, final BitSet possibleWordsSet, final Set<Character>[] possibilities, final Map<Character, Integer> mustHave) {
         int[] parsed = new int[5];
         for (int i = 0; i < results.length; i++) {
             parsed[i] = results[i].ordinal();
@@ -514,7 +514,7 @@ public class Bot {
             for (char c : characterSet) {
                 if (countMap.get(c) < mustHave.get(c)) {
                     possibleWords.remove(wordIndex);
-                    possibleWordsSet.remove(wordIndex);
+                    possibleWordsSet.clear(wordIndex);
                     continue outer;
                 }
             }
@@ -522,7 +522,7 @@ public class Bot {
             for (int j = 0; j < chars.length; j++) {
                 if (!possibilities[j].contains(chars[j])) {
                     possibleWords.remove(wordIndex);
-                    possibleWordsSet.remove(wordIndex);
+                    possibleWordsSet.clear(wordIndex);
                     continue outer;
                 }
             }
@@ -635,7 +635,7 @@ public class Bot {
                 originalWords.add(word);
             }
             possibleWords.add(index);
-            possibleWordsSet.add(index);
+            possibleWordsSet.set(index);
         }
 
         this.solutions = words;

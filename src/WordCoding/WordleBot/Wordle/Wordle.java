@@ -9,7 +9,8 @@ package WordCoding.WordleBot.Wordle;/*
  */
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Scanner;
+import java.util.Set;
 
 public class Wordle {
     // the name of a file containing a collection of English words, one word per line

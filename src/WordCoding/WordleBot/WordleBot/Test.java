@@ -23,7 +23,7 @@ public class Test {
     public static final String SOLUTIONS_PATH = "src/WordCoding/WordleBot/Wordle/solutions.txt";
     public static final String WORDS_PATH = "src/WordCoding/WordleBot/Wordle/words.txt";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         AtomicInteger guessCount = new AtomicInteger(0);
         AtomicInteger wordCount = new AtomicInteger(0);
         AtomicInteger failCount = new AtomicInteger(0);
@@ -31,24 +31,23 @@ public class Test {
         AtomicInteger counter = new AtomicInteger(0);
         CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
         BufferedOutputStream writer = new BufferedOutputStream(new FileOutputStream("src/WordCoding/WordleBot/WordleBot/guesses.txt"));
+        CountDownLatch finished = new CountDownLatch(THREAD_COUNT);
         for (int i = 0; i < THREAD_COUNT; i++) {
             final int finalI = i;
             pool.submit(() ->
                     {
                         try {
-                            simulateGame(guessCount, wordCount, failCount, possibleWords, finalI, counter, latch, writer);
+                            simulateGame(guessCount, wordCount, failCount, possibleWords, finalI, counter, latch, writer, finished);
                         } catch (IOException | InterruptedException e) {
                             e.printStackTrace();
                         }
                     }
             );
         }
+        finished.await();
         writer.flush();
+        writer.close();
         //finished.await();
-		/*Files.writeString(Path.of("src/WordCoding/WordleBot/WordleBot/guesses.txt"), guesses.stream()
-				.sorted(Entry.comparingByKey())
-				.map(Entry::getValue)
-				.collect(Collectors.joining("\n")));*/
     }
 
     private static void simulateGame(
@@ -59,7 +58,8 @@ public class Test {
             final int threadIndex,
             final AtomicInteger counter,
             final CountDownLatch latch,
-            final BufferedOutputStream writer
+            final BufferedOutputStream writer,
+            final CountDownLatch finished
     ) throws IOException, InterruptedException {
         int currGuessCount = 0;
         int localWordCount = 0;
@@ -135,6 +135,6 @@ public class Test {
                 bot.update(guess, guessResult.getResults());
             }
         }
-        writer.close();
+        finished.countDown();
     }
 }
