@@ -5,11 +5,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 
-public class Day2 {
+public class Day2Task1 {
     static long max = 0;
 
     public static void main(String[] args) throws IOException {
-        List<String> line = Files.readAllLines(Path.of("src/Puzzles/AdventOfCode/AOC2025/Day2/input.txt"));
+        List<String> line = Files.readAllLines(Path.of("src/Puzzles/AdventOfCode/AOC2025/Day2Task1/input.txt"));
         String[] ranges = line.getFirst().split(",");
 
         TreeMap<Long, Long> merged = buildMergedRanges(ranges);
@@ -31,7 +31,7 @@ public class Day2 {
         System.out.println("Sum: " + sum);
     }
 
-    private static long pow(final long b, final long e) {
+    public static long pow(final long b, final long e) {
         long r = 1;
         for (long i = 0; i < e; i++) {
             r *= b;

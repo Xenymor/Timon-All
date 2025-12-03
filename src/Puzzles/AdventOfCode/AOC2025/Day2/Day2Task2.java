@@ -9,7 +9,7 @@ public class Day2Task2 {
     static long max = 0;
 
     public static void main(String[] args) throws IOException {
-        List<String> line = Files.readAllLines(Path.of("src/Puzzles/AdventOfCode/AOC2025/Day2/input.txt"));
+        List<String> line = Files.readAllLines(Path.of("src/Puzzles/AdventOfCode/AOC2025/Day2Task1/input.txt"));
         String[] ranges = line.getFirst().split(",");
 
         TreeMap<Long, Long> merged = buildMergedRanges(ranges);
