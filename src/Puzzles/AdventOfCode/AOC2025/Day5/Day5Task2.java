@@ -11,11 +11,8 @@ public class Day5Task2 {
 
         List<Range> ranges = new ArrayList<>();
 
-        int idStart = -1;
-        for (int i = 0; i < lines.size(); i++) {
-            final String line = lines.get(i);
+        for (final String line : lines) {
             if (line.isBlank()) {
-                idStart = i + 1;
                 break;
             }
             String[] parts = line.split("-");
