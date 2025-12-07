@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 public class Day7Task1 {
-    public static void main(String[] args) throws IOException {
+    static void main() throws IOException {
         List<String> lines = Files.readAllLines(Path.of("src/Puzzles/AdventOfCode/AOC2025/Day7/input.txt"));
 
         Set<Integer> currStage = new HashSet<>();

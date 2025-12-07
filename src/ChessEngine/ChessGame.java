@@ -26,8 +26,8 @@ public class ChessGame {
                 board.makeMove(move);
             } else {
                 ScoreAndMove bestMove = board.minimax(3, false);
-                System.out.println("Black's move: " + bestMove + "; Score: " + bestMove.score);
-                board.makeMove(bestMove.move);
+                System.out.println("Black's move: " + bestMove + "; Score: " + bestMove.score());
+                board.makeMove(bestMove.move());
             }
         }
 
@@ -381,22 +381,15 @@ class ChessBoard {
         return validMoves;
     }
 
-    static class ScoreAndMove {
-        final int score;
-        final Move move;
+    record ScoreAndMove(int score, Move move) {
+            @Override
+            public String toString() {
+                return "ScoreAndMove{" +
+                        "score=" + score +
+                        ", move=" + move.toString() +
+                        '}';
+            }
 
-        @Override
-        public String toString() {
-            return "ScoreAndMove{" +
-                    "score=" + score +
-                    ", move=" + move.toString() +
-                    '}';
-        }
-
-        public ScoreAndMove(int score, Move move) {
-            this.score = score;
-            this.move = move;
-        }
     }
 
     ScoreAndMove minimax(int depth, boolean maximizingPlayer) {

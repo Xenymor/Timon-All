@@ -86,24 +86,11 @@ public class Main {
         return new EvaluationData(arguments, output);
     }
 
-    private static class EvaluationData implements DataPoint {
-
-        private final double[] inputs;
-        private final double[] outputs;
-
-        public EvaluationData(final double[] inputs, final double... outputs) {
-            this.inputs = inputs;
-            this.outputs = outputs;
-        }
+    private record EvaluationData(double[] inputs, double... outputs) implements DataPoint {
 
         @Override
-        public double[] inputs() {
-            return inputs;
+            public double[] expectedOutputs() {
+                return outputs;
+            }
         }
-
-        @Override
-        public double[] expectedOutputs() {
-            return outputs;
-        }
-    }
 }

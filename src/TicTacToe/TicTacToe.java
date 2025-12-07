@@ -104,7 +104,7 @@ public class TicTacToe {
         System.out.println("You drew the game");
     }
 
-    private Vector2L findBestMove() throws CloneNotSupportedException {
+    private Vector2L findBestMove() {
         FieldPosition fieldAfterMove = new FieldPosition();
         fieldAfterMove.setField(field.getField().clone());
         for (int i = 0; i < fieldAfterMove.getField().length; i++) {
@@ -114,7 +114,7 @@ public class TicTacToe {
         return result.getMove();
     }
 
-    private MinMaxResult findBestMoveWithScore() throws CloneNotSupportedException {
+    private MinMaxResult findBestMoveWithScore() {
         FieldPosition fieldAfterMove = new FieldPosition();
         fieldAfterMove.setField(field.getField().clone());
         for (int i = 0; i < fieldAfterMove.getField().length; i++) {

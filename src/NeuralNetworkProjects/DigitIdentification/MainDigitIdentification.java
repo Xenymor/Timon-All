@@ -165,25 +165,11 @@ public class MainDigitIdentification {
         return result;
     }
 
-    public static class TrainingDataPoint implements DataPoint {
-        final double[] inputs;
-        final double[] expectedOutputs;
-
-        public TrainingDataPoint(final byte label, final double[] inputs) {
-            this.inputs = inputs;
-            this.expectedOutputs = getEmptyArrayExcept(label);
+    public record TrainingDataPoint(double[] expectedOutputs, double[] inputs) implements DataPoint {
+            public TrainingDataPoint(final byte expectedOutputs, final double[] inputs) {
+                this(getEmptyArrayExcept(expectedOutputs), inputs);
+            }
         }
-
-        @Override
-        public double[] inputs() {
-            return inputs;
-        }
-
-        @Override
-        public double[] expectedOutputs() {
-            return expectedOutputs;
-        }
-    }
 
     private static double[] getEmptyArrayExcept(final int index) {
         double[] result = new double[10];

@@ -161,7 +161,7 @@ public class VSHuman {
             }
         }
 
-        return remainingShipLengths.size() <= 0;
+        return remainingShipLengths.size() == 0;
     }
 
     private int getShipLength(final int x, final int y) {

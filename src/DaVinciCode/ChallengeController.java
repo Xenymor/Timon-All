@@ -84,9 +84,9 @@ public class ChallengeController {
     private static boolean playGame(final String process1StartCommand, final String process2StartCommand, final boolean hideOutputs) throws IOException {
 
         Game game = new Game(12);
-        Process process1 = Runtime.getRuntime().exec(process1StartCommand);
+        Process process1 = Runtime.getRuntime().exec(new String[]{process1StartCommand});
         Player player1 = new Player(process1, hideOutputs);
-        Process process2 = Runtime.getRuntime().exec(process2StartCommand);
+        Process process2 = Runtime.getRuntime().exec(new String[]{process2StartCommand});
         Player player2 = new Player(process2, hideOutputs);
 
         prepareGame(game, player1, player2);

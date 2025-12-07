@@ -1,6 +1,6 @@
 package EvolutionalCatchingGame;
 
-public record DoubleInt(double v, int i) implements Comparable {
+public record DoubleInt(double v, int i) implements Comparable<DoubleInt> {
 
     public double getV() {
         return v;
@@ -12,11 +12,7 @@ public record DoubleInt(double v, int i) implements Comparable {
 
 
     @Override
-    public int compareTo(Object o) {
-        if (o.getClass() == getClass()) {
-            return Double.compare(v, ((DoubleInt) o).v);
-        } else {
-            return -1;
-        }
+    public int compareTo(DoubleInt o) {
+        return Double.compare(v, o.v);
     }
 }

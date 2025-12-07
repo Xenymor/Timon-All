@@ -44,7 +44,7 @@ public class NeatTest {
         printResults(trainer, iteration, frame, startTime);
     }
 
-    private static double printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame, final long startTime) {
+    private static void printResults(final NeatTrainer trainer, final int iteration, final MyFrame frame, final long startTime) {
         NeatTrainer.AgentScore bestAgentScore = trainer.getBest();
         final NeatAgent agent = bestAgentScore.agent;
         frame.newAgent = agent;
@@ -57,7 +57,6 @@ public class NeatTest {
             double millisPerIter = Math.round((TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startTime) / (double) (iteration)) * 1_000) / 1_000d;
             System.out.println(iteration + ":" + (bestAgentScore.score / MAX_SCORE) + " \t" + hiddenCount + "/" + connectionCount + "\t" + millisPerIter + "ms/iter");
         }
-        return bestAgentScore.score;
     }
 
     private static class MyFrame extends JFrame {

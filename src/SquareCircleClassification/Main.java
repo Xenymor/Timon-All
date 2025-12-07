@@ -140,25 +140,23 @@ public class Main {
         return trainingData;
     }
 
-    private static class Form implements DataPoint {
-        final double[] expectedOutputs;
-        final double[] inputs;
-
-        Form(BufferedImage img, boolean isCircle) {
-            expectedOutputs = isCircle ? new double[]{1, 0} : new double[]{0, 1};
-            inputs = new double[img.getHeight() * img.getWidth()];
+    private record Form(double[] inputs, double[] expectedOutputs) implements DataPoint {
+        private Form(BufferedImage inputs, boolean expectedOutputs) {
+            double[] expOut = expectedOutputs ? new double[]{1, 0} : new double[]{0, 1};
+            double[] inp = new double[inputs.getHeight() * inputs.getWidth()];
             int counter = 0;
-            for (int i = 0; i < img.getWidth(); i++) {
-                for (int j = 0; j < img.getHeight(); j++) {
-                    int color = img.getRGB(i, j);
+            for (int i = 0; i < inputs.getWidth(); i++) {
+                for (int j = 0; j < inputs.getHeight(); j++) {
+                    int color = inputs.getRGB(i, j);
                     int red = (color >>> 16) & 0xFF;
                     int green = (color >>> 8) & 0xFF;
                     int blue = (color) & 0xFF;
                     double luminance = (red * 0.2126d + green * 0.7152d + blue * 0.0722d) / 255d;
-                    inputs[counter] = luminance;
+                    inp[counter] = luminance;
                     counter++;
                 }
             }
+            this(inp, expOut);
         }
 
         @Override

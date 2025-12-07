@@ -3,18 +3,10 @@ package EvolutionaryNeuralNetwork;
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class Layer {
-    private final Node[] nodes;
-    private final int INPUT_COUNT;
-
-    public Layer(Node[] nodes, int INPUT_COUNT) {
-        this.nodes = nodes;
-        this.INPUT_COUNT = INPUT_COUNT;
-    }
+public record Layer(Node[] nodes, int INPUT_COUNT) {
 
     public Layer(int nodes, int INPUT_COUNT) {
-        this.INPUT_COUNT = INPUT_COUNT;
-        this.nodes = new Node[nodes];
+        this(new Node[nodes], INPUT_COUNT);
         for (int i = 0; i < nodes; i++) {
             this.nodes[i] = new Node(INPUT_COUNT);
         }
@@ -25,14 +17,6 @@ public final class Layer {
             inputs[i] = nodes[i].getOutput(inputs);
         }
         return inputs;
-    }
-
-    public Node[] nodes() {
-        return nodes;
-    }
-
-    public int INPUT_COUNT() {
-        return INPUT_COUNT;
     }
 
     @Override
