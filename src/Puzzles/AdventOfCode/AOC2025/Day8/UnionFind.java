@@ -32,7 +32,7 @@ public class UnionFind {
 
     // Unite (merge) the set that includes element
     // i and the set that includes element j
-    public void union(int i, int j) {
+    public boolean union(int i, int j) {
 
         // Representative of set containing i
         int irep = find(i);
@@ -43,7 +43,7 @@ public class UnionFind {
         // Make the representative of i's set be
         // the representative of j's set
         if (irep == jrep) {
-            return;
+            return false;
         }
         if (size[jrep] == 0 || size[irep] == 0) {
             System.out.println("Zero size detected");
@@ -53,6 +53,7 @@ public class UnionFind {
         }
         parent[irep] = jrep;
         size[jrep] += size[irep];
+        return true;
     }
 }
 
