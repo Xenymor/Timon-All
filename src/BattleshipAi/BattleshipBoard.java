@@ -1,6 +1,6 @@
 package BattleshipAi;
 
-import StandardClasses.Vector2I;
+import StandardClasses.Vectors.Vector2I;
 
 import java.util.ArrayList;
 import java.util.HashSet;

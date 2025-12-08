@@ -1,6 +1,6 @@
 package WordCoding.WordleBot.WordleBot;
 
-import StandardClasses.Vector2;
+import StandardClasses.Vectors.Vector2;
 import WordCoding.WordleBot.Wordle.Result;
 
 import java.io.*;

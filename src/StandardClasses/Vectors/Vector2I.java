@@ -1,4 +1,4 @@
-package StandardClasses;
+package StandardClasses.Vectors;
 
 import java.util.Objects;
 

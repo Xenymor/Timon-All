@@ -1,7 +1,7 @@
 package EvolutionalCatchingGame;
 
 import NeuralNetwork.*;
-import StandardClasses.Vector2;
+import StandardClasses.Vectors.Vector2;
 
 import java.awt.*;
 import java.io.Serializable;

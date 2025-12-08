@@ -1,6 +1,6 @@
 package Puzzles.AdventOfCode.AOC2025.Day4;
 
-import StandardClasses.Vector2I;
+import StandardClasses.Vectors.Vector2I;
 
 import java.io.IOException;
 import java.nio.file.Files;

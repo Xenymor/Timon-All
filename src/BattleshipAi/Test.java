@@ -1,7 +1,7 @@
 package BattleshipAi;
 
 import BattleshipAi.Bots.*;
-import StandardClasses.Vector2I;
+import StandardClasses.Vectors.Vector2I;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;

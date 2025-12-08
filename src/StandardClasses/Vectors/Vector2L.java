@@ -1,4 +1,4 @@
-package StandardClasses;
+package StandardClasses.Vectors;
 
 public class Vector2L {
     private long x;

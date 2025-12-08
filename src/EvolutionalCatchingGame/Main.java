@@ -1,6 +1,6 @@
 package EvolutionalCatchingGame;
 
-import StandardClasses.Vector2;
+import StandardClasses.Vectors.Vector2;
 
 import javax.swing.*;
 import java.awt.*;

@@ -1,6 +1,6 @@
 package BattleshipAi.Bots;
 
-import StandardClasses.Vector2I;
+import StandardClasses.Vectors.Vector2I;
 
 public interface BattleshipBot {
     Vector2I getMove();

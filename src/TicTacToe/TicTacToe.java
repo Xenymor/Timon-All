@@ -1,6 +1,6 @@
 package TicTacToe;
 
-import StandardClasses.Vector2L;
+import StandardClasses.Vectors.Vector2L;
 
 import java.io.BufferedReader;
 import java.io.IOException;

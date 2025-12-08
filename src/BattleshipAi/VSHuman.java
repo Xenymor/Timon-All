@@ -2,7 +2,7 @@ package BattleshipAi;
 
 import BattleshipAi.Bots.BattleshipBot;
 import BattleshipAi.Bots.HeatMapBot3;
-import StandardClasses.Vector2I;
+import StandardClasses.Vectors.Vector2I;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
