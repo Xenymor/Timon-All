@@ -7,8 +7,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
+import static org.testng.Assert.*;
+
 
 class TwoSumTest {
     static Stream<Arguments> basicTests() {
@@ -26,7 +27,7 @@ class TwoSumTest {
     void basicTests(int[] numbers, int target, int[] expected) {
         int[] actual = TwoSum.twoSum(numbers.clone(), target);
         assertNotNull(actual, "Should return an array");
-        assertEquals(2, actual.length, "Returned array must be of length 2");
+        assertEquals(actual.length, 2, "Returned array must be of length 2");
         assertNotEquals(actual[0], actual[1], "Indices must be distinct");
         int num1 = numbers[actual[0]];
         int num2 = numbers[actual[1]];

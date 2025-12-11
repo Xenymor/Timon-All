@@ -1,9 +1,9 @@
 package Puzzles.CodeWars.ParsePhoneNumber;
 
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
-import static org.junit.Assert.assertEquals;
+import static org.testng.AssertJUnit.assertEquals;
 
 public class ParseNumberTests {
     @Test

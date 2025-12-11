@@ -1,7 +1,7 @@
 package EvolutionaryNeuralNetwork;
 
 import StandardClasses.Random;
-import org.junit.jupiter.api.Test;
+import org.testng.annotations.Test;
 
 class EvolutionaryNeuralNetworkTest {
     @Test

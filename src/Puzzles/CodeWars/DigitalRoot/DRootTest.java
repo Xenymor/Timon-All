@@ -1,7 +1,9 @@
 package Puzzles.CodeWars.DigitalRoot;
 
-import org.junit.Test;
-import static org.junit.Assert.assertEquals;
+
+import org.testng.annotations.Test;
+
+import static org.testng.AssertJUnit.assertEquals;
 
 public class DRootTest {
     @Test
