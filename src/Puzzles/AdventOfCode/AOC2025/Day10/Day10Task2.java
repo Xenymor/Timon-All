@@ -17,16 +17,13 @@ public class Day10Task2 {
 
         long result = 0;
 
-        for (int i = 0; i < lines.size(); i++) {
-            System.out.println("Processing line " + (i + 1) + "/" + lines.size());
-            final String line = lines.get(i);
+        for (final String line : lines) {
             int[] targetState = parseTargetState(line);
 
             int[][] moves = parseMoves(line);
 
             result += solve(targetState, moves);
 
-            System.out.println("Current result: " + result);
         }
 
         System.out.println("Result: " + result);
