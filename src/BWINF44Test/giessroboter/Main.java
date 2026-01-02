@@ -13,17 +13,17 @@ public class Main {
     public static final String EXAMPLES_DIR = "src/BWINF44Test/giessroboter/examples/";
     public static final String EXAMPLE_START = "roboter";
     public static final String FILE_TYPE = ".txt";
-    public static final String EXAMPLE_NUM = "03";
+    public static final String EXAMPLE_NUM = "01";
     public static final String EXAMPLE = EXAMPLE_START + EXAMPLE_NUM + FILE_TYPE;
     public static final String EXAMPLE_PATH = EXAMPLES_DIR + EXAMPLE;
     public static final int EXAMPLE_COUNT = 11;
 
     public static void main() throws IOException {
-        //runExample();
+        runExample();
 
         //testAllExamples();
 
-        compareSolvers();
+        //compareSolvers();
     }
 
     private static void testAllExamples() {
@@ -56,7 +56,7 @@ public class Main {
         //problem.display(1000, 1000);
 
         long startNanos = System.nanoTime();
-        Solution estimate = PopelHeuristic.solve2(problem);
+        Solution estimate = PopelHeuristic.solve3(problem);
         System.out.println("Calculation time: " + (System.nanoTime() - startNanos)/1_000_000F + "ms");
 
         //problem.closeDisplay();
