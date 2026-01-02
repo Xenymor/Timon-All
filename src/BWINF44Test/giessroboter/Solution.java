@@ -2,10 +2,8 @@ package BWINF44Test.giessroboter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashSet;
+import java.util.*;
 import java.util.List;
-import java.util.Set;
 
 public class Solution {
     final List<List<Point>> cycles;
@@ -148,8 +146,11 @@ public class Solution {
             double totalLength = 0;
             int cycleIndex = 0;
             int currentSolutionIndex = 0;
+
+            Map<Integer, Integer> cycleSizes = new HashMap<>();
             
             for (List<Point> cycle : cycles) {
+                cycleSizes.put(cycle.size(), cycleSizes.getOrDefault(cycle.size(), 0) + 1);
                 cycleIndex++;
                 
                 // Bestimme Farbe basierend auf Teil-Solution
@@ -201,6 +202,10 @@ public class Solution {
             System.out.println("Average trees per cycle: " + (trees.size() / (float)cycles.size()));
             if (numSubSolutions > 1) {
                 System.out.println("Sub-solution boundaries: " + solutionBoundaries);
+            }
+            System.out.println("Cycle size distribution:");
+            for (Map.Entry<Integer, Integer> entry : cycleSizes.entrySet()) {
+                System.out.println("\tSize " + entry.getKey() + ": " + entry.getValue() + " cycles");
             }
             System.out.println("-------------------------------");
 

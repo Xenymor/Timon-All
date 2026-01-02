@@ -10,13 +10,13 @@ import java.util.List;
 
 public class Main {
 
+    public static final String EXAMPLE_NUM = "11";
+    public static final int EXAMPLE_COUNT = 11;
     public static final String EXAMPLES_DIR = "src/BWINF44Test/giessroboter/examples/";
     public static final String EXAMPLE_START = "roboter";
     public static final String FILE_TYPE = ".txt";
-    public static final String EXAMPLE_NUM = "01";
     public static final String EXAMPLE = EXAMPLE_START + EXAMPLE_NUM + FILE_TYPE;
     public static final String EXAMPLE_PATH = EXAMPLES_DIR + EXAMPLE;
-    public static final int EXAMPLE_COUNT = 11;
 
     public static void main() throws IOException {
         runExample();
