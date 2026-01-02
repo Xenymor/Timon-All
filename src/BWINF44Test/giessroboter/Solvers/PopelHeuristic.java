@@ -144,7 +144,7 @@ public class PopelHeuristic {
         return new Solution(convertToPoints(bestSolution, problem), problem);
     }
 
-    public static Solution solve2(Problem problem) {
+    public static Solution solve3(Problem problem) {
         List<List<Integer>> fixed = new ArrayList<>();
 
         List<List<Integer>> bestSolution = null;
@@ -217,12 +217,21 @@ public class PopelHeuristic {
                 break;
             }
 
-            List<Integer> optimizedCycle = enhanceCycle(new ArrayList<>(solution.getLast()), problem, fixed);
-            if (optimizedCycle.size() > solution.getLast().size()) {
-                fixed.add(optimizedCycle);
-            } else {
+            boolean improved = false;
+            for (int i = solution.size() - 1; i >= 0; i--) {
+                final List<Integer> originalCycle = solution.get(i);
+                List<Integer> optimizedCycle = enhanceCycle(new ArrayList<>(originalCycle), problem, fixed);
+                if (optimizedCycle.size() > originalCycle.size()) {
+                    fixed.add(optimizedCycle);
+                    improved = true;
+                    break;
+                }
+            }
+
+            if (!improved) {
                 break;
             }
+
         }
         return new Solution(convertToPoints(bestSolution, problem), problem);
     }

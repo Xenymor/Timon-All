@@ -19,11 +19,11 @@ public class Main {
     public static final int EXAMPLE_COUNT = 11;
 
     public static void main() throws IOException {
-        runExample();
+        //runExample();
 
         //testAllExamples();
 
-        //compareSolvers();
+        compareSolvers();
     }
 
     private static void testAllExamples() {
@@ -80,7 +80,7 @@ public class Main {
             try {
                 Problem problem = new Problem(Files.readAllLines(Path.of(examplePath)));
 
-                Solution solution1 = PopelHeuristic.solve(problem);
+                Solution solution1 = PopelHeuristic.solve3(problem);
                 Solution solution2 = PopelHeuristic.solve2(problem);
 
                 int cycles1 = solution1.getCycles().size();
@@ -96,7 +96,7 @@ public class Main {
                 String winner;
                 if (cycles1 < cycles2) {
                     solveBetterCount++;
-                    winner = "solve better";
+                    winner = "solve3 better";
                 } else if (cycles2 < cycles1) {
                     solve2BetterCount++;
                     winner = "solve2 better";
@@ -105,7 +105,7 @@ public class Main {
                     winner = "tied";
                 }
 
-                System.out.printf("Example %s: solve=%d Zyklen (len=%.1f), solve2=%d Zyklen (len=%.1f) -> Ratio: %.2f (%s)\n",
+                System.out.printf("Example %s: solve3=%d Zyklen (len=%.1f), solve2=%d Zyklen (len=%.1f) -> Ratio: %.2f (%s)\n",
                         exampleNum, cycles1, length1, cycles2, length2, ratioCycles, winner);
 
             } catch (IOException e) {
@@ -116,11 +116,11 @@ public class Main {
 
         System.out.println("=".repeat(80));
         System.out.println("Overview:");
-        System.out.printf("solve won:  %d times\n", solveBetterCount);
+        System.out.printf("solve3 won:  %d times\n", solveBetterCount);
         System.out.printf("solve2 won: %d times\n", solve2BetterCount);
         System.out.printf("tied:        %d times\n", equalCount);
-        System.out.printf("Average cyle ratio (solve/solve2): %.3f\n", totalRatioCycles / EXAMPLE_COUNT);
-        System.out.printf("Average length ratio (solve/solve2):  %.3f\n", totalRatioLength / EXAMPLE_COUNT);
+        System.out.printf("Average cyle ratio (solve3/solve2): %.3f\n", totalRatioCycles / EXAMPLE_COUNT);
+        System.out.printf("Average length ratio (solve3/solve2):  %.3f\n", totalRatioLength / EXAMPLE_COUNT);
         System.out.println("=".repeat(80));
     }
 
