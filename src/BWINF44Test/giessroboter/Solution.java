@@ -8,10 +8,12 @@ public class Solution {
     final List<List<Point>> cycles;
     private final List<Point> trees;
     private MyFrame frame;
+    private final int maxReach;
 
     public Solution(List<List<Point>> cycles, Problem problem) {
         this.cycles = cycles;
         this.trees = problem.trees;
+        this.maxReach = problem.maxReach;
     }
 
     public List<List<Point>> getCycles() {
@@ -69,9 +71,11 @@ public class Solution {
             }
 
             double totalLength = 0;
-
-            g.setColor(Color.GREEN);
+            int cycleIndex = 0;
             for (List<Point> cycle : cycles) {
+                cycleIndex++;
+                float xSum = 0;
+                float ySum = 0;
                 double cycleLength = 0;
                 Point prev = cycle.getLast();
                 for (Point point : cycle) {
@@ -79,12 +83,21 @@ public class Solution {
                     float y1 = scale(prev.y, minY, scaleFactor);
                     float x2 = scale(point.x, minX, scaleFactor);
                     float y2 = scale(point.y, minY, scaleFactor);
+                    g.setColor(Color.GREEN);
                     g.drawLine((int) x1, (int) y1, (int) x2, (int) y2);
+                    g.setColor(Color.black);
+                    g.drawString((int)(prev.distance(point) * 100 / maxReach) + "%", (int)((x1+x2)/2), (int)((y1+y2)/2));
                     cycleLength += prev.distance(point);
                     prev = point;
+                    xSum += x2;
+                    ySum += y2;
                 }
+                g.setColor(Color.red);
+                g.drawString((int)(cycleLength * 100 / maxReach) + "% (" + cycleIndex + ")", (int) (xSum / cycle.size()), (int) (ySum / cycle.size()));
+
                 totalLength += cycleLength;
             }
+
 
             if (painted) {
                 return;

@@ -144,6 +144,89 @@ public class PopelHeuristic {
         return new Solution(convertToPoints(bestSolution, problem), problem);
     }
 
+    public static Solution solve2(Problem problem) {
+        List<List<Integer>> fixed = new ArrayList<>();
+
+        List<List<Integer>> bestSolution = null;
+        int bestSize = Integer.MAX_VALUE;
+
+        while (true) {
+            Map<Integer, List<Integer>> possiblePairs = new HashMap<>();
+            int[] possibilityCounts = new int[problem.trees.size()];
+
+            List<Point> trees = problem.trees;
+            for (int i = 0; i < trees.size(); i++) {
+                Point first = trees.get(i);
+                for (int j = i + 1; j < trees.size(); j++) {
+                    Point second = trees.get(j);
+                    if (first.distance(second) <= 0.5 * problem.maxReach) {
+                        possiblePairs.computeIfAbsent(i, _ -> new ArrayList<>()).add(j);
+                        possiblePairs.computeIfAbsent(j, _ -> new ArrayList<>()).add(i);
+                        possibilityCounts[i]++;
+                        possibilityCounts[j]++;
+                    }
+                }
+            }
+
+            PriorityQueue<IntInt> pq = new PriorityQueue<>();
+            for (int i = 0; i < problem.trees.size(); i++) {
+                pq.add(new IntInt(possibilityCounts[i], i));
+            }
+            BitSet used = new BitSet(problem.trees.size());
+
+            int usedCount = 0;
+            List<List<Integer>> solution = new ArrayList<>();
+
+            for (List<Integer> cycle : fixed) {
+                solution.add(new ArrayList<>(cycle));
+                for (Integer treeIndex : cycle) {
+                    used.set(treeIndex);
+                    usedCount++;
+                }
+            }
+
+            while (!pq.isEmpty() && usedCount < problem.trees.size()) {
+                var entry = pq.poll();
+                int treeIndex = entry.index;
+                if (used.get(treeIndex)) {
+                    continue;
+                }
+                Point tree = problem.trees.get(treeIndex);
+                List<Integer> cycle = greedyCycle4(treeIndex, tree, problem, used);
+                for (Integer cycleTree : cycle) {
+                    if (!used.get(cycleTree)) {
+                        used.set(cycleTree);
+                        usedCount++;
+                        if (possiblePairs.containsKey(cycleTree)) {
+                            for (Integer possiblePartner : possiblePairs.get(cycleTree)) {
+                                possibilityCounts[possiblePartner]--;
+                                pq.add(new IntInt(possibilityCounts[possiblePartner], possiblePartner));
+                            }
+                        }
+                    } else {
+                        System.out.println("Alarm");
+                    }
+                }
+                solution.add(cycle);
+            }
+
+            if (solution.size() <= bestSize) {
+                bestSize = solution.size();
+                bestSolution = solution;
+            } else {
+                break;
+            }
+
+            List<Integer> optimizedCycle = enhanceCycle(new ArrayList<>(solution.getLast()), problem, fixed);
+            if (optimizedCycle.size() > solution.getLast().size()) {
+                fixed.add(optimizedCycle);
+            } else {
+                break;
+            }
+        }
+        return new Solution(convertToPoints(bestSolution, problem), problem);
+    }
+
     private static List<Integer> enhanceCycle(final List<Integer> cycle, final Problem problem, final List<List<Integer>> fixed) {
         Set<Integer> used = new HashSet<>();
         for (List<Integer> fixedCycle : fixed) {
