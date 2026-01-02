@@ -2,8 +2,7 @@ package BWINF44Test.giessroboter;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.*;
 import java.util.List;
 
 public class Problem {
@@ -13,12 +12,40 @@ public class Problem {
 
     public Problem(List<String> input) {
         maxReach = Integer.parseInt(input.getFirst());
-        List<Point> temp = new ArrayList<>(Integer.parseInt(input.get(1)));
+        trees = new ArrayList<>(Integer.parseInt(input.get(1)));
         for (int i = 2; i < input.size(); i++) {
             String[] parts = input.get(i).split(" ");
-            temp.add(new Point(Integer.parseInt(parts[1]), Integer.parseInt(parts[2])));
+            trees.add(new Point(Integer.parseInt(parts[1]), Integer.parseInt(parts[2])));
         }
-        trees = Collections.unmodifiableList(temp);
+
+        double edgeSum = 0;
+        for (Point tree : trees) {
+            double shortest = Integer.MAX_VALUE;
+            double secondShortest = Integer.MAX_VALUE;
+
+            for (Point otherTree : trees) {
+                if (tree == otherTree) {
+                    continue;
+                }
+                double dist = tree.distance(otherTree);
+                if (dist < shortest) {
+                    secondShortest = shortest;
+                    shortest = dist;
+                } else if (dist < secondShortest) {
+                    secondShortest = dist;
+                }
+            }
+
+            edgeSum += shortest + secondShortest;
+        }
+
+        //TODO remove
+        System.out.println("Edge sum: " + edgeSum + ", treeSize: " + trees.size() + ", average edge: " + (edgeSum / (2 * trees.size())));
+    }
+
+    public Problem(final int maxReach, final List<Point> trees) {
+        this.maxReach = maxReach;
+        this.trees = trees;
     }
 
     public void display(int width, int height) {
@@ -39,6 +66,48 @@ public class Problem {
             frame.dispose();
             frame = null;
         }
+    }
+
+    public List<Problem> separate() {
+        List<Problem> subProblems = new ArrayList<>();
+        int treesSorted = 0;
+        HashSet<Point> unsortedTrees = new HashSet<>(trees);
+
+        while (treesSorted < trees.size()) {
+            List<Point> subProblem = new ArrayList<>();
+            Queue<Point> toCheck = new LinkedList<>();
+
+            for (final Point curr : trees) {
+                if (unsortedTrees.contains(curr)) {
+                    toCheck.add(curr);
+                    unsortedTrees.remove(curr);
+                    subProblem.add(curr);
+                    break;
+                }
+            }
+
+            while (!toCheck.isEmpty()) {
+                Point current = toCheck.poll();
+                List<Point> buffer = new LinkedList<>();
+
+                for (Point tree : unsortedTrees) {
+                    if (current.distance(tree) <= 0.5d*maxReach) {
+                        buffer.add(tree);
+                    }
+                }
+
+                for (Point tree : buffer) {
+                    toCheck.add(tree);
+                    unsortedTrees.remove(tree);
+                    subProblem.add(tree);
+                }
+            }
+
+            treesSorted += subProblem.size();
+            subProblems.add(new Problem(maxReach, subProblem));
+        }
+
+        return subProblems;
     }
 
     private class MyFrame extends JFrame {

@@ -6,11 +6,12 @@ import java.awt.Point;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
 
-    public static final String EXAMPLE_NUM = "11";
+    public static final String EXAMPLE_NUM = "04";
     public static final int EXAMPLE_COUNT = 11;
     public static final String EXAMPLES_DIR = "src/BWINF44Test/giessroboter/examples/";
     public static final String EXAMPLE_START = "roboter";
@@ -52,15 +53,23 @@ public class Main {
 
     private static void runExample() throws IOException {
         Problem problem = new Problem(Files.readAllLines(Path.of(EXAMPLE_PATH)));
+        List<Problem> subProblems = problem.separate();
+        System.out.println("Separated into " + subProblems.size() + " sub-problems.");
+        List<Solution> subSolutions = new ArrayList<>();
 
         //problem.display(1000, 1000);
 
         long startNanos = System.nanoTime();
-        Solution estimate = PopelHeuristic.solve3(problem);
+
+        for (Problem subProblem : subProblems) {
+            Solution subSolution = PopelHeuristic.solve3(subProblem);
+            subSolutions.add(subSolution);
+        }
+
         System.out.println("Calculation time: " + (System.nanoTime() - startNanos)/1_000_000F + "ms");
 
         //problem.closeDisplay();
-        estimate.display(2000, 1300);
+        Solution.merge(subSolutions).display(2000, 1300);
     }
 
     private static void compareSolvers() {

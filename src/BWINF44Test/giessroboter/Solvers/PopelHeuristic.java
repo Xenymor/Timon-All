@@ -146,6 +146,7 @@ public class PopelHeuristic {
 
     public static Solution solve3(Problem problem) {
         List<List<Integer>> fixed = new ArrayList<>();
+        BitSet fixedTrees = new BitSet(problem.trees.size());
 
         List<List<Integer>> bestSolution = null;
         int bestSize = Integer.MAX_VALUE;
@@ -192,7 +193,9 @@ public class PopelHeuristic {
                     continue;
                 }
                 Point tree = problem.trees.get(treeIndex);
-                List<Integer> cycle = greedyCycle4(treeIndex, tree, problem, used);
+                List<Integer> cycle = new ArrayList<>();
+                cycle.add(treeIndex);
+                cycle = greedyCycle5(cycle, problem, used);
                 for (Integer cycleTree : cycle) {
                     if (!used.get(cycleTree)) {
                         used.set(cycleTree);
@@ -220,9 +223,12 @@ public class PopelHeuristic {
             boolean improved = false;
             for (int i = solution.size() - 1; i >= 0; i--) {
                 final List<Integer> originalCycle = solution.get(i);
-                List<Integer> optimizedCycle = enhanceCycle(new ArrayList<>(originalCycle), problem, fixed);
+                List<Integer> optimizedCycle = greedyCycle5(new ArrayList<>(originalCycle), problem, fixedTrees);
                 if (optimizedCycle.size() > originalCycle.size()) {
                     fixed.add(optimizedCycle);
+                    for (Integer treeIndex : optimizedCycle) {
+                        fixedTrees.set(treeIndex);
+                    }
                     improved = true;
                     break;
                 }
@@ -234,6 +240,51 @@ public class PopelHeuristic {
 
         }
         return new Solution(convertToPoints(bestSolution, problem), problem);
+    }
+
+    private static List<Integer> greedyCycle5(final List<Integer> cycle, final Problem problem, final BitSet used) {
+        BitSet localUsed = (BitSet) used.clone();
+        localUsed.set(cycle.getFirst());
+        double cycleLength = 0;
+
+        boolean alreadyOptimizedCycle = false;
+        while (true) {
+            Entry entry = null;
+            double bestLenChange = -1;
+            for (int i = 0; i < problem.trees.size(); i++) {
+                Point curr = problem.trees.get(i);
+                if (localUsed.get(i)) {
+                    continue;
+                }
+                Entry lenChange = getBestLengthChange(cycle, problem, curr, i);
+                if (entry == null || lenChange.distance < bestLenChange) {
+                    entry = lenChange;
+                    bestLenChange = lenChange.distance;
+                }
+            }
+
+            if (entry == null || cycleLength + bestLenChange > problem.maxReach) {
+                if (alreadyOptimizedCycle) {
+                    return cycle;
+                } else {
+                    alreadyOptimizedCycle = true;
+                    cycleLength = optimizeCycle(problem, cycle, cycleLength);
+                    if (cycleLength < 0) {
+                        return cycle;
+                    }
+                    continue;
+                }
+            }
+
+            alreadyOptimizedCycle = false;
+            if (entry.toIndex == cycle.size()-1) {
+                cycle.add(entry.treeIndex);
+            } else {
+                cycle.add( entry.toIndex + 1, entry.treeIndex);
+            }
+            localUsed.set(entry.treeIndex);
+            cycleLength += bestLenChange;
+        }
     }
 
     private static List<Integer> enhanceCycle(final List<Integer> cycle, final Problem problem, final List<List<Integer>> fixed) {
