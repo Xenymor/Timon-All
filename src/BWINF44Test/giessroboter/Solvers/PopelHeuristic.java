@@ -3,8 +3,9 @@ package BWINF44Test.giessroboter.Solvers;
 import BWINF44Test.giessroboter.Problem;
 import BWINF44Test.giessroboter.Solution;
 
-import java.awt.Point;
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 
 public class PopelHeuristic {
     public static Solution solve(Problem problem) {
@@ -32,7 +33,7 @@ public class PopelHeuristic {
         BitSet used = new BitSet(problem.trees.size());
 
         int usedCount = 0;
-        List<List<Integer>> solution = new ArrayList<>();
+        ArrayList<List<Integer>> solution = new ArrayList<>();
 
         while (!pq.isEmpty() && usedCount < problem.trees.size()) {
             var entry = pq.poll();
@@ -141,7 +142,7 @@ public class PopelHeuristic {
                 break;
             }
         }
-        return new Solution(convertToPoints(bestSolution, problem), problem);
+        return new Solution(convertToPoints((ArrayList<List<Integer>>) bestSolution, problem), problem);
     }
 
     public static Solution solve3(Problem problem) {
@@ -192,7 +193,6 @@ public class PopelHeuristic {
                 if (used.get(treeIndex)) {
                     continue;
                 }
-                Point tree = problem.trees.get(treeIndex);
                 List<Integer> cycle = new ArrayList<>();
                 cycle.add(treeIndex);
                 cycle = greedyCycle5(cycle, problem, used);
@@ -239,13 +239,20 @@ public class PopelHeuristic {
             }
 
         }
-        return new Solution(convertToPoints(bestSolution, problem), problem);
+        return new Solution(convertToPoints((ArrayList<List<Integer>>) bestSolution, problem), problem);
     }
 
     private static List<Integer> greedyCycle5(final List<Integer> cycle, final Problem problem, final BitSet used) {
         BitSet localUsed = (BitSet) used.clone();
-        localUsed.set(cycle.getFirst());
         double cycleLength = 0;
+        for (int i = 0; i < cycle.size(); i++) {
+            localUsed.set(cycle.get(i));
+            if (cycle.size() > 1) {
+                Point p1 = problem.trees.get(cycle.get(i));
+                Point p2 = problem.trees.get(getSuccessor(cycle, i));
+                cycleLength += p1.distance(p2);
+            }
+        }
 
         boolean alreadyOptimizedCycle = false;
         while (true) {
@@ -268,7 +275,7 @@ public class PopelHeuristic {
                     return cycle;
                 } else {
                     alreadyOptimizedCycle = true;
-                    cycleLength = optimizeCycle(problem, cycle, cycleLength);
+                    cycleLength = optimizeCycle3(problem, cycle, cycleLength);
                     if (cycleLength < 0) {
                         return cycle;
                     }
@@ -277,13 +284,87 @@ public class PopelHeuristic {
             }
 
             alreadyOptimizedCycle = false;
-            if (entry.toIndex == cycle.size()-1) {
+            if (entry.toIndex == cycle.size() - 1) {
                 cycle.add(entry.treeIndex);
             } else {
-                cycle.add( entry.toIndex + 1, entry.treeIndex);
+                cycle.add(entry.toIndex + 1, entry.treeIndex);
             }
             localUsed.set(entry.treeIndex);
             cycleLength += bestLenChange;
+        }
+    }
+
+    private static double optimizeCycle3(final Problem problem, final List<Integer> cycle, final double cycleLength) {
+        if (cycle.size() < 15) {
+            return tsp(problem, cycle, cycleLength);
+        } else {
+            return two_opt(problem, cycle, cycleLength);
+        }
+    }
+
+    private static double two_opt(final Problem problem, final List<Integer> cycle, final double cycleLength) {
+        double resultingLength = -1;
+        while (true) {
+            double bestLengthChange = Double.MAX_VALUE;
+            int bestA = 0, bestB = 0;
+
+            for (int a = 0; a < cycle.size(); a++) {
+                Point pointA = problem.trees.get(cycle.get(a));
+                Point aSucc = problem.trees.get(getSuccessor(cycle, a));
+                for (int b = a + 1; b < cycle.size(); b++) {
+                    Point pointB = problem.trees.get(cycle.get(b));
+                    Point bSucc = problem.trees.get(getSuccessor(cycle, b));
+                    double lengthChange = -pointA.distance(aSucc) - pointB.distance(bSucc) + pointA.distance(pointB) + aSucc.distance(bSucc);
+                    if (lengthChange < -0.01) {
+                        if (lengthChange < bestLengthChange) {
+                            bestLengthChange = lengthChange;
+                            bestA = a;
+                            bestB = b;
+                        }
+                    }
+                }
+            }
+
+            if (bestLengthChange < 0) {
+                swapEdges(bestA, bestB, cycle);
+                if (resultingLength < 0) {
+                    resultingLength = cycleLength;
+                }
+                resultingLength += bestLengthChange;
+            } else {
+                break;
+            }
+        }
+
+        return resultingLength;
+    }
+
+    private static Integer getSuccessor(final List<Integer> cycle, final int i) {
+        return cycle.get((i + 1) % cycle.size());
+    }
+
+    private static void swapEdges(final int a, final int b, final List<Integer> cycle) {
+        Collections.reverse(cycle.subList(a+1, b+1));
+    }
+
+    private static double tsp(final Problem problem, final List<Integer> cycle, final double cycleLength) {
+        List<Point> newCycle = TSPSolver.solve(convertToPoints(cycle, problem));
+        double newLength = 0;
+        cycle.clear();
+        for (int i = 0; i < newCycle.size(); i++) {
+            Point p1 = newCycle.get(i);
+            cycle.add(problem.trees.indexOf(p1));
+            Point p2 = newCycle.get((i + 1) % newCycle.size());
+            newLength += p1.distance(p2);
+        }
+        return newLength == cycleLength ? -1 : newLength;
+    }
+
+    private static double optimizeCycle2(final Problem problem, final List<Integer> cycle, final double cycleLength) {
+        if (cycle.size() < 15) {
+            return tsp(problem, cycle, cycleLength);
+        } else {
+            return optimizeCycle(problem, cycle, cycleLength);
         }
     }
 
@@ -298,7 +379,7 @@ public class PopelHeuristic {
 
         for (int i = 0; i < cycle.size(); i++) {
             Point p1 = problem.trees.get(cycle.get(i));
-            Point p2 = problem.trees.get(cycle.get((i + 1) % cycle.size()));
+            Point p2 = problem.trees.get(getSuccessor(cycle, i));
             cycleLength += p1.distance(p2);
         }
 
@@ -321,7 +402,7 @@ public class PopelHeuristic {
                     return cycle;
                 } else {
                     isOptimized = true;
-                    cycleLength = optimizeCycle(problem, cycle, cycleLength);
+                    cycleLength = optimizeCycle3(problem, cycle, cycleLength);
                     if (cycleLength < 0) {
                         return cycle;
                     }
@@ -330,10 +411,10 @@ public class PopelHeuristic {
             }
 
             isOptimized = false;
-            if (best.toIndex == cycle.size()-1) {
+            if (best.toIndex == cycle.size() - 1) {
                 cycle.add(best.treeIndex);
             } else {
-                cycle.add( best.toIndex + 1, best.treeIndex);
+                cycle.add(best.toIndex + 1, best.treeIndex);
             }
             used.add(best.treeIndex);
             cycleLength += best.distance;
@@ -367,7 +448,8 @@ public class PopelHeuristic {
                 if (cycleLength == 0) {
                     lengthChange = entry.distance * 2;
                 } else {
-                    lengthChange = getLengthChange(first, problem.trees.get(cycle.getLast()), newTree);
+                    final int b = cycle.getLast();
+                    lengthChange = getLengthChange(first, problem.trees.get(b), newTree);
                 }
                 if (cycleLength + lengthChange <= problem.maxReach) {
                     cycleLength += lengthChange;
@@ -406,7 +488,8 @@ public class PopelHeuristic {
                 if (localUsed.get(i)) {
                     continue;
                 }
-                double lenChange = getLengthChange(first, problem.trees.get(cycle.getLast()), curr);
+                final int b = cycle.getLast();
+                double lenChange = getLengthChange(first, problem.trees.get(b), curr);
                 if (entry == null || lenChange < bestLenChange) {
                     entry = new Entry(lenChange, i, cycle.size());
                     bestLenChange = lenChange;
@@ -449,10 +532,10 @@ public class PopelHeuristic {
                 return cycle;
             }
 
-            if (entry.toIndex == cycle.size()-1) {
+            if (entry.toIndex == cycle.size() - 1) {
                 cycle.add(entry.treeIndex);
             } else {
-                cycle.add( entry.toIndex + 1, entry.treeIndex);
+                cycle.add(entry.toIndex + 1, entry.treeIndex);
             }
             localUsed.set(entry.treeIndex);
             cycleLength += bestLenChange;
@@ -496,10 +579,10 @@ public class PopelHeuristic {
             }
 
             alreadyOptimizedCycle = false;
-            if (entry.toIndex == cycle.size()-1) {
+            if (entry.toIndex == cycle.size() - 1) {
                 cycle.add(entry.treeIndex);
             } else {
-                cycle.add( entry.toIndex + 1, entry.treeIndex);
+                cycle.add(entry.toIndex + 1, entry.treeIndex);
             }
             localUsed.set(entry.treeIndex);
             cycleLength += bestLenChange;
@@ -524,7 +607,7 @@ public class PopelHeuristic {
                 Point p1 = problem.trees.get(cycle.get(i));
                 Point p2 = problem.trees.get(a);
                 Point p3 = problem.trees.get(b);
-                Point p4 = problem.trees.get(cycle.get((i+3)%pointCount));
+                Point p4 = problem.trees.get(cycle.get((i + 3) % pointCount));
                 double lenChange = calcLenChangeForSwapMiddle(p1, p2, p3, p4);
                 if (lenChange < 0) {
                     cycle.set(aIndex, b);
@@ -546,7 +629,7 @@ public class PopelHeuristic {
         Entry best = null;
         for (int i = 0; i < cycle.size(); i++) {
             Point first = problem.trees.get(cycle.get(i));
-            Point lastTree = problem.trees.get(cycle.get((i + 1) % cycle.size()));
+            Point lastTree = problem.trees.get(getSuccessor(cycle, i));
             double lengthChange = getLengthChange(first, lastTree, curr);
             if (best == null || lengthChange < best.distance) {
                 best = new Entry(lengthChange, currIndex, i);
@@ -560,16 +643,20 @@ public class PopelHeuristic {
                 + lastTree.distance(newTree) + first.distance(newTree);
     }
 
-    private static List<List<Point>> convertToPoints(List<List<Integer>> solution, Problem problem) {
+    private static List<List<Point>> convertToPoints(ArrayList<List<Integer>> solution, Problem problem) {
         List<List<Point>> pointSolution = new ArrayList<>(solution.size());
         for (List<Integer> currList : solution) {
-            List<Point> newList = new ArrayList<>(currList.size());
-            for (Integer currIndex : currList) {
-                newList.add(problem.trees.get(currIndex));
-            }
-            pointSolution.add(newList);
+            pointSolution.add(convertToPoints(currList, problem));
         }
         return pointSolution;
+    }
+
+    private static List<Point> convertToPoints(List<Integer> cycle, Problem problem) {
+        List<Point> pointsList = new ArrayList<>(cycle.size());
+        for (Integer currIndex : cycle) {
+            pointsList.add(problem.trees.get(currIndex));
+        }
+        return pointsList;
     }
 
     private record Entry(double distance, int treeIndex, int toIndex) implements Comparable<Entry> {

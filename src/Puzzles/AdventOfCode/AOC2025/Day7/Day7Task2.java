@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public class Day7Task2 {
-    static void main() throws IOException {
+    public static void main(String[] args) throws IOException {
         List<String> lines = Files.readAllLines(Path.of("src/Puzzles/AdventOfCode/AOC2025/Day7/input.txt"));
 
         Map<Integer, Long> currStage = new HashMap<>();

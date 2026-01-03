@@ -6,3 +6,4 @@
 src/WordCoding/WordleBot/WordleBot/saveData.sav
 src/WordCoding/WordleBot/Wordle/data.txt
 src/WordCoding/WordleBot/WordleBot/guesses.txt
+*.log

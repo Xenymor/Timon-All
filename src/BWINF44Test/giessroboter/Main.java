@@ -1,6 +1,7 @@
 package BWINF44Test.giessroboter;
 
 import BWINF44Test.giessroboter.Solvers.PopelHeuristic;
+import BWINF44Test.giessroboter.Solvers.TSPSolver;
 
 import java.awt.Point;
 import java.io.IOException;
@@ -11,7 +12,7 @@ import java.util.List;
 
 public class Main {
 
-    public static final String EXAMPLE_NUM = "04";
+    public static final String EXAMPLE_NUM = "02";
     public static final int EXAMPLE_COUNT = 11;
     public static final String EXAMPLES_DIR = "src/BWINF44Test/giessroboter/examples/";
     public static final String EXAMPLE_START = "roboter";
@@ -20,9 +21,17 @@ public class Main {
     public static final String EXAMPLE_PATH = EXAMPLES_DIR + EXAMPLE;
 
     public static void main() throws IOException {
-        runExample();
+        //TODO remove
+        /*final ArrayList<Point> points = new ArrayList<>();
+        points.add(new Point(0, 0));
+        points.add(new Point(1, 3));
+        points.add(new Point(4, 3));
+        points.add(new Point(6, 1));
+        System.out.println(TSPSolver.solve(points));*/
 
-        //testAllExamples();
+        //runExample();
+
+        testAllExamples();
 
         //compareSolvers();
     }
@@ -37,7 +46,14 @@ public class Main {
 
                 System.out.println("Example " + exampleNum);
                 long startNanos = System.nanoTime();
-                Solution estimate = PopelHeuristic.solve2(problem);
+                List<Problem> subProblems = problem.separate();
+                System.out.println("Separated into " + subProblems.size() + " sub-problems.");
+                List<Solution> subSolutions = new ArrayList<>();
+                for (Problem subProblem : subProblems) {
+                    Solution subSolution = PopelHeuristic.solve3(subProblem);
+                    subSolutions.add(subSolution);
+                }
+                Solution estimate = Solution.merge(subSolutions);
                 System.out.println("Calculation time: " + (System.nanoTime() - startNanos)/1_000_000F + "ms");
                 estimate.display(1000, 1000);
                 Thread.sleep(20);
