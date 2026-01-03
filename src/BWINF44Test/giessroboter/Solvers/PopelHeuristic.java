@@ -5,17 +5,8 @@ import BWINF44Test.giessroboter.Solution;
 
 import java.awt.Point;
 import java.util.*;
-import java.io.FileWriter;
-import java.io.IOException;
 
 public class PopelHeuristic {
-    // #region agent log
-    private static void debugLog(String id, String msg, String data) {
-        try (FileWriter fw = new FileWriter("c:\\Users\\timon\\IdeaProjects\\Timon-All\\.cursor\\debug.log", true)) {
-            fw.write("{\"id\":\"" + id + "\",\"msg\":\"" + msg + "\",\"data\":" + data + ",\"ts\":" + System.currentTimeMillis() + "}\n");
-        } catch (IOException e) { }
-    }
-    // #endregion
     public static Solution solve(Problem problem) {
         Map<Integer, List<Integer>> possiblePairs = new HashMap<>();
         int[] possibilityCounts = new int[problem.trees.size()];
@@ -153,20 +144,7 @@ public class PopelHeuristic {
         return new Solution(convertToPoints((ArrayList<List<Integer>>) bestSolution, problem), problem);
     }
 
-    // #region agent log
-    private static int tspCallCount = 0;
-    private static int greedyCycle5Count = 0;
-    private static long solve3StartTime = 0;
-    // #endregion
-
     public static Solution solve3(Problem problem) {
-        // #region agent log
-        solve3StartTime = System.currentTimeMillis();
-        tspCallCount = 0;
-        greedyCycle5Count = 0;
-        debugLog("SOLVE3_START", "solve3 started", "{\"trees\":" + problem.trees.size() + "}");
-        // #endregion
-
         List<List<Integer>> fixed = new ArrayList<>();
         BitSet fixedTrees = new BitSet(problem.trees.size());
 
@@ -263,18 +241,10 @@ public class PopelHeuristic {
 
         }
 
-        // #region agent log
-        long totalMs = System.currentTimeMillis() - solve3StartTime;
-        debugLog("SOLVE3_END", "solve3 finished", "{\"cycles\":" + bestSolution.size() + ",\"tspCalls\":" + tspCallCount + ",\"greedyCalls\":" + greedyCycle5Count + ",\"totalMs\":" + totalMs + "}");
-        // #endregion
-
         return new Solution(convertToPoints((ArrayList<List<Integer>>) bestSolution, problem), problem);
     }
 
     private static List<Integer> greedyCycle5(final List<Integer> cycle, final Problem problem, final BitSet used) {
-        // #region agent log
-        greedyCycle5Count++;
-        // #endregion
         BitSet localUsed = (BitSet) used.clone();
         double cycleLength = 0;
         for (int i = 0; i < cycle.size(); i++) {
@@ -328,17 +298,7 @@ public class PopelHeuristic {
 
     private static double optimizeCycle2(final Problem problem, final List<Integer> cycle, final double cycleLength) {
         if (cycle.size() < 15) {
-            // #region agent log
-            tspCallCount++;
-            long tspStart = System.nanoTime();
-            // #endregion
             List<Point> newCycle = TSPSolver.solve(convertToPoints(cycle, problem));
-            // #region agent log
-            long tspEnd = System.nanoTime();
-            if (tspCallCount <= 20 || tspCallCount % 1000 == 0) {
-                debugLog("TSP", "tsp call", "{\"num\":" + tspCallCount + ",\"size\":" + cycle.size() + ",\"ms\":" + ((tspEnd - tspStart) / 1_000_000.0) + "}");
-            }
-            // #endregion
             double newLength = 0;
             cycle.clear();
             for (int i = 0; i < newCycle.size(); i++) {
@@ -407,17 +367,7 @@ public class PopelHeuristic {
     }
 
     private static double tsp(final Problem problem, final List<Integer> cycle, final double cycleLength) {
-        // #region agent log
-        tspCallCount++;
-        long tspStart = System.nanoTime();
-        // #endregion
         List<Point> newCycle = TSPSolver.solve(convertToPoints(cycle, problem));
-        // #region agent log
-        long tspEnd = System.nanoTime();
-        if (tspCallCount <= 20 || tspCallCount % 1000 == 0) {
-            debugLog("TSP", "tsp call", "{\"num\":" + tspCallCount + ",\"size\":" + cycle.size() + ",\"ms\":" + ((tspEnd - tspStart) / 1_000_000.0) + "}");
-        }
-        // #endregion
         if (newCycle.size() != cycle.size()) {
             throw new RuntimeException("TSP returned different size cycle");
         }
