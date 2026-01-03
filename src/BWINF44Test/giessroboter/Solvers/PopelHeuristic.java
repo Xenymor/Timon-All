@@ -153,6 +153,8 @@ public class PopelHeuristic {
         int bestSize = Integer.MAX_VALUE;
 
         while (true) {
+            System.out.println("Creating new Cycles (" + fixedTrees.cardinality() + "/" + problem.trees.size() + " fixed)");
+
             Map<Integer, List<Integer>> possiblePairs = new HashMap<>();
             int[] possibilityCounts = new int[problem.trees.size()];
 
