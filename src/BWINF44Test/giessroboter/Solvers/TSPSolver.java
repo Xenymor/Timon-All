@@ -26,17 +26,22 @@ public class TSPSolver {
         if (points == null || points.isEmpty()) {
             return new ArrayList<>();
         }
-        if (points.size() == 1 || points.size() == 2 || points.size() == 3) {
+
+        final int n = points.size();
+
+        if (n == 1 || n == 2 || n == 3) {
             return new ArrayList<>(points);
         }
 
-        int n = points.size();
-
         // Backtracking für kleine Instanzen (schneller als Choco-Solver)
-        if (n <= 10) {
+        if (n <= 12) {
             return solveBruteForce(points);
         }
 
+        return solveILP(points, n);
+    }
+
+    private static List<Point> solveILP(final List<Point> points, final int n) {
         // Choco-Solver für größere Instanzen
         // Distanzmatrix berechnen (skaliert auf int für Choco)
         int[][] distanceMatrix = computeDistanceMatrix(points);
@@ -54,7 +59,7 @@ public class TSPSolver {
         // Kantenlängen-Variablen für die Zielfunktion
         IntVar[] edgeCosts = new IntVar[n];
         int maxDist = getMaxDistance(distanceMatrix);
-        
+
         for (int i = 0; i < n; i++) {
             // edgeCosts[i] = distanceMatrix[i][successor[i]]
             edgeCosts[i] = model.intVar("cost_" + i, 0, maxDist);
