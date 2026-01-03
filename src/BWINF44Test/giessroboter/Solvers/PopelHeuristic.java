@@ -3,11 +3,19 @@ package BWINF44Test.giessroboter.Solvers;
 import BWINF44Test.giessroboter.Problem;
 import BWINF44Test.giessroboter.Solution;
 
-import java.awt.*;
+import java.awt.Point;
 import java.util.*;
-import java.util.List;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class PopelHeuristic {
+    // #region agent log
+    private static void debugLog(String id, String msg, String data) {
+        try (FileWriter fw = new FileWriter("c:\\Users\\timon\\IdeaProjects\\Timon-All\\.cursor\\debug.log", true)) {
+            fw.write("{\"id\":\"" + id + "\",\"msg\":\"" + msg + "\",\"data\":" + data + ",\"ts\":" + System.currentTimeMillis() + "}\n");
+        } catch (IOException e) { }
+    }
+    // #endregion
     public static Solution solve(Problem problem) {
         Map<Integer, List<Integer>> possiblePairs = new HashMap<>();
         int[] possibilityCounts = new int[problem.trees.size()];
@@ -145,31 +153,44 @@ public class PopelHeuristic {
         return new Solution(convertToPoints((ArrayList<List<Integer>>) bestSolution, problem), problem);
     }
 
+    // #region agent log
+    private static int tspCallCount = 0;
+    private static int greedyCycle5Count = 0;
+    private static long solve3StartTime = 0;
+    // #endregion
+
     public static Solution solve3(Problem problem) {
+        // #region agent log
+        solve3StartTime = System.currentTimeMillis();
+        tspCallCount = 0;
+        greedyCycle5Count = 0;
+        debugLog("SOLVE3_START", "solve3 started", "{\"trees\":" + problem.trees.size() + "}");
+        // #endregion
+
         List<List<Integer>> fixed = new ArrayList<>();
         BitSet fixedTrees = new BitSet(problem.trees.size());
 
         List<List<Integer>> bestSolution = null;
         int bestSize = Integer.MAX_VALUE;
 
-        while (true) {
-            System.out.println("Creating new Cycles (" + fixedTrees.cardinality() + "/" + problem.trees.size() + " fixed)");
+        Map<Integer, List<Integer>> possiblePairs = new HashMap<>();
+        List<Point> trees = problem.trees;
+        int[] possibilityCounts = new int[problem.trees.size()];
 
-            Map<Integer, List<Integer>> possiblePairs = new HashMap<>();
-            int[] possibilityCounts = new int[problem.trees.size()];
-
-            List<Point> trees = problem.trees;
-            for (int i = 0; i < trees.size(); i++) {
-                Point first = trees.get(i);
-                for (int j = i + 1; j < trees.size(); j++) {
-                    Point second = trees.get(j);
-                    if (first.distance(second) <= 0.5 * problem.maxReach) {
-                        possiblePairs.computeIfAbsent(i, _ -> new ArrayList<>()).add(j);
-                        possiblePairs.computeIfAbsent(j, _ -> new ArrayList<>()).add(i);
-                        possibilityCounts[i]++;
-                        possibilityCounts[j]++;
-                    }
+        for (int i = 0; i < trees.size(); i++) {
+            Point first = trees.get(i);
+            for (int j = i + 1; j < trees.size(); j++) {
+                Point second = trees.get(j);
+                if (first.distance(second) <= 0.5 * problem.maxReach) {
+                    possiblePairs.computeIfAbsent(i, _ -> new ArrayList<>()).add(j);
+                    possiblePairs.computeIfAbsent(j, _ -> new ArrayList<>()).add(i);
                 }
+            }
+        }
+
+        while (true) {
+            for (int i = 0; i < trees.size(); i++) {
+                possibilityCounts[i] = possiblePairs.getOrDefault(i, Collections.emptyList()).size();
             }
 
             PriorityQueue<IntInt> pq = new PriorityQueue<>();
@@ -241,10 +262,19 @@ public class PopelHeuristic {
             }
 
         }
+
+        // #region agent log
+        long totalMs = System.currentTimeMillis() - solve3StartTime;
+        debugLog("SOLVE3_END", "solve3 finished", "{\"cycles\":" + bestSolution.size() + ",\"tspCalls\":" + tspCallCount + ",\"greedyCalls\":" + greedyCycle5Count + ",\"totalMs\":" + totalMs + "}");
+        // #endregion
+
         return new Solution(convertToPoints((ArrayList<List<Integer>>) bestSolution, problem), problem);
     }
 
     private static List<Integer> greedyCycle5(final List<Integer> cycle, final Problem problem, final BitSet used) {
+        // #region agent log
+        greedyCycle5Count++;
+        // #endregion
         BitSet localUsed = (BitSet) used.clone();
         double cycleLength = 0;
         for (int i = 0; i < cycle.size(); i++) {
@@ -293,6 +323,33 @@ public class PopelHeuristic {
             }
             localUsed.set(entry.treeIndex);
             cycleLength += bestLenChange;
+        }
+    }
+
+    private static double optimizeCycle2(final Problem problem, final List<Integer> cycle, final double cycleLength) {
+        if (cycle.size() < 15) {
+            // #region agent log
+            tspCallCount++;
+            long tspStart = System.nanoTime();
+            // #endregion
+            List<Point> newCycle = TSPSolver.solve(convertToPoints(cycle, problem));
+            // #region agent log
+            long tspEnd = System.nanoTime();
+            if (tspCallCount <= 20 || tspCallCount % 1000 == 0) {
+                debugLog("TSP", "tsp call", "{\"num\":" + tspCallCount + ",\"size\":" + cycle.size() + ",\"ms\":" + ((tspEnd - tspStart) / 1_000_000.0) + "}");
+            }
+            // #endregion
+            double newLength = 0;
+            cycle.clear();
+            for (int i = 0; i < newCycle.size(); i++) {
+                Point p1 = newCycle.get(i);
+                cycle.add(problem.trees.indexOf(p1));
+                Point p2 = newCycle.get((i + 1) % newCycle.size());
+                newLength += p1.distance(p2);
+            }
+            return newLength == cycleLength ? -1 : newLength;
+        } else {
+            return optimizeCycle(problem, cycle, cycleLength);
         }
     }
 
@@ -350,7 +407,20 @@ public class PopelHeuristic {
     }
 
     private static double tsp(final Problem problem, final List<Integer> cycle, final double cycleLength) {
+        // #region agent log
+        tspCallCount++;
+        long tspStart = System.nanoTime();
+        // #endregion
         List<Point> newCycle = TSPSolver.solve(convertToPoints(cycle, problem));
+        // #region agent log
+        long tspEnd = System.nanoTime();
+        if (tspCallCount <= 20 || tspCallCount % 1000 == 0) {
+            debugLog("TSP", "tsp call", "{\"num\":" + tspCallCount + ",\"size\":" + cycle.size() + ",\"ms\":" + ((tspEnd - tspStart) / 1_000_000.0) + "}");
+        }
+        // #endregion
+        if (newCycle.size() != cycle.size()) {
+            throw new RuntimeException("TSP returned different size cycle");
+        }
         double newLength = 0;
         cycle.clear();
         for (int i = 0; i < newCycle.size(); i++) {
@@ -360,14 +430,6 @@ public class PopelHeuristic {
             newLength += p1.distance(p2);
         }
         return newLength == cycleLength ? -1 : newLength;
-    }
-
-    private static double optimizeCycle2(final Problem problem, final List<Integer> cycle, final double cycleLength) {
-        if (cycle.size() < 15) {
-            return tsp(problem, cycle, cycleLength);
-        } else {
-            return optimizeCycle(problem, cycle, cycleLength);
-        }
     }
 
     private static List<Integer> enhanceCycle(final List<Integer> cycle, final Problem problem, final List<List<Integer>> fixed) {
@@ -381,7 +443,7 @@ public class PopelHeuristic {
 
         for (int i = 0; i < cycle.size(); i++) {
             Point p1 = problem.trees.get(cycle.get(i));
-            Point p2 = problem.trees.get(getSuccessor(cycle, i));
+            Point p2 = problem.trees.get(cycle.get((i + 1) % cycle.size()));
             cycleLength += p1.distance(p2);
         }
 
@@ -404,7 +466,7 @@ public class PopelHeuristic {
                     return cycle;
                 } else {
                     isOptimized = true;
-                    cycleLength = optimizeCycle3(problem, cycle, cycleLength);
+                    cycleLength = optimizeCycle(problem, cycle, cycleLength);
                     if (cycleLength < 0) {
                         return cycle;
                     }
@@ -450,8 +512,7 @@ public class PopelHeuristic {
                 if (cycleLength == 0) {
                     lengthChange = entry.distance * 2;
                 } else {
-                    final int b = cycle.getLast();
-                    lengthChange = getLengthChange(first, problem.trees.get(b), newTree);
+                    lengthChange = getLengthChange(first, problem.trees.get(cycle.getLast()), newTree);
                 }
                 if (cycleLength + lengthChange <= problem.maxReach) {
                     cycleLength += lengthChange;
@@ -490,8 +551,7 @@ public class PopelHeuristic {
                 if (localUsed.get(i)) {
                     continue;
                 }
-                final int b = cycle.getLast();
-                double lenChange = getLengthChange(first, problem.trees.get(b), curr);
+                double lenChange = getLengthChange(first, problem.trees.get(cycle.getLast()), curr);
                 if (entry == null || lenChange < bestLenChange) {
                     entry = new Entry(lenChange, i, cycle.size());
                     bestLenChange = lenChange;
@@ -631,7 +691,7 @@ public class PopelHeuristic {
         Entry best = null;
         for (int i = 0; i < cycle.size(); i++) {
             Point first = problem.trees.get(cycle.get(i));
-            Point lastTree = problem.trees.get(getSuccessor(cycle, i));
+            Point lastTree = problem.trees.get(cycle.get((i + 1) % cycle.size()));
             double lengthChange = getLengthChange(first, lastTree, curr);
             if (best == null || lengthChange < best.distance) {
                 best = new Entry(lengthChange, currIndex, i);

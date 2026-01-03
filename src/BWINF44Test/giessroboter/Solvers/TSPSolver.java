@@ -26,15 +26,18 @@ public class TSPSolver {
         if (points == null || points.isEmpty()) {
             return new ArrayList<>();
         }
-        if (points.size() == 1) {
-            return new ArrayList<>(points);
-        }
-        if (points.size() == 2) {
+        if (points.size() == 1 || points.size() == 2 || points.size() == 3) {
             return new ArrayList<>(points);
         }
 
         int n = points.size();
 
+        // Backtracking für kleine Instanzen (schneller als Choco-Solver)
+        if (n <= 10) {
+            return solveBruteForce(points);
+        }
+
+        // Choco-Solver für größere Instanzen
         // Distanzmatrix berechnen (skaliert auf int für Choco)
         int[][] distanceMatrix = computeDistanceMatrix(points);
 
@@ -130,5 +133,70 @@ public class TSPSolver {
         }
 
         return tour;
+    }
+
+    /**
+     * Löst TSP mit Backtracking und Pruning für kleine Instanzen.
+     * Schneller als Choco-Solver für n <= 10.
+     */
+    private static List<Point> solveBruteForce(List<Point> points) {
+        int n = points.size();
+        boolean[] visited = new boolean[n];
+        List<Integer> currentTour = new ArrayList<>();
+        List<Integer> bestTour = new ArrayList<>();
+
+        // Starte bei Punkt 0 (symmetrisches TSP - Startpunkt egal)
+        visited[0] = true;
+        currentTour.add(0);
+        backtrack(points, visited, currentTour, 0.0, Double.MAX_VALUE, bestTour);
+
+        // Konvertiere Indizes zurück zu Punkten
+        return bestTour.stream().map(points::get).toList();
+    }
+
+    /**
+     * Rekursives Backtracking mit Pruning.
+     * Bricht ab, wenn aktuelle Teiltour bereits länger als beste gefundene Tour.
+     *
+     * @return Die beste gefundene Tourlänge
+     */
+    private static double backtrack(List<Point> points, boolean[] visited,
+                                    List<Integer> currentTour, double currentLength,
+                                    double bestLength, List<Integer> bestTour) {
+        // PRUNING: Abbrechen wenn bereits zu lang
+        if (currentLength >= bestLength) {
+            return bestLength;
+        }
+
+        // Vollständige Tour gefunden
+        if (currentTour.size() == points.size()) {
+            double totalLength = currentLength +
+                    points.get(currentTour.getLast()).distance(points.get(currentTour.getFirst()));
+            if (totalLength < bestLength) {
+                bestTour.clear();
+                bestTour.addAll(currentTour);
+                return totalLength;  // Neue beste Länge zurückgeben
+            }
+            return bestLength;
+        }
+
+        // Rekursiv alle unbesuchten Punkte probieren
+        for (int i = 0; i < points.size(); i++) {
+            if (!visited[i]) {
+                visited[i] = true;
+                double newLength = currentLength;
+                if (!currentTour.isEmpty()) {
+                    newLength += points.get(currentTour.getLast()).distance(points.get(i));
+                }
+                currentTour.add(i);
+
+                // Aktualisierte beste Länge aus Rekursion übernehmen
+                bestLength = backtrack(points, visited, currentTour, newLength, bestLength, bestTour);
+
+                currentTour.removeLast();
+                visited[i] = false;
+            }
+        }
+        return bestLength;
     }
 }

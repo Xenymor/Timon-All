@@ -1,9 +1,10 @@
 package BWINF44Test.giessroboter;
 
 import BWINF44Test.giessroboter.Solvers.PopelHeuristic;
-import BWINF44Test.giessroboter.Solvers.TSPSolver;
 
-import java.awt.Point;
+import javax.sound.sampled.*;
+import java.awt.*;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -12,7 +13,7 @@ import java.util.List;
 
 public class Main {
 
-    public static final String EXAMPLE_NUM = "02";
+    public static final String EXAMPLE_NUM = "08";
     public static final int EXAMPLE_COUNT = 11;
     public static final String EXAMPLES_DIR = "src/BWINF44Test/giessroboter/examples/";
     public static final String EXAMPLE_START = "roboter";
@@ -21,19 +22,31 @@ public class Main {
     public static final String EXAMPLE_PATH = EXAMPLES_DIR + EXAMPLE;
 
     public static void main() throws IOException {
-        //TODO remove
-        /*final ArrayList<Point> points = new ArrayList<>();
-        points.add(new Point(0, 0));
-        points.add(new Point(1, 3));
-        points.add(new Point(4, 3));
-        points.add(new Point(6, 1));
-        System.out.println(TSPSolver.solve(points));*/
+        runExample();
 
-        //runExample();
-
-        testAllExamples();
+        //testAllExamples();
 
         //compareSolvers();
+
+        playSound();
+    }
+
+    private static void playSound() {
+        try {
+            File soundFile = new File("src/BWINF44Test/giessroboter/" + "finishSound.wav");
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(soundFile);
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+
+            // Warten bis der Sound fertig ist
+            Thread.sleep(clip.getMicrosecondLength() / 1000);
+
+            clip.close();
+            audioIn.close();
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException | InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void testAllExamples() {
@@ -54,7 +67,7 @@ public class Main {
                     subSolutions.add(subSolution);
                 }
                 Solution estimate = Solution.merge(subSolutions);
-                System.out.println("Calculation time: " + (System.nanoTime() - startNanos)/1_000_000F + "ms");
+                System.out.println("Calculation time: " + (System.nanoTime() - startNanos) / 1_000_000F + "ms");
                 estimate.display(1000, 1000);
                 Thread.sleep(20);
                 estimate.closeDisplay();
@@ -82,7 +95,7 @@ public class Main {
             subSolutions.add(subSolution);
         }
 
-        System.out.println("Calculation time: " + (System.nanoTime() - startNanos)/1_000_000F + "ms");
+        System.out.println("Calculation time: " + (System.nanoTime() - startNanos) / 1_000_000F + "ms");
 
         //problem.closeDisplay();
         Solution.merge(subSolutions).display(2000, 1300);
