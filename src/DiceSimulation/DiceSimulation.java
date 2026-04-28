@@ -28,13 +28,17 @@ public class DiceSimulation {
             distribution1.keySet().stream().max(Integer::compareTo).orElse(0),
             distribution2.keySet().stream().max(Integer::compareTo).orElse(0)
         );
+        int globalMaxCount = Math.max(
+            distribution1.values().stream().mapToInt(Integer::intValue).max().orElse(1),
+            distribution2.values().stream().mapToInt(Integer::intValue).max().orElse(1)
+        );
 
         JFrame frame = new JFrame("Dice Distribution");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLayout(new GridLayout(2, 1));
 
-        frame.add(new BarChartPanel(distribution1, "Konfiguration 1", min, max));
-        frame.add(new BarChartPanel(distribution2, "Konfiguration 2", min, max));
+        frame.add(new BarChartPanel(distribution1, "Konfiguration 1", min, max, globalMaxCount, TRIAL_COUNT));
+        frame.add(new BarChartPanel(distribution2, "Konfiguration 2", min, max, globalMaxCount, TRIAL_COUNT));
 
         frame.setSize(900, 700);
         frame.setLocationRelativeTo(null);

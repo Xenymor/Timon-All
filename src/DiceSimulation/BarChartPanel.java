@@ -14,14 +14,18 @@ public class BarChartPanel extends JPanel {
     private final String title;
     private final int globalMin;
     private final int globalMax;
+    private final int globalMaxCount;
+    private final int trialCount;
     private static final int PADDING = 50;
     private static final Color BAR_COLOR = new Color(70, 130, 180);
 
-    public BarChartPanel(Map<Integer, Integer> distribution, String title, int globalMin, int globalMax) {
+    public BarChartPanel(Map<Integer, Integer> distribution, String title, int globalMin, int globalMax, int globalMaxCount, int trialCount) {
         this.distribution = new HashMap<>(distribution);
         this.title = title;
         this.globalMin = globalMin;
         this.globalMax = globalMax;
+        this.globalMaxCount = globalMaxCount;
+        this.trialCount = trialCount;
         setBackground(Color.WHITE);
     }
 
@@ -38,7 +42,6 @@ public class BarChartPanel extends JPanel {
         int chartWidth = width - 2 * PADDING;
         int chartHeight = height - 2 * PADDING - 20;
 
-        int maxCount = distribution.values().stream().mapToInt(Integer::intValue).max().orElse(1);
         int globalRange = globalMax - globalMin + 1;
         int barWidth = Math.max(1, chartWidth / globalRange - 2);
 
@@ -70,7 +73,7 @@ public class BarChartPanel extends JPanel {
             int value = entry.getKey();
             int count = entry.getValue();
 
-            int barHeight = (int) ((double) count / maxCount * chartHeight);
+            int barHeight = (int) ((double) count / globalMaxCount * chartHeight);
             int slotIndex = value - globalMin;
             int x = PADDING + slotIndex * (chartWidth / globalRange) + (chartWidth / globalRange - barWidth) / 2;
             int y = chartTop + chartHeight - barHeight;
@@ -98,8 +101,9 @@ public class BarChartPanel extends JPanel {
         // Y-axis labels
         g2.setColor(Color.GRAY);
         g2.setFont(new Font("Arial", Font.PLAIN, 10));
-        g2.drawString("100%", 15, chartTop + 5);
-        g2.drawString("50%", 15, chartTop + chartHeight / 2);
+        double maxPercent = (double) globalMaxCount / trialCount * 100;
+        g2.drawString(String.format("%.1f%%", maxPercent), 5, chartTop + 5);
+        g2.drawString(String.format("%.1f%%", maxPercent / 2), 5, chartTop + chartHeight / 2);
         g2.drawString("0%", 15, chartTop + chartHeight);
     }
 
