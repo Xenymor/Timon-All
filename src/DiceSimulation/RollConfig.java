@@ -11,6 +11,9 @@ public class RollConfig {
     public RollConfig(String s) {
         dice = new ArrayList<>();
 
+        if (s.isEmpty()) {
+            return;
+        }
         if (s.charAt(s.length()-1) != '.') {
             s += ".";
         }
